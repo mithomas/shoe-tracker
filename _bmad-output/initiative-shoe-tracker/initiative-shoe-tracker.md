@@ -27,6 +27,7 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - R5: Map view displays interactive geographical markers for recorded shoe sightings indefinitely, using a distinct marker color for user's own shoes and an option to toggle visibility of other users' shoes.
 - R6: Backend exposes a lean REST API under `/api/v1/sightings` for creating and querying sightings.
 - R7: Interface enforces a mandatory cooldown period (e.g., 3-5 seconds) after logging a sighting to prevent accidental duplicate taps.
+- R8: Spot screen displays a live map in the upper half of the screen showing current user position centered and updating in real-time, with the spot button positioned in the lower half.
 
 ## Constraints
 
@@ -42,6 +43,7 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - Browser actively monitors geolocation in the background so tapping the main button records coordinates with zero acquisition lag.
 - Mandatory cooldown engages immediately after tap, blocking duplicate entries for the duration.
 - Sighting record persists to SQLite with timestamp, coordinates, and user name.
+- Spot screen displays a live current-location map in the upper half of the viewport above the spot button.
 - List view renders saved sightings with distinct styling for own shoes and a toggle to hide others.
 - Map view renders markers with distinct color for own shoes and an option to toggle visibility of other users' shoes.
 - The Quarkus container builds, starts, and serves both the frontend web app and the backend API with SQLite persistence.

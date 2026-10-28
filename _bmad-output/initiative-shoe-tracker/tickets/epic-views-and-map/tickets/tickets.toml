@@ -1,0 +1,56 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Tab navigation and spot screen split layout with live mini-map"
+description = "Adds 3 bottom tabs (Spot, Map, List) and splits Spot screen into upper 50% live tracking Leaflet map and lower 50% spot button."
+verify = "Spot screen displays live Leaflet map tracking GPS position above the 210px spot button, and bottom tabs switch views cleanly."
+covers = ["R8"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Full interactive map view with distinct sighting markers"
+description = "Builds full Map tab with Leaflet/OSM displaying all sightings from API with signal-blue markers for own shoes and detail popups."
+verify = "Map tab renders all sightings from GET /api/v1/sightings with distinct marker colors and interactive detail popups."
+covers = ["R5"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Chronological historical sightings list view"
+description = "Builds List tab rendering chronological sighting cards with recorder name, local timestamp, and 'My Sighting' badge."
+verify = "List tab displays all sightings in descending chronological order with distinct visual styling for own shoes."
+covers = ["R4"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Unified filter toggle for own shoes"
+description = "Adds segmented toggle pill ('All Shoes' / 'My Shoes') to Map and List views to filter out other users' sightings."
+verify = "Toggling 'My Shoes' filters map markers and list rows to only sightings matching active user_id."
+covers = ["R4", "R5"]
+after = [2, 3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Audits Leaflet lifecycle, verifies map tile rendering on resize, and ensures all automated tests pass."
+verify = "All integration and asset tests pass cleanly and map transitions operate with zero visual glitches."
+covers = ["R4", "R5", "R8"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"
