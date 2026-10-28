@@ -435,6 +435,19 @@ pre {
   font-family: ui-monospace, monospace;
 }
 
+.modal-detail-row .val.coords-val {
+  text-align: right;
+  line-height: 1.4;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 24px 0 16px 0;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 0.05em;
+}
+
 .modal-actions {
   display: flex;
   gap: 12px;

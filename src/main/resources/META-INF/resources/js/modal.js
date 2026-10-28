@@ -44,13 +44,13 @@
     showSighting(sighting) {
       if (!this.modalEl) return;
       this.currentSighting = sighting;
-      const { formatLocation } = window.ShoeTracker;
+      const { formatLocationMultiline } = window.ShoeTracker;
 
-      const locStr = formatLocation(sighting.location.latitude, sighting.location.longitude);
+      const locHtml = formatLocationMultiline(sighting.location.latitude, sighting.location.longitude);
       const recDate = new Date(sighting.recorded_at);
       const timeStr = recDate.toLocaleTimeString();
 
-      if (this.coordsEl) this.coordsEl.textContent = locStr;
+      if (this.coordsEl) this.coordsEl.innerHTML = locHtml;
       if (this.timeEl) this.timeEl.textContent = timeStr;
       if (this.userIdEl) this.userIdEl.textContent = sighting.user ? sighting.user.id : (sighting.user_id || 'You');
 

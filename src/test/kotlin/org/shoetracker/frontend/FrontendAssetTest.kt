@@ -29,6 +29,9 @@ class FrontendAssetTest {
             .body(containsString("cooldownRingProgress"))
             .body(containsString("btnSightingUndo"))
             .body(containsString("networkAlertBanner"))
+            .body(containsString("coords-val"))
+            .body(containsString("app-footer"))
+            .body(containsString("v1.0.0"))
     }
 
     @Test
@@ -42,6 +45,8 @@ class FrontendAssetTest {
             .body(containsString("btn-spot-giant"))
             .body(containsString("cooldown-ring"))
             .body(containsString("btn-modal-tertiary"))
+            .body(containsString("coords-val"))
+            .body(containsString("app-footer"))
 
         given()
             .`when`()
@@ -49,6 +54,7 @@ class FrontendAssetTest {
             .then()
             .statusCode(200)
             .body(containsString("formatCoordinate"))
+            .body(containsString("formatLocationMultiline"))
             .body(containsString("60.000"))
 
         given()

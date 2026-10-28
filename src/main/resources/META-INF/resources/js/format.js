@@ -28,7 +28,12 @@ function formatLocation(lat, lon) {
   return `${formatCoordinate(lat, true)} / ${formatCoordinate(lon, false)}`;
 }
 
+function formatLocationMultiline(lat, lon) {
+  return `${formatCoordinate(lat, true)}<br>${formatCoordinate(lon, false)}`;
+}
+
 // Expose globally for script tag access
 window.ShoeTracker = window.ShoeTracker || {};
 window.ShoeTracker.formatCoordinate = formatCoordinate;
 window.ShoeTracker.formatLocation = formatLocation;
+window.ShoeTracker.formatLocationMultiline = formatLocationMultiline;
