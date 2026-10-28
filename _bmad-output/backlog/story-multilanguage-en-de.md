@@ -21,7 +21,7 @@ Adds internationalization (i18n) support for German (`de`) and English (`en`), e
 - User interface supports switching between German (`de`) and English (`en`).
 - Detects browser language preference (`navigator.language`) by default.
 - German localization includes terminology:
-  - "SHOE SPOTTED!" -> "SCHUH GESICHTET!"
+  - "SHOE SPOTTED!" -> "SCHUH!" (button and modal title)
   - "GPS Ready" -> "GPS Bereit"
   - "Waiting for GPS..." -> "Warte auf GPS..."
   - "GPS Denied" -> "GPS Verweigert"
