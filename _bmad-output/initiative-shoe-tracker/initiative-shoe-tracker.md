@@ -36,6 +36,11 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - C3: Persistence in SQLite database.
 - C4: Packaged and hosted as a single container serving both Quarkus backend and frontend assets.
 - C5: Mobile-first responsive UI optimized for quick single-tap action.
+- C6: Spot screen mini-map must operate in locked HUD radar mode (touch dragging, pinching, and keyboard navigation strictly disabled; fixed zoom ~15 auto-centered on GPS position) with height constrained (max 35vh) to guarantee the 210px Spot Button never scrolls off-screen.
+
+## Conventions
+
+- GPS Coordinate Notation: All user-facing coordinates must be rendered in standard navigational notation: `N XX° MM,MMM' / E XXX° MM,MMM'` (comma decimal separator, 2-digit lat / 3-digit lon degrees, minute zero-padding, and 60.000-minute mathematical rollover protection). In confirmation modal, coordinates render right-aligned across two lines.
 
 ## Done when
 

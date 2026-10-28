@@ -8,7 +8,7 @@ scope: 'initiative-shoe-tracker'
 status: final
 created: '2026-10-28'
 updated: '2026-10-28'
-binds: ["R1", "R2", "R4", "R5", "R6", "R7", "C1", "C2", "C3", "C4", "C5"]
+binds: ["R1", "R2", "R4", "R5", "R6", "R7", "R8", "C1", "C2", "C3", "C4", "C5", "C6"]
 sources: ["_bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md"]
 ---
 
@@ -70,9 +70,15 @@ graph LR
 
 ### AD-6 - Client Geolocation Watcher, Cooldown and Identity Scoping [ADOPTED]
 
-- **Binds:** `R1`, `R2`, `R4`, `R5`, `R7`, `C5`
-- **Prevents:** GPS satellite acquisition lag during high-speed travel, accidental duplicate tap submissions, and losing track of user's own sightings.
-- **Rule:** The client app must prompt for the user's name on first launch and retain it in `localStorage` as `user_id`. The browser must maintain an active background `navigator.geolocation.watchPosition` loop with `enableHighAccuracy: true` so the latest fix is held hot in memory. Tapping the record button must immediately submit the hot coordinates and engage a 3-5 second client-side cooldown lock. Map markers and list items matching the local `user_id` must render with the user's distinct own-shoes styling, and the interface must provide a toggle to hide records with non-matching `user_id`.
+- **Binds:** `R1`, `R2`, `R4`, `R5`, `R7`, `R8`, `C5`, `C6`
+- **Prevents:** GPS satellite acquisition lag during high-speed travel, accidental duplicate tap submissions, losing track of user's own sightings, and mobile battery drain from background tile requests.
+- **Rule:** The client app must prompt for the user's name on first launch and retain it in `localStorage` as `user_id`. The browser must maintain an active background `navigator.geolocation.watchPosition` loop with `enableHighAccuracy: true` so the latest fix is held hot in memory. Tapping the record button must immediately submit the hot coordinates and engage a 3-5 second client-side cooldown lock. Map markers and list items matching the local `user_id` must render with the user's distinct own-shoes styling, and the interface must provide a toggle to hide records with non-matching `user_id`. The Spot screen mini-map must operate in locked HUD radar mode with touch dragging disabled and height constrained (max 35vh) to guarantee the 210px Spot Button never scrolls off-screen. Tab lifecycle management must pause mini-map render updates and tile fetches whenever the Spot tab is inactive, and invoke `map.invalidateSize()` immediately upon tab activation.
+
+### AD-7 - Map Query Scale and Bounding-Box Strategy [ADOPTED]
+
+- **Binds:** `R5`, `AD-4`
+- **Prevents:** Mobile main-thread rendering freezes, excessive GeoJSON serialization overhead, and API memory exhaustion when large numbers of sightings exist.
+- **Rule:** For the MVP, the client map view queries the most recent sightings up to the API pagination maximum (`limit=500`, default 100) ordered chronologically descending (`recorded_at DESC`). Server-side spatial viewport bounding-box culling (`bbox=minLon,minLat,maxLon,maxLat`) and marker clustering libraries are deferred to the backlog until sighting density requires viewport pruning.
 
 ## Consistency Conventions
 
