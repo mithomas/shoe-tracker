@@ -37,6 +37,11 @@ class FrontendAssetTest {
             .body(containsString("viewSpot"))
             .body(containsString("viewMap"))
             .body(containsString("viewList"))
+            .body(containsString("fullMap"))
+            .body(containsString("fullMapContainer"))
+            .body(containsString("fullMapLoading"))
+            .body(containsString("fullMapEmpty"))
+            .body(containsString("full-map-wrapper"))
             .body(containsString("/vendor/leaflet/leaflet.css"))
     }
 
@@ -70,6 +75,9 @@ class FrontendAssetTest {
             .body(containsString("bottom-nav"))
             .body(containsString("mini-map-container"))
             .body(containsString("mini-map-overlay"))
+            .body(containsString("shoe-pin-own"))
+            .body(containsString("shoe-pin-other"))
+            .body(containsString("sighting-leaflet-popup"))
 
         given()
             .`when`()
@@ -87,6 +95,16 @@ class FrontendAssetTest {
             .body(containsString("spotMiniMap"))
             .body(containsString("live-gps-dot"))
             .body(containsString("dragging: false"))
+
+        given()
+            .`when`()
+            .get("/js/fullmap.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("fullMap"))
+            .body(containsString("shoe-pin-own"))
+            .body(containsString("sighting-added"))
+            .body(containsString("sighting-deleted"))
 
         given()
             .`when`()

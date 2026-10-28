@@ -3,14 +3,14 @@ title: 'Full interactive map view with distinct sighting markers'
 type: 'feature'
 ticket: '2'
 created: '2026-10-28'
-status: 'draft'
-baseline_revision: ''
+status: 'built'
+baseline_revision: 'e4bcace187c4fdf15258fb053b779a5cc861c64b'
 route: 'full'
 route_source: 'auto'
 risk: 'low'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 context:
   - '_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md'
@@ -67,11 +67,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Full Map Controller -- Implement `fullmap.js` with lazy initialization, `GET /api/v1/sightings?limit=500` fetch, Signal Blue / Slate marker rendering, and popup cards.
-- [ ] Event Bus Integration -- Wire `fullmap.js` to `sighting-added`, `sighting-deleted`, and `user-changed` DOM CustomEvents.
-- [ ] Full Map Styling -- Add CSS in `style.css` for `#fullMapContainer`, custom SVG pin icons, and dark-theme Leaflet popups.
-- [ ] View Markup -- Update `#viewMap` in `index.html` with `#fullMapContainer` and load `js/fullmap.js`.
-- [ ] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying full map assets and marker elements, and run `./gradlew test`.
+- [x] Full Map Controller -- Implement `fullmap.js` with lazy initialization, `GET /api/v1/sightings?limit=500` fetch, Signal Blue / Slate marker rendering, and popup cards.
+- [x] Event Bus Integration -- Wire `fullmap.js` to `sighting-added`, `sighting-deleted`, and `user-changed` DOM CustomEvents.
+- [x] Full Map Styling -- Add CSS in `style.css` for `#fullMapContainer`, custom SVG pin icons, and dark-theme Leaflet popups.
+- [x] View Markup -- Update `#viewMap` in `index.html` with `#fullMapContainer` and load `js/fullmap.js`.
+- [x] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying full map assets and marker elements, and run `./gradlew test`.
 
 **Acceptance Criteria:**
 - Given the `[Map]` tab is activated, then the full interactive Leaflet map initializes and displays all sightings from the API.
@@ -82,9 +82,21 @@ context:
 
 ## Implementation Notes
 
+- Implemented `fullmap.js` with lazy-initialization on first Map tab view, preserving mobile RAM on app cold open.
+- Created custom SVG shoe pins sized per `DESIGN.md`: 32px Signal Blue (`#3B82F6`) for user's own sightings and 26px Neutral Slate (`#94A3B8`) for other sightings.
+- Formatted popups showing recorder name, local timestamp (`Oct 28, 14:32`), formatted coordinates, and `"Your Sighting"` badge.
+- Added `#fullMapLoading` and `#fullMapEmpty` banners for graceful loading and empty states.
+- Integrated event bus: `spot.js` dispatches `sighting-added`, `modal.js` dispatches `sighting-deleted`, and `onboarding.js` dispatches `user-changed`, keeping the map updated live without page reloads.
+- Updated `FrontendAssetTest.kt`; all 11 tests pass cleanly in 15s.
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+- Location: `index.html` & `style.css` | Verdict: medium | Evidence: Added missing `#fullMapContainer` ID to satisfy plan contract and test verification. | Route: patch
+- Location: `fullmap.js` & `style.css` | Verdict: medium | Evidence: Replaced unicode emoji with custom crisp SVG shoe vectors and implemented exact 32px (own) and 26px (other) circle dimensions per DESIGN.md. | Route: patch
+- Location: `index.html` & `fullmap.js` | Verdict: medium | Evidence: Added `#fullMapLoading` and `#fullMapEmpty` banners for async loading and zero-sightings state. | Route: patch
+- Location: `fullmap.js` | Verdict: low | Evidence: Formatted popup timestamp to compact format (`Oct 28, 14:32`) per UX specification. | Route: patch
 
 ## Design Notes
 

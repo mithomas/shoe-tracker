@@ -72,12 +72,16 @@
       </footer>
     </section>
 
-    <!-- View Pane 2: Map Screen (Ready for Story 2.2) -->
+    <!-- View Pane 2: Full Map Screen -->
     <section id="viewMap" class="view-pane">
-      <div class="card" style="text-align:center; padding:40px 20px;">
-        <span style="font-size:36px;">🗺️</span>
-        <h3 style="margin:12px 0 6px 0;">Highway Map View</h3>
-        <p style="color:var(--ink-secondary); font-size:14px;">Full interactive map view is being prepared for Story 2.2.</p>
+      <div class="full-map-wrapper" id="fullMapContainer">
+        <div id="fullMap"></div>
+        <div id="fullMapLoading" class="map-overlay-banner" style="display:none;">
+          <span>⏳ Loading highway sightings...</span>
+        </div>
+        <div id="fullMapEmpty" class="map-overlay-banner" style="display:none;">
+          <span>👟 No shoes spotted yet! Tap the Spot button to be the first.</span>
+        </div>
       </div>
     </section>
 
@@ -156,9 +160,10 @@
   <script src="/js/spot.js"></script>
   <script src="/js/tabs.js"></script>
   <script src="/js/minimap.js"></script>
+  <script src="/js/fullmap.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, formatLocation } = window.ShoeTracker;
+      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, formatLocation } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
@@ -172,6 +177,7 @@
       spotManager.init();
       tabManager.init();
       miniMap.init();
+      fullMap.init();
 
       // Geolocation state transitions
       geoWatcher.onStatusChange((status, message) => {

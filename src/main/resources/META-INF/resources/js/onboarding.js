@@ -82,6 +82,7 @@
       this.updateHeaderChip(trimmed);
       this.hide();
 
+      window.dispatchEvent(new CustomEvent('user-changed', { detail: trimmed }));
       this.nameListeners.forEach((fn) => fn(trimmed));
     }
 

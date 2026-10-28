@@ -110,6 +110,9 @@
           if (modal) {
             modal.showSighting(data);
           }
+          // Dispatch global sighting-added event for Map and List views
+          window.dispatchEvent(new CustomEvent('sighting-added', { detail: data }));
+
           if (outputEl) {
             const locStr = formatLocation(data.location.latitude, data.location.longitude);
             outputEl.innerHTML = `<pre>POST 201 Created:\nLocation: ${locStr}\n\n${JSON.stringify(data, null, 2)}</pre>`;
