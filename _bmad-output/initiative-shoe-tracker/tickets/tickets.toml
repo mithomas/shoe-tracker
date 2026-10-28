@@ -14,3 +14,11 @@ title = "Sighting Exploration (Map & List Views)"
 description = "User explores sightings on Leaflet map and chronological list with distinct styling for own shoes and filter toggle, plus live location map above spot button."
 covers = ["R4", "R5", "R8"]
 after = [{ epic = "epic-core-capture", needs = "Sightings query API and shared sighting schema" }]
+
+[[epic]]
+id = 3
+slug = "epic-spotting-polish"
+title = "Spotting UX Polish & German Localization"
+description = "Streamlines the road-trip spotting flow with light/dark theme toggle, German localization ('SCHUH!'), nearby shoes rendered on the mini-map, and removing the 3s cooldown in favor of the confirmation modal."
+covers = []
+after = [{ epic = "epic-views-and-map", needs = "Mini-map and exploration views" }]
