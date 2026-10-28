@@ -5,7 +5,7 @@ parent: ""
 covers: []
 sources: []
 companions: []
-after: ["story-database-migration-to-mysql.md"]
+after: ["story-replace-sqlite-with-h2.md"]
 risk: medium
 refined: false
 ---

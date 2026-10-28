@@ -1,29 +1,36 @@
 ---
 type: story
-title: "Database Migration from SQLite to MySQL"
+title: "Configurable External MariaDB/MySQL Datasource with H2 Fallback"
 parent: ""
 covers: []
 sources: []
 companions: []
-after: []
+after: ["story-replace-sqlite-with-h2.md"]
 risk: low
 refined: false
 ---
 
-# Database Migration from SQLite to MySQL
+# Configurable External MariaDB/MySQL Datasource with H2 Fallback
 
 ## Description
 
-Migrates the Shoe Tracker backend persistence from single-file embedded SQLite to an external, client-server MySQL (or MariaDB) database. This enables concurrent multi-writer scaling, connection pooling without local filesystem locks, and unblocks ahead-of-time native binary compilation.
+Enables connecting Shoe Tracker to an external MariaDB (or MySQL) server via environment variable configuration, while keeping embedded H2 as the default out-of-the-box fallback when no external datasource is configured. No data migration between databases is performed.
 
 ## Background & Rationale
 
-SQLite currently provides zero-config embedded persistence for MVP. However, SQLite relies on native C shared libraries via JNI and requires in-process serialization locks for writes. Migrating to MySQL decouples the database from the application container filesystem, supports standard network transactions, and eliminates native JNI barriers.
+With H2 established as the default embedded storage engine running in `MODE=MySQL`, both H2 and MariaDB/MySQL share the exact same ANSI/MySQL Flyway DDL. By including both the H2 driver and the MariaDB driver in the container build, users can run the single container standalone with embedded H2 or point it to a clustered production MariaDB instance simply by supplying standard Quarkus environment variables at runtime, without code changes or data migration scripts.
 
 ## Acceptance Criteria
 
-- Add `quarkus-jdbc-mysql` dependency to `build.gradle.kts`.
-- Adapt Flyway schema migrations (`V1__init_sightings.sql`) for MySQL syntax (e.g., `VARCHAR(36)`, `DATETIME(3)` / `TIMESTAMP(3)`).
-- Update DataSource configuration in `application.properties` to connect via JDBC URL with credentials from environment variables (`QUARKUS_DATASOURCE_JDBC_URL`, `QUARKUS_DATASOURCE_USERNAME`, `QUARKUS_DATASOURCE_PASSWORD`).
-- Remove SQLite write locks and file-system volume mount dependencies from the Quarkus application.
-- All integration tests pass against MySQL (or Testcontainers MySQL container).
+- Include both `io.quarkus:quarkus-jdbc-h2` and `io.quarkus:quarkus-jdbc-mariadb` (or `mysql`) dependencies in `build.gradle.kts`.
+- Default configuration uses embedded H2 (`quarkus.datasource.db-kind=h2`).
+- When environment variables are supplied:
+  ```bash
+  QUARKUS_DATASOURCE_DB_KIND=mariadb
+  QUARKUS_DATASOURCE_JDBC_URL=jdbc:mariadb://host:3306/shoetracker
+  QUARKUS_DATASOURCE_USERNAME=user
+  QUARKUS_DATASOURCE_PASSWORD=pass
+  ```
+  Quarkus initializes its connection pool against the external MariaDB instance.
+- No live data migration scripts are required; Flyway executes the existing `V1` DDL directly on whichever database is targeted.
+- Automated tests verify application startup with both H2 default and simulated external datasource configuration.
