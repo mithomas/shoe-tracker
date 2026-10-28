@@ -3,14 +3,14 @@ title: 'Chronological historical sightings list view'
 type: 'feature'
 ticket: '3'
 created: '2026-10-28'
-status: 'draft'
-baseline_revision: ''
+status: 'built'
+baseline_revision: 'c353bf994c6d3cdee2a572cc31ce5fce505ab0e7'
 route: 'full'
 route_source: 'auto'
 risk: 'low'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 context:
   - '_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md'
@@ -67,11 +67,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] List View Controller -- Implement `listview.js` with `GET /api/v1/sightings?limit=500` fetch, chronological card rendering, and count badge.
-- [ ] Visual Differentiation -- Style user's own shoes with `border-left: 4px solid var(--accent-blue)` and `.badge-own`, and others with neutral borders.
-- [ ] Event Bus Integration -- Wire `listview.js` to `sighting-added`, `sighting-deleted`, and `user-changed` DOM CustomEvents.
-- [ ] View Markup -- Update `#viewList` in `index.html` with `#listViewContainer` and load `js/listview.js`.
-- [ ] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying list view assets and card elements, and run `./gradlew test`.
+- [x] List View Controller -- Implement `listview.js` with `GET /api/v1/sightings?limit=500` fetch, chronological card rendering, and count badge.
+- [x] Visual Differentiation -- Style user's own shoes with `border-left: 4px solid var(--accent-blue)` and `.badge-own`, and others with neutral borders.
+- [x] Event Bus Integration -- Wire `listview.js` to `sighting-added`, `sighting-deleted`, and `user-changed` DOM CustomEvents.
+- [x] View Markup -- Update `#viewList` in `index.html` with `#listViewContainer` and load `js/listview.js`.
+- [x] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying list view assets and card elements, and run `./gradlew test`.
 
 **Acceptance Criteria:**
 - Given the `[List]` tab is activated, then all sightings are rendered in descending chronological order.
@@ -82,9 +82,21 @@ context:
 
 ## Implementation Notes
 
+- Implemented `listview.js` querying `GET /api/v1/sightings?limit=500` and rendering chronological cards with author, timestamp, and coordinates.
+- Highlighted user's own sightings with `border-left: 4px solid var(--accent-blue)` and `<span class="badge-own">My Sighting</span>`.
+- Added `#listErrorBanner` and `#listEmptyCard` with prompt copy matching specifications.
+- Implemented deterministic timestamp formatting (`Oct 28, 14:32:05`).
+- Wired event bus listeners: `sighting-added`, `sighting-deleted`, and `user-changed`.
+- Sized `#listViewContainer` and updated `FrontendAssetTest.kt`; all 11 tests pass cleanly in 1m 49s.
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+- Location: `index.html` | Verdict: low | Evidence: Aligned empty-state card prompt text with specification ("No shoes spotted yet! Tap the Spot button to be the first."). | Route: patch
+- Location: `listview.js` & `index.html` | Verdict: medium | Evidence: Added `#listErrorBanner` for graceful network error display on fetch failure. | Route: patch
+- Location: `listview.js` | Verdict: medium | Evidence: Guarded pre-load `addSighting` state desynchronization when a sighting is logged before List tab activation. | Route: patch
+- Location: `listview.js` | Verdict: low | Evidence: Replaced locale-dependent date formatting with deterministic string formatting (`Oct 28, 14:32:05`). | Route: patch
 
 ## Design Notes
 

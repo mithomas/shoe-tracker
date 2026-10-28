@@ -85,12 +85,25 @@
       </div>
     </section>
 
-    <!-- View Pane 3: List Screen (Ready for Story 2.3) -->
+    <!-- View Pane 3: Historical List Screen -->
     <section id="viewList" class="view-pane">
-      <div class="card" style="text-align:center; padding:40px 20px;">
-        <span style="font-size:36px;">📋</span>
-        <h3 style="margin:12px 0 6px 0;">Historical Sighting List</h3>
-        <p style="color:var(--ink-secondary); font-size:14px;">Chronological list view is being prepared for Story 2.3.</p>
+      <div class="list-view-container" id="listViewContainer">
+        <div class="list-header">
+          <span class="list-count-badge" id="listCountBadge">0 sightings</span>
+          <button class="btn-secondary" id="btnListRefresh">Refresh</button>
+        </div>
+        <div id="listLoadingBanner" class="map-overlay-banner" style="position:static; transform:none; margin-bottom:12px; display:none; text-align:center;">
+          <span>⏳ Loading sightings history...</span>
+        </div>
+        <div id="listErrorBanner" class="map-overlay-banner" style="position:static; transform:none; margin-bottom:12px; display:none; text-align:center; color:#EF4444; border-color:#EF4444;">
+          <span>⚠️ Could not load sightings. Check connection.</span>
+        </div>
+        <div id="listEmptyCard" class="empty-list-card" style="display:none;">
+          <span class="empty-icon">👟</span>
+          <h3>No shoes spotted yet!</h3>
+          <p>No shoes spotted yet! Tap the Spot button to be the first.</p>
+        </div>
+        <div class="sightings-list" id="sightingsList"></div>
       </div>
     </section>
   </div>
@@ -161,9 +174,10 @@
   <script src="/js/tabs.js"></script>
   <script src="/js/minimap.js"></script>
   <script src="/js/fullmap.js"></script>
+  <script src="/js/listview.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, formatLocation } = window.ShoeTracker;
+      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, formatLocation } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
@@ -178,6 +192,7 @@
       tabManager.init();
       miniMap.init();
       fullMap.init();
+      listView.init();
 
       // Geolocation state transitions
       geoWatcher.onStatusChange((status, message) => {

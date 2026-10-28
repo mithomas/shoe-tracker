@@ -42,6 +42,9 @@ class FrontendAssetTest {
             .body(containsString("fullMapLoading"))
             .body(containsString("fullMapEmpty"))
             .body(containsString("full-map-wrapper"))
+            .body(containsString("listViewContainer"))
+            .body(containsString("sightingsList"))
+            .body(containsString("listCountBadge"))
             .body(containsString("/vendor/leaflet/leaflet.css"))
     }
 
@@ -78,6 +81,8 @@ class FrontendAssetTest {
             .body(containsString("shoe-pin-own"))
             .body(containsString("shoe-pin-other"))
             .body(containsString("sighting-leaflet-popup"))
+            .body(containsString("sighting-card-own"))
+            .body(containsString("sighting-card-other"))
 
         given()
             .`when`()
@@ -103,6 +108,16 @@ class FrontendAssetTest {
             .statusCode(200)
             .body(containsString("fullMap"))
             .body(containsString("shoe-pin-own"))
+            .body(containsString("sighting-added"))
+            .body(containsString("sighting-deleted"))
+
+        given()
+            .`when`()
+            .get("/js/listview.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("listView"))
+            .body(containsString("sighting-card-own"))
             .body(containsString("sighting-added"))
             .body(containsString("sighting-deleted"))
 
