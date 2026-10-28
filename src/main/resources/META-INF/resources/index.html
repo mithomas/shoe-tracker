@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoe Tracker - Tracer Bullet</title>
+  <style>
+    body {
+      background-color: #0F172A;
+      color: #F8FAFC;
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 480px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #94A3B8;
+      font-size: 14px;
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #1E293B;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #334155;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: #94A3B8;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #F8FAFC;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+    button.btn-spot {
+      width: 100%;
+      padding: 14px;
+      background: #F97316;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button.btn-spot:hover {
+      background: #EA580C;
+    }
+    button.btn-secondary {
+      background: #334155;
+      color: #F8FAFC;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    pre {
+      background: #090D16;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      overflow-x: auto;
+      color: #10B981;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>👟 Shoe Tracker Tracer</h1>
+    <p>End-to-End Tracer Bullet: Quarkus Kotlin + SQLite</p>
+
+    <div class="card">
+      <label for="userId">User Identifier / Name:</label>
+      <input type="text" id="userId" value="Tom" />
+
+      <label for="lat">Latitude:</label>
+      <input type="number" id="lat" value="50.1109" step="0.0001" />
+
+      <label for="lon">Longitude:</label>
+      <input type="number" id="lon" value="8.6821" step="0.0001" />
+
+      <button class="btn-spot" id="btnSpot">👟 Record Shoe Sighting</button>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-weight:bold;">Recorded Sightings</span>
+        <button class="btn-secondary" id="btnRefresh">Refresh</button>
+      </div>
+      <div id="output"><pre>Click Refresh to load sightings...</pre></div>
+    </div>
+  </div>
+
+  <script>
+    const btnSpot = document.getElementById('btnSpot');
+    const btnRefresh = document.getElementById('btnRefresh');
+    const output = document.getElementById('output');
+
+    btnSpot.addEventListener('click', async () => {
+      const userId = document.getElementById('userId').value;
+      const lat = parseFloat(document.getElementById('lat').value);
+      const lon = parseFloat(document.getElementById('lon').value);
+
+      try {
+        const res = await fetch('/api/v1/sightings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            location: { latitude: lat, longitude: lon },
+            recorded_at: new Date().toISOString()
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          output.innerHTML = `<pre>POST 201 Created:\n${JSON.stringify(data, null, 2)}</pre>`;
+        } else {
+          output.innerHTML = `<pre style="color:#EF4444;">HTTP ${res.status} ${res.statusText}:\n${JSON.stringify(data, null, 2)}</pre>`;
+        }
+      } catch (err) {
+        output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
+      }
+    });
+
+    btnRefresh.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/v1/sightings');
+        const data = await res.json();
+        output.innerHTML = `<pre>GET 200 OK (${data.total} total):\n${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
+      }
+    });
+  </script>
+</body>
+</html>
