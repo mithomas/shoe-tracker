@@ -54,25 +54,3 @@ covers = ["R1", "R2", "R6", "R7"]
 after = [1, 2, 3, 4]
 hitl = false
 risk = "low"
-
-[[entry]]
-id = 6
-type = "story"
-title = "Add GNU Affero General Public License (AGPL-3.0)"
-description = "Adopts AGPL-3.0 for repository, adding root LICENSE file and licensing notices."
-verify = "LICENSE file exists with full AGPL-3.0 text and project documentation reflects licensing."
-covers = []
-after = []
-hitl = false
-risk = "low"
-
-[[entry]]
-id = 7
-type = "story"
-title = "GitHub Actions CI workflow and Docker Hub publication"
-description = "Sets up GitHub Actions workflow to run tests, build multi-stage container, and publish to Docker Hub."
-verify = ".github/workflows/ci.yml runs ./gradlew test, builds container, and publishes image."
-covers = []
-after = [4]
-hitl = false
-risk = "low"
