@@ -119,6 +119,20 @@
     const btnRefresh = document.getElementById('btnRefresh');
     const output = document.getElementById('output');
 
+    function formatCoordinate(coord, isLat) {
+      const dir = isLat ? (coord >= 0 ? 'N' : 'S') : (coord >= 0 ? 'E' : 'W');
+      const abs = Math.abs(coord);
+      const degrees = Math.floor(abs);
+      const minutes = (abs - degrees) * 60;
+      const degStr = isLat ? String(degrees).padStart(2, '0') : String(degrees).padStart(3, '0');
+      const minStr = minutes.toFixed(3).replace('.', ',');
+      return `${dir} ${degStr}° ${minStr}'`;
+    }
+
+    function formatLocation(lat, lon) {
+      return `${formatCoordinate(lat, true)} / ${formatCoordinate(lon, false)}`;
+    }
+
     btnSpot.addEventListener('click', async () => {
       const userId = document.getElementById('userId').value;
       const lat = parseFloat(document.getElementById('lat').value);
@@ -136,7 +150,8 @@
         });
         const data = await res.json();
         if (res.ok) {
-          output.innerHTML = `<pre>POST 201 Created:\n${JSON.stringify(data, null, 2)}</pre>`;
+          const locStr = formatLocation(data.location.latitude, data.location.longitude);
+          output.innerHTML = `<pre>POST 201 Created:\nLocation: ${locStr}\n\n${JSON.stringify(data, null, 2)}</pre>`;
         } else {
           output.innerHTML = `<pre style="color:#EF4444;">HTTP ${res.status} ${res.statusText}:\n${JSON.stringify(data, null, 2)}</pre>`;
         }
@@ -149,7 +164,11 @@
       try {
         const res = await fetch('/api/v1/sightings');
         const data = await res.json();
-        output.innerHTML = `<pre>GET 200 OK (${data.total} total):\n${JSON.stringify(data, null, 2)}</pre>`;
+        const formattedItems = (data.items || []).map(item => ({
+          ...item,
+          formatted_location: formatLocation(item.location.latitude, item.location.longitude)
+        }));
+        output.innerHTML = `<pre>GET 200 OK (${data.total} total):\n\n${JSON.stringify({ ...data, items: formattedItems }, null, 2)}</pre>`;
       } catch (err) {
         output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
       }

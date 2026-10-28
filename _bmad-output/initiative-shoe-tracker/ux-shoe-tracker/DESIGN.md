@@ -65,6 +65,7 @@ Native system font stack (`system-ui`, `-apple-system`, BlinkMacSystemFont, 'Seg
 - **Big Button & Countdown**: `display` (32px Bold), uppercase tracking.
 - **Screen & Section Titles**: `headline` (20px Semibold).
 - **Coordinates & Timestamps**: `caption` (12px Medium, monospace numbers `font-variant-numeric: tabular-nums`).
+- **Coordinate Display Convention**: Formatted in standard navigational notation: `N XX° MM,MMM'` / `E XXX° MM,MMM'` (e.g. `N 50° 06,654' / E 008° 40,928'`) using comma decimal separator.
 
 ## Layout & Spacing
 

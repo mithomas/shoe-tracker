@@ -11,7 +11,7 @@ updated: '2026-10-28'
 
 ## Foundation
 
-Single-surface mobile web application designed for smartphones mounted in vehicle holders or held by highway passengers. Clean Vanilla TypeScript, CSS3, and HTML5. `DESIGN.md` governs visual tokens and styling; this spine governs user interaction, state machines, and component behavior. Dark mode is default and non-negotiable to minimize driving glare.
+Single-surface mobile web application designed for smartphones mounted in vehicle holders or held by highway passengers. Clean Vanilla TypeScript, CSS3, and HTML5. `DESIGN.md` governs visual tokens and styling; this spine governs user interaction, state machines, and component behavior. Dark mode is default and non-negotiable to minimize driving glare. Coordinates are displayed in standard navigational format: `N XX° MM,MMM'` / `E XXX° MM,MMM'`.
 
 ## Information Architecture
 
