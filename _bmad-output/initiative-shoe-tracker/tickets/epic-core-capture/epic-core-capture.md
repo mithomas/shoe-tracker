@@ -8,6 +8,7 @@ companions: []
 after: []
 refined: true
 risk: low
+status: "done"
 ---
 
 # Container Scaffold & Core Sighting Capture
