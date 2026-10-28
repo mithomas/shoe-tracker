@@ -31,4 +31,6 @@ Automating the build and release pipeline ensures continuous quality verificatio
 - Release publishing:
   - On version tags (e.g. `v1.0.0`), authenticates to Docker Hub using repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`.
   - Publishes both semantic version tag (`<user>/shoe-tracker:1.0.0`) and `latest` tag.
+- Provide production-ready `docker-compose.yml` (and `docker-compose.example.yml`) enabling 1-command execution (`docker compose up -d`) using the published image, persistent `./data:/data` volume mount, `restart: unless-stopped`, and port `8080:8080`.
+- Document Docker Compose quickstart in `README.md`.
 - Workflow completes cleanly in GitHub Actions without proprietary dependency blockers.
