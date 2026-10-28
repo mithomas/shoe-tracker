@@ -17,8 +17,8 @@ Single-surface mobile web application designed for smartphones mounted in vehicl
 
 | Surface | Reached from | Purpose |
 |---|---|---|
-| **Spot Screen** | Default cold open (or Tab 1) | The primary logging interface with the giant action button and live GPS status. |
-| **Map Screen** | Tab 2 | Interactive Leaflet map displaying all sightings, filter toggle, and marker details. |
+| **Spot Screen** | Default cold open (or Tab 1) | The primary logging interface: upper area renders locked HUD mini-map tracking real-time GPS position; lower area houses the 210px Spot Button and live telemetry. |
+| **Map Screen** | Tab 2 | Dedicated full Leaflet map displaying all sightings, filter toggle, and marker details. Lazy-initialized on first view. |
 | **List Screen** | Tab 3 | Chronological list of recorded sightings, filter toggle, and local time display. |
 | **Onboarding Sheet** | Overlay on cold open (if no user name in `localStorage`) | Prompts for user name before first spotting. Cannot be dismissed without a name. |
 | **Sighting Modal** | Overlay on Spot Screen (after tap) | Displays recorded time and coordinates with confirmation and quick navigation options. |

@@ -51,3 +51,9 @@ A user traveling on the autobahn can view their live location in real time direc
 - Decision: 2026-10-28: Views display all sightings with user's own shoes visually distinguished (distinct color on map, distinct styling in list) and provide a toggle to filter out other users' shoes.
 - Decision: 2026-10-28: Map visualization uses OpenStreetMap tiles with Leaflet.js to avoid external API key dependencies.
 - Decision: 2026-10-28: Spot screen layout allocates upper half to live location map and lower half to 210px Spot Button.
+- Decision: 2026-10-28: Mini-map HUD mode has touch dragging completely disabled (strictly locked tracking radar) and auto-centers at zoom 15 with smooth position transitions. Proportional height `min(35vh, 260px)` guarantees the 210px Spot Button never scrolls.
+- Decision: 2026-10-28: Tab lifecycle pauses mini-map tile requests when Spot tab is inactive; invokes `invalidateSize()` immediately upon tab switch.
+- Decision: 2026-10-28: Full map view is lazy-initialized on first click of the Map tab to minimize mobile memory footprint.
+- Decision: 2026-10-28: New sightings dispatch `sighting-added` custom events for optimistic insertion into Map and List views.
+- Decision: 2026-10-28: Name changes in onboarding/user-chip dispatch `user-changed` custom events to immediately update "My Shoes" filtering.
+- Decision: 2026-10-28: When GPS is denied, mini-map gracefully defaults to central Autobahn junction (50.8°N, 9.7°E, zoom 6) with warning overlay.

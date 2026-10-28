@@ -72,6 +72,7 @@ Native system font stack (`system-ui`, `-apple-system`, BlinkMacSystemFont, 'Seg
 Mobile-first single-column layout constrained to `max-width: 480px` centered on wider screens.
 - **Safe Area Insets**: Honored for mobile notches and bottom swipe bars (`env(safe-area-inset-bottom)`).
 - **Navigation**: Fixed bottom tab bar (`height: 64px`) with 3 touch targets: `[👟 Spot]`, `[🗺️ Map]`, `[📋 List]`. Minimum touch target size: 48px × 48px.
+- **Spot Screen Split Layout**: Upper area houses the tactical HUD mini-map (`max-height: 35vh; min-height: 200px; border-radius: 12px; overflow: hidden;`) with touch dragging disabled and dark-slate tile background (`#0F172A`). Lower area houses the 210px Spot Button, guaranteed to remain 100% visible without scrolling on screens ≥ 600px height.
 
 ## Elevation & Depth
 
