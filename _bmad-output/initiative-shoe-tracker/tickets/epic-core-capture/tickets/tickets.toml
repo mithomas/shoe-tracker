@@ -1,0 +1,56 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Scaffold Quarkus project with SQLite and tracer bullet API"
+description = "Stands up Quarkus Kotlin project with SQLite-JDBC, Flyway V1 migration, and minimal POST/GET endpoints."
+verify = "POST /api/v1/sightings inserts a row into SQLite and returns 201 with UUIDv7; GET returns the collection envelope."
+covers = ["R6"]
+after = []
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Mobile geolocation watcher and user onboarding"
+description = "Implements background watchPosition coordinates cache and first-visit name prompt stored in localStorage."
+verify = "Onboarding prompt persists user_id to localStorage; watchPosition actively updates coordinates with GPS Ready badge."
+covers = ["R2"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "High-velocity spot button with cooldown and confirmation modal"
+description = "Builds the 210px spot button that immediately submits hot coordinates, locks for 3 seconds with countdown animation, and pops up the sighting confirmation modal."
+verify = "Tapping button posts sighting with hot coordinates, locks for 3 seconds preventing double submissions, and displays confirmation modal with time and coordinates."
+covers = ["R1", "R7"]
+after = [1, 2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Single-container Dockerfile build"
+description = "Creates multi-stage Dockerfile compiling Vite frontend and Quarkus backend into a single runnable container."
+verify = "Container builds with docker/podman, starts, and serves frontend at / and API at /api/v1/sightings on port 8080."
+covers = ["R6"]
+after = [3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up code conventions, verifies integration tests against SQLite, and settles any deferred findings."
+verify = "All automated unit and integration tests pass cleanly and linter checks pass with zero warnings."
+covers = ["R1", "R2", "R6", "R7"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

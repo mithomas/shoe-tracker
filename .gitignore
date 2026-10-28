@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+
+# Kotlin
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# SQLite data directory
+data/*.db
+data/*.db-wal
+data/*.db-shm
+!data/.gitkeep

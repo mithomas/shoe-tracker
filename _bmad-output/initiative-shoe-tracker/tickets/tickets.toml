@@ -1,0 +1,16 @@
+# In an initiative's tickets/ folder: one table per epic
+
+[[epic]]
+id = 1
+slug = "epic-core-capture"
+title = "Container Scaffold & Core Sighting Capture"
+description = "Smartphone user sets name and taps big button to record sighting with hot GPS coordinates and cooldown into SQLite via Quarkus REST API in a single container."
+covers = ["R1", "R2", "R6", "R7"]
+
+[[epic]]
+id = 2
+slug = "epic-views-and-map"
+title = "Sighting Exploration (Map & List Views)"
+description = "User explores sightings on Leaflet map and chronological list with distinct styling for own shoes and a toggle to filter out other users."
+covers = ["R4", "R5"]
+after = [{ epic = "epic-core-capture", needs = "Sightings query API and shared sighting schema" }]

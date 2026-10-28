@@ -1,0 +1,81 @@
+---
+type: initiative
+title: "Shoe Tracker - Autobahn Shoe Spotting Web App"
+sources: []
+companions:
+  - "_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md"
+  - "_bmad-output/initiative-shoe-tracker/ux-shoe-tracker/ux-shoe-tracker.md"
+after: []
+risk: low
+---
+
+# Shoe Tracker - Autobahn Shoe Spotting Web App
+
+## Description
+
+A mobile-friendly web application allowing travelers on the autobahn to log spotted shoes with a single tap. The system records the precise geolocation (kept warm in the background to eliminate GPS latency at speed) and timestamp of each shoe sighting under the user's name, providing both a historical list and an interactive map visualization. The application is designed as a two-tier system with a lean REST API, powered by a Kotlin Quarkus backend persisting to SQLite, and packaged together with the frontend inside a single deployable container.
+
+## Outcome
+
+A smartphone user traveling on the autobahn can record a shoe sighting with a single tap without GPS lag, protected by a cooldown against duplicate taps, and view all recorded shoes indefinitely with their own shoes visually distinguished on an interactive map and list view served from a single Quarkus container.
+
+## Requirements
+
+- R1: One-tap button on mobile web interface records shoe spotting with current timestamp and hot device geolocation coordinates.
+- R2: First-time prompt asks for user name and associates it with all subsequent log entries, serving as both unique user identifier and display name for MVP (name collisions are tolerated).
+- R4: List view displays recorded shoe sightings with timestamp, location coordinates, and recorder name, with distinct visual indicator for user's own shoes and a toggle to hide other users' shoes.
+- R5: Map view displays interactive geographical markers for recorded shoe sightings indefinitely, using a distinct marker color for user's own shoes and an option to toggle visibility of other users' shoes.
+- R6: Backend exposes a lean REST API under `/api/v1/sightings` for creating and querying sightings.
+- R7: Interface enforces a mandatory cooldown period (e.g., 3-5 seconds) after logging a sighting to prevent accidental duplicate taps.
+
+## Constraints
+
+- C1: Two-tier architecture with frontend separated from backend and shielded by a lean API.
+- C2: Backend implemented in Kotlin using the Quarkus framework.
+- C3: Persistence in SQLite database.
+- C4: Packaged and hosted as a single container serving both Quarkus backend and frontend assets.
+- C5: Mobile-first responsive UI optimized for quick single-tap action.
+
+## Done when
+
+- First-time access prompts for user name and remembers it in local browser storage across sessions.
+- Browser actively monitors geolocation in the background so tapping the main button records coordinates with zero acquisition lag.
+- Mandatory cooldown engages immediately after tap, blocking duplicate entries for the duration.
+- Sighting record persists to SQLite with timestamp, coordinates, and user name.
+- List view renders saved sightings with distinct styling for own shoes and a toggle to hide others.
+- Map view renders markers with distinct color for own shoes and an option to toggle visibility of other users' shoes.
+- The Quarkus container builds, starts, and serves both the frontend web app and the backend API with SQLite persistence.
+
+## Boundaries
+
+- Non-goal: Dedicated login, user profiles, and changing usernames (deferred post-MVP).
+- Non-goal: Real-time map pushes via Server-Sent Events (SSE) (deferred post-MVP).
+- Non-goal: Offline logging / local queuing (deferred post-MVP).
+- Non-goal: Batch upload endpoint for offline sync (deferred post-MVP).
+- Non-goal: Geospatial viewport bounding-box filtering (deferred post-MVP).
+- Non-goal: Compass heading / bearing tracking (deferred post-MVP).
+- Non-goal: Dedicated authentication or LDAP integration (deferred post-MVP).
+- Non-goal: Shoe attributes such as type and color classification (deferred post-MVP; architectural hint: model as JSON attributes container).
+- Non-goal: Sighting expiration / TTL (sightings persist indefinitely).
+- Non-goal: Safety / driver disclaimer modal dialogs on launch.
+- Non-goal: Native mobile app store packaging (iOS / Android); responsive web application only.
+- Non-goal: Turn-by-turn navigation or route tracing along the highway.
+- Non-goal: Image or photo uploads of shoes.
+
+## References
+
+- architecture - _bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md
+- ux - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/ux-shoe-tracker.md
+
+## Notes
+
+- Assumption: Map visualization uses OpenStreetMap tiles with Leaflet.js to avoid external API key dependencies.
+- Assumption: Device location is maintained via browser `navigator.geolocation.watchPosition` to guarantee instantaneous coordinate availability at speed.
+- Decision: 2026-10-28: Geolocation continuously watched in background (`watchPosition`) to eliminate GPS lag at autobahn speeds.
+- Decision: 2026-10-28: Mandatory cooldown period enforced after button tap to prevent double-tap and accidental logging.
+- Decision: 2026-10-28: Author name serves as both unique user identifier and display name for MVP (user_id and user_name are identical); dedicated login, profiles, and name changes deferred to backlog.
+- Decision: 2026-10-28: Shoe sightings remain on map and list indefinitely (no TTL or cleanup purging).
+- Decision: 2026-10-28: No safety or driver warning confirmation modal.
+- Decision: 2026-10-28: API versioned in URI path as `/api/v1/sightings`; collection responses wrapped in `{ items, total, limit, offset }`.
+- Decision: 2026-10-28: Offline support, batch uploads, bounding-box queries, real-time SSE streaming, compass heading, LDAP/profile login, and shoe types/colors deferred as future backlog ideas.
+- Decision: 2026-10-28: Views display all sightings with user's own shoes visually distinguished (distinct color on map, distinct styling in list) and provide a toggle to filter out other users' shoes.

@@ -1,0 +1,222 @@
+openapi: 3.1.0
+info:
+  title: Shoe Tracker API
+  version: 1.0.0
+  description: Lean REST API for logging and querying autobahn shoe sightings.
+servers:
+  - url: /
+    description: Current host root
+
+paths:
+  /api/v1/sightings:
+    get:
+      summary: Retrieve shoe sightings
+      description: Returns a paginated list of recorded shoe sightings in descending chronological order.
+      operationId: getSightings
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          description: Optional filter to retrieve sightings for a specific user ID.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 64
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of items to return (default 100, max 500).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+        - name: offset
+          in: query
+          required: false
+          description: Number of items to skip for pagination (default 0).
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: A wrapped collection of recorded sightings with embedded user objects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SightingListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Record a new shoe sighting
+      description: Records a shoe spotting with current device coordinates, flat user_id, and timestamp.
+      operationId: createSighting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSightingRequest'
+      responses:
+        '201':
+          description: Sighting successfully recorded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SightingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    GeoLocation:
+      type: object
+      description: Geographic coordinates of the sighting.
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90.0
+          maximum: 90.0
+          example: 50.110924
+        longitude:
+          type: number
+          format: double
+          minimum: -180.0
+          maximum: 180.0
+          example: 8.682127
+
+    User:
+      type: object
+      description: Embedded user identity representation.
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: User identifier (stores entered user name for MVP).
+          example: "Tom"
+
+    CreateSightingRequest:
+      type: object
+      required:
+        - user_id
+        - location
+        - recorded_at
+      properties:
+        user_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: Flat user identifier at time of tap.
+          example: "Tom"
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        recorded_at:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC timestamp when the shoe was spotted.
+          example: "2026-10-28T14:32:00.123Z"
+
+    SightingResponse:
+      type: object
+      required:
+        - id
+        - user
+        - location
+        - recorded_at
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Time-sortable unique identifier (UUIDv7).
+          example: "0192e1b4-2391-7f32-84b2-e6123456789a"
+        user:
+          $ref: '#/components/schemas/User'
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        recorded_at:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC timestamp of sighting.
+          example: "2026-10-28T14:32:00.123Z"
+        created_at:
+          type: string
+          format: date-time
+          description: Server timestamp when sighting was stored.
+          example: "2026-10-28T14:32:00.456Z"
+
+    SightingListResponse:
+      type: object
+      description: Wrapped collection response with pagination metadata.
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SightingResponse'
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of sightings matching the query.
+          example: 42
+        limit:
+          type: integer
+          description: Applied page limit.
+          example: 100
+        offset:
+          type: integer
+          description: Applied page offset.
+          example: 0
+
+    ProblemDetails:
+      type: object
+      description: RFC 7807 problem details specification.
+      required:
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri
+          default: "about:blank"
+        title:
+          type: string
+          example: "Bad Request"
+        status:
+          type: integer
+          example: 400
+        detail:
+          type: string
+          example: "Latitude must be between -90 and 90 degrees."
+        instance:
+          type: string
+          example: "/api/v1/sightings"
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or payload.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    InternalServerError:
+      description: Unexpected internal server error.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
