@@ -35,5 +35,4 @@ Shoe Tracker's production `Dockerfile` already builds and runs on Eclipse Temuri
     }
     ```
 - All automated unit, integration, and frontend asset tests pass cleanly under Java 25 (`./gradlew check test`).
-- Document installation instructions for Debian 13 (Trixie): `sudo apt install openjdk-25-jdk`.
 - Multi-stage Docker container build compiles and runs on Java 25 with zero warnings.
