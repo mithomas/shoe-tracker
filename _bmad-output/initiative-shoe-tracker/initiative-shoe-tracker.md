@@ -28,6 +28,7 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - R6: Backend exposes a lean REST API under `/api/v1/sightings` for creating and querying sightings.
 - R7: Interface enforces a mandatory cooldown period (e.g., 3-5 seconds) after logging a sighting to prevent accidental duplicate taps.
 - R8: Spot screen displays a live map in the upper half of the screen showing current user position centered and updating in real-time, with the spot button positioned in the lower half.
+- R9: Sighting confirmation modal provides an immediate Undo action allowing the user to cancel and remove an accidental sighting via DELETE /api/v1/sightings/{id}.
 
 ## Constraints
 
@@ -48,6 +49,7 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - Browser actively monitors geolocation in the background so tapping the main button records coordinates with zero acquisition lag.
 - Mandatory cooldown engages immediately after tap, blocking duplicate entries for the duration.
 - Sighting record persists to SQLite with timestamp, coordinates, and user name.
+- Sighting confirmation modal allows immediate cancellation of an accidental sighting via an Undo button, deleting it from SQLite.
 - Spot screen displays a live current-location map in the upper half of the viewport above the spot button.
 - List view renders saved sightings with distinct styling for own shoes and a toggle to hide others.
 - Map view renders markers with distinct color for own shoes and an option to toggle visibility of other users' shoes.

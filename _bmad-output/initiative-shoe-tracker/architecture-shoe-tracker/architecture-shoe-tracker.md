@@ -8,7 +8,7 @@ scope: 'initiative-shoe-tracker'
 status: final
 created: '2026-10-28'
 updated: '2026-10-28'
-binds: ["R1", "R2", "R4", "R5", "R6", "R7", "R8", "C1", "C2", "C3", "C4", "C5", "C6"]
+binds: ["R1", "R2", "R4", "R5", "R6", "R7", "R8", "R9", "C1", "C2", "C3", "C4", "C5", "C6"]
 sources: ["_bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md"]
 ---
 
@@ -58,9 +58,9 @@ graph LR
 
 ### AD-4 - Versioned REST API with Nested Location and Wrapped Collection [ADOPTED]
 
-- **Binds:** `R1`, `R4`, `R5`, `R6`
+- **Binds:** `R1`, `R4`, `R5`, `R6`, `R9`
 - **Prevents:** Breaking API changes when future geographic or user profile attributes are added, unversioned breaking transitions, and unbounded collection payload memory exhaustion on mobile networks.
-- **Rule:** The REST API must be versioned in the URI path under `/api/v1/sightings`. Creation requests (`POST /api/v1/sightings`) must accept a flat `user_id` string alongside a nested `location` object (`latitude`, `longitude`) and ISO-8601 UTC timestamp `recorded_at`. Query responses (`GET /api/v1/sightings` and POST 201 response) must embed user identity in a `user: { id }` object to insulate future profile extensions without polluting root records. Entity IDs must be generated as time-sortable UUIDv7 strings. Collection queries must return an envelope object `{ "items": [...], "total": ..., "limit": ..., "offset": ... }` and support optional `limit`, `offset`, and `user_id` parameters.
+- **Rule:** The REST API must be versioned in the URI path under `/api/v1/sightings`. Creation requests (`POST /api/v1/sightings`) must accept a flat `user_id` string alongside a nested `location` object (`latitude`, `longitude`) and ISO-8601 UTC timestamp `recorded_at`. Query responses (`GET /api/v1/sightings` and POST 201 response) must embed user identity in a `user: { id }` object to insulate future profile extensions without polluting root records. Entity IDs must be generated as time-sortable UUIDv7 strings. Collection queries must return an envelope object `{ "items": [...], "total": ..., "limit": ..., "offset": ... }` and support optional `limit`, `offset`, and `user_id` parameters. Deletion requests (`DELETE /api/v1/sightings/:id`) remove an existing sighting by ID for immediate client-side confirmation undo.
 
 ### AD-5 - SQLite Storage Schema and Pragma Configuration [ADOPTED]
 

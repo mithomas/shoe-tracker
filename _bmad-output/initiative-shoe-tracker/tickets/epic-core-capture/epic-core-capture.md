@@ -2,7 +2,7 @@
 type: epic
 title: "Container Scaffold & Core Sighting Capture"
 parent: "initiative-shoe-tracker"
-covers: ["R1", "R2", "R6", "R7"]
+covers: ["R1", "R2", "R6", "R7", "R9"]
 sources: []
 companions: []
 after: []
