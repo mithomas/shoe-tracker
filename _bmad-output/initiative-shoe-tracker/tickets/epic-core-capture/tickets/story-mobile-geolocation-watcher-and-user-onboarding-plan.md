@@ -3,7 +3,7 @@ title: 'Mobile geolocation watcher and user onboarding'
 type: 'feature'
 ticket: '2'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: 'e75278ed1dc5bdb9fea56f465625cdc7760f626e'
 route: 'full'
 route_source: 'auto'

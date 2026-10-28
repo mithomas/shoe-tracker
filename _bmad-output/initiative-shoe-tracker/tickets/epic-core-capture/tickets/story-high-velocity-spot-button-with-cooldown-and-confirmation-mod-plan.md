@@ -3,7 +3,7 @@ title: 'High-velocity spot button with cooldown and confirmation modal'
 type: 'feature'
 ticket: '3'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '4fa9be5389933bd05ba29eea9fdc2b4047e68040'
 route: 'full'
 route_source: 'auto'

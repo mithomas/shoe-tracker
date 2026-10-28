@@ -3,7 +3,7 @@ title: 'Scaffold Quarkus project with SQLite and tracer bullet API'
 type: 'feature'
 ticket: '1'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: 'INITIAL_COMMIT'
 route: 'full'
 route_source: 'auto'

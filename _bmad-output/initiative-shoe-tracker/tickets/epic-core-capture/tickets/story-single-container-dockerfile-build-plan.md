@@ -3,7 +3,7 @@ title: 'Single-container Dockerfile build'
 type: 'feature'
 ticket: '4'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '5aa8d6e3deae5197539fac65732c3a8b2428780b'
 route: 'full'
 route_source: 'auto'
