@@ -1,0 +1,7 @@
+.git
+.gradle
+build
+data/*.db*
+.agents
+_bmad
+_bmad-output
