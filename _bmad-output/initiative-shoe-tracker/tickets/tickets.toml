@@ -22,3 +22,27 @@ title = "Spotting UX Polish & German Localization"
 description = "Streamlines the road-trip spotting flow with light/dark theme toggle, German localization ('SCHUH!'), nearby shoes rendered on the mini-map, and removing the 3s cooldown in favor of the confirmation modal."
 covers = []
 after = [{ epic = "epic-views-and-map", needs = "Mini-map and exploration views" }]
+
+[[epic]]
+id = 4
+slug = "epic-open-source-devops"
+title = "Open Source Licensing & CI/CD Publication"
+description = "Adopts GNU AGPL-3.0 copyleft license, establishes GitHub Actions workflow for automated test verification, and publishes multi-stage container images to Docker Hub."
+covers = []
+after = [{ epic = "epic-spotting-polish", needs = "Polished UI and localization" }]
+
+[[epic]]
+id = 5
+slug = "epic-architecture-resilience"
+title = "Architecture Hardening & Offline Resilience"
+description = "Hardens system resilience with global RFC 7807 500 error mappers, local vendoring of Leaflet assets for dead-zone vehicle resilience, eager prepared statements, and DOM CustomEvents pub/sub."
+covers = []
+after = [{ epic = "epic-open-source-devops", needs = "CI pipeline and licensing" }]
+
+[[epic]]
+id = 6
+slug = "epic-database-modernization"
+title = "Database Modernization & GraalVM Native Image"
+description = "Replaces SQLite with pure-Java embedded H2 database (MySQL mode) with zero write locks, enables configurable external MariaDB/MySQL datasource with H2 fallback, and compiles standalone GraalVM native binary."
+covers = []
+after = [{ epic = "epic-architecture-resilience", needs = "Hardened architecture and offline vendoring" }]
