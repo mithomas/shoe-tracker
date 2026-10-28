@@ -2,176 +2,185 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shoe Tracker - Tracer Bullet</title>
-  <style>
-    body {
-      background-color: #0F172A;
-      color: #F8FAFC;
-      font-family: system-ui, -apple-system, sans-serif;
-      margin: 0;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container {
-      max-width: 480px;
-      width: 100%;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-    p {
-      color: #94A3B8;
-      font-size: 14px;
-      margin-top: 0;
-      margin-bottom: 24px;
-    }
-    .card {
-      background: #1E293B;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #334155;
-    }
-    label {
-      display: block;
-      font-size: 13px;
-      color: #94A3B8;
-      margin-bottom: 6px;
-    }
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px 12px;
-      background: #0F172A;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      color: #F8FAFC;
-      font-size: 14px;
-      margin-bottom: 14px;
-    }
-    button.btn-spot {
-      width: 100%;
-      padding: 14px;
-      background: #F97316;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    button.btn-spot:hover {
-      background: #EA580C;
-    }
-    button.btn-secondary {
-      background: #334155;
-      color: #F8FAFC;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    pre {
-      background: #090D16;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      overflow-x: auto;
-      color: #10B981;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Shoe Tracker</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>👟 Shoe Tracker Tracer</h1>
-    <p>End-to-End Tracer Bullet: Quarkus Kotlin + SQLite</p>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span style="font-size:22px;">👟</span>
+        <span class="logo-title">Shoe Tracker</span>
+      </div>
+      <div class="header-status">
+        <span id="userChip" class="user-chip" title="Click to view user ID">👤 ...</span>
+        <div id="gpsPill" class="gps-pill locating">
+          <span class="dot"></span>
+          <span id="gpsPillLabel">Locating...</span>
+        </div>
+      </div>
+    </header>
 
+    <!-- Warning Banner for GPS Permission Denied -->
+    <div id="gpsWarningBanner" class="warning-banner">
+      <strong>⚠️ Location Access Required:</strong> Shoe Tracker requires GPS to record coordinate tags on the Autobahn. Please enable location permissions in your browser or device settings.
+    </div>
+
+    <!-- Telemetry Card (Updates every 5s) -->
+    <div class="telemetry-card">
+      <div class="telemetry-header">
+        <span class="telemetry-title">Current GPS Position</span>
+        <span class="telemetry-ticker" id="telemetryTicker">Auto-refresh 5s</span>
+      </div>
+      <div class="telemetry-coords" id="telemetryCoords">Waiting for satellites...</div>
+    </div>
+
+    <!-- Spotting Section -->
     <div class="card">
-      <label for="userId">User Identifier / Name:</label>
-      <input type="text" id="userId" value="Tom" />
+      <label for="inputUserId">Active User Identifier:</label>
+      <input type="text" id="inputUserId" readonly />
 
-      <label for="lat">Latitude:</label>
-      <input type="number" id="lat" value="50.1109" step="0.0001" />
-
-      <label for="lon">Longitude:</label>
-      <input type="number" id="lon" value="8.6821" step="0.0001" />
+      <label for="inputCoords">Hot Coordinates (from background watcher):</label>
+      <input type="text" id="inputCoords" readonly value="Acquiring GPS fix..." />
 
       <button class="btn-spot" id="btnSpot">👟 Record Shoe Sighting</button>
     </div>
 
+    <!-- Live Feed / Responses -->
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <span style="font-weight:bold;">Recorded Sightings</span>
+        <span style="font-weight:bold; font-size:14px;">Recent Sightings</span>
         <button class="btn-secondary" id="btnRefresh">Refresh</button>
       </div>
       <div id="output"><pre>Click Refresh to load sightings...</pre></div>
     </div>
   </div>
 
+  <!-- Onboarding Modal Bottom Sheet -->
+  <div class="modal-backdrop" id="onboardingModal">
+    <div class="modal-sheet">
+      <h2 class="modal-title">Welcome to Shoe Tracker! 👟</h2>
+      <p class="modal-subtitle">What's your name? We'll associate it with your shoe sightings on the Autobahn.</p>
+      <form id="onboardingForm">
+        <label for="onboardingInput">Your Name:</label>
+        <input type="text" id="onboardingInput" placeholder="e.g. Tom" maxlength="64" autocomplete="name" />
+        <div class="error-msg" id="onboardingError"></div>
+        <button type="submit" class="btn-spot" style="padding:12px;">Start Spotting</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/format.js"></script>
+  <script src="/js/geo.js"></script>
+  <script src="/js/onboarding.js"></script>
   <script>
-    const btnSpot = document.getElementById('btnSpot');
-    const btnRefresh = document.getElementById('btnRefresh');
-    const output = document.getElementById('output');
+    document.addEventListener('DOMContentLoaded', () => {
+      const { geoWatcher, onboarding, formatLocation } = window.ShoeTracker;
 
-    function formatCoordinate(coord, isLat) {
-      const dir = isLat ? (coord >= 0 ? 'N' : 'S') : (coord >= 0 ? 'E' : 'W');
-      const abs = Math.abs(coord);
-      const degrees = Math.floor(abs);
-      const minutes = (abs - degrees) * 60;
-      const degStr = isLat ? String(degrees).padStart(2, '0') : String(degrees).padStart(3, '0');
-      const minStr = minutes.toFixed(3).replace('.', ',');
-      return `${dir} ${degStr}° ${minStr}'`;
-    }
+      const inputUserId = document.getElementById('inputUserId');
+      const inputCoords = document.getElementById('inputCoords');
+      const gpsPill = document.getElementById('gpsPill');
+      const gpsPillLabel = document.getElementById('gpsPillLabel');
+      const gpsWarningBanner = document.getElementById('gpsWarningBanner');
+      const telemetryCoords = document.getElementById('telemetryCoords');
+      const telemetryTicker = document.getElementById('telemetryTicker');
+      const btnSpot = document.getElementById('btnSpot');
+      const btnRefresh = document.getElementById('btnRefresh');
+      const output = document.getElementById('output');
 
-    function formatLocation(lat, lon) {
-      return `${formatCoordinate(lat, true)} / ${formatCoordinate(lon, false)}`;
-    }
+      // Initialize Onboarding
+      onboarding.init();
+      onboarding.onNameChange((name) => {
+        inputUserId.value = name;
+      });
+      inputUserId.value = onboarding.getUserId() || '';
 
-    btnSpot.addEventListener('click', async () => {
-      const userId = document.getElementById('userId').value;
-      const lat = parseFloat(document.getElementById('lat').value);
-      const lon = parseFloat(document.getElementById('lon').value);
-
-      try {
-        const res = await fetch('/api/v1/sightings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userId,
-            location: { latitude: lat, longitude: lon },
-            recorded_at: new Date().toISOString()
-          })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          const locStr = formatLocation(data.location.latitude, data.location.longitude);
-          output.innerHTML = `<pre>POST 201 Created:\nLocation: ${locStr}\n\n${JSON.stringify(data, null, 2)}</pre>`;
+      // Initialize Geolocation Watcher
+      geoWatcher.onStatusChange((status, message) => {
+        gpsPill.className = `gps-pill ${status}`;
+        if (status === 'ready') {
+          gpsPillLabel.textContent = 'GPS Ready';
+          gpsWarningBanner.classList.remove('visible');
+        } else if (status === 'locating') {
+          gpsPillLabel.textContent = 'Locating...';
+          gpsWarningBanner.classList.remove('visible');
+          telemetryCoords.textContent = 'Acquiring satellites...';
+          inputCoords.value = 'Acquiring satellites...';
         } else {
-          output.innerHTML = `<pre style="color:#EF4444;">HTTP ${res.status} ${res.statusText}:\n${JSON.stringify(data, null, 2)}</pre>`;
+          gpsPillLabel.textContent = 'GPS Denied';
+          gpsWarningBanner.classList.add('visible');
+          telemetryCoords.textContent = 'Location access denied.';
+          inputCoords.value = 'Location access denied.';
+          telemetryTicker.textContent = 'GPS disabled';
         }
-      } catch (err) {
-        output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
-      }
-    });
+      });
 
-    btnRefresh.addEventListener('click', async () => {
-      try {
-        const res = await fetch('/api/v1/sightings');
-        const data = await res.json();
-        const formattedItems = (data.items || []).map(item => ({
-          ...item,
-          formatted_location: formatLocation(item.location.latitude, item.location.longitude)
-        }));
-        output.innerHTML = `<pre>GET 200 OK (${data.total} total):\n\n${JSON.stringify({ ...data, items: formattedItems }, null, 2)}</pre>`;
-      } catch (err) {
-        output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
-      }
+      // Update 5s Telemetry
+      geoWatcher.onTelemetryUpdate((pos, status) => {
+        if (pos && status === 'ready') {
+          const locStr = formatLocation(pos.latitude, pos.longitude);
+          telemetryCoords.textContent = locStr;
+          inputCoords.value = locStr;
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString();
+          telemetryTicker.textContent = `Updated ${timeStr} (±${Math.round(pos.accuracy || 0)}m)`;
+        }
+      });
+
+      geoWatcher.start();
+
+      // Record Sighting using Hot Coordinates
+      btnSpot.addEventListener('click', async () => {
+        const userId = onboarding.getUserId();
+        if (!userId) {
+          onboarding.show('');
+          return;
+        }
+
+        const hot = geoWatcher.getHotCoordinates();
+        if (!hot) {
+          output.innerHTML = `<pre style="color:#F59E0B;">⚠️ Waiting for GPS satellite lock before recording. Please ensure location access is enabled.</pre>`;
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/v1/sightings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: userId,
+              location: { latitude: hot.latitude, longitude: hot.longitude },
+              recorded_at: hot.recorded_at
+            })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            const locStr = formatLocation(data.location.latitude, data.location.longitude);
+            output.innerHTML = `<pre>POST 201 Created:\nLocation: ${locStr}\n\n${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            output.innerHTML = `<pre style="color:#EF4444;">HTTP ${res.status} ${res.statusText}:\n${JSON.stringify(data, null, 2)}</pre>`;
+          }
+        } catch (err) {
+          output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
+        }
+      });
+
+      // Refresh list
+      btnRefresh.addEventListener('click', async () => {
+        try {
+          const res = await fetch('/api/v1/sightings');
+          const data = await res.json();
+          const formattedItems = (data.items || []).map(item => ({
+            ...item,
+            formatted_location: formatLocation(item.location.latitude, item.location.longitude)
+          }));
+          output.innerHTML = `<pre>GET 200 OK (${data.total} total):\n\n${JSON.stringify({ ...data, items: formattedItems }, null, 2)}</pre>`;
+        } catch (err) {
+          output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
+        }
+      });
     });
   </script>
 </body>
