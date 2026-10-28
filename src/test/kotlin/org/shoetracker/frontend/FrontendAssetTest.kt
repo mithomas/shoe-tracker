@@ -13,7 +13,7 @@ import kotlin.math.floor
 class FrontendAssetTest {
 
     @Test
-    fun testIndexHtmlServed() {
+    fun testIndexHtmlServedWithAllComponents() {
         given()
             .`when`()
             .get("/")
@@ -24,6 +24,11 @@ class FrontendAssetTest {
             .body(containsString("gpsPill"))
             .body(containsString("gpsWarningBanner"))
             .body(containsString("telemetryCoords"))
+            .body(containsString("btnSpotGiant"))
+            .body(containsString("sightingModal"))
+            .body(containsString("cooldownRingProgress"))
+            .body(containsString("btnSightingUndo"))
+            .body(containsString("networkAlertBanner"))
     }
 
     @Test
@@ -34,6 +39,9 @@ class FrontendAssetTest {
             .then()
             .statusCode(200)
             .body(containsString("--surface-base"))
+            .body(containsString("btn-spot-giant"))
+            .body(containsString("cooldown-ring"))
+            .body(containsString("btn-modal-tertiary"))
 
         given()
             .`when`()
@@ -57,6 +65,23 @@ class FrontendAssetTest {
             .then()
             .statusCode(200)
             .body(containsString("localStorage"))
+
+        given()
+            .`when`()
+            .get("/js/modal.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("showSighting"))
+            .body(containsString("handleUndo"))
+
+        given()
+            .`when`()
+            .get("/js/spot.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("startCooldown"))
+            .body(containsString("cooldownSeconds"))
+            .body(containsString("setGpsStatus"))
     }
 
     @Test

@@ -7,10 +7,12 @@
   --ink-muted: #64748B;
   --action-primary: #F97316;
   --action-hover: #EA580C;
+  --action-cooldown: #475569;
   --status-gps-ready: #10B981;
   --status-gps-warn: #F59E0B;
   --status-gps-error: #EF4444;
   --border-subtle: #334155;
+  --accent-blue: #3B82F6;
 }
 
 * {
@@ -152,19 +154,19 @@ body {
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
 }
 
 .telemetry-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .telemetry-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -177,17 +179,116 @@ body {
 }
 
 .telemetry-coords {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-variant-numeric: tabular-nums;
   color: var(--ink-primary);
 }
 
-/* Main Cards */
+/* Giant 210px Spot Button Area */
+.spot-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0 32px 0;
+}
+
+.btn-spot-container {
+  position: relative;
+  width: 230px;
+  height: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cooldown-ring {
+  position: absolute;
+  inset: 0;
+  width: 230px;
+  height: 230px;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.cooldown-ring circle.bg {
+  stroke: rgba(51, 65, 85, 0.4);
+}
+
+.cooldown-ring circle.progress {
+  stroke: var(--action-primary);
+  stroke-linecap: round;
+}
+
+.btn-spot-giant {
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  border: none;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 32px rgba(249, 115, 22, 0.45);
+  transition: transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  z-index: 2;
+}
+
+.btn-spot-giant:active {
+  transform: scale(0.95);
+}
+
+.btn-spot-giant .icon {
+  font-size: 46px;
+  line-height: 1;
+}
+
+.btn-spot-giant .label {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.btn-spot-giant.cooldown {
+  background: var(--action-cooldown);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: scale(0.98);
+}
+
+.btn-spot-giant.waiting-gps {
+  background: var(--surface-overlay);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+  cursor: wait;
+}
+
+.btn-spot-giant.no-gps {
+  background: var(--surface-overlay);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-spot-giant.cooldown .label,
+.btn-spot-giant.waiting-gps .label,
+.btn-spot-giant.no-gps .label {
+  font-size: 15px;
+  color: #E2E8F0;
+}
+
+/* Secondary Cards */
 .card {
   background: var(--surface-raised);
-  padding: 20px;
+  padding: 18px;
   border-radius: 12px;
   margin-bottom: 20px;
   border: 1px solid var(--border-subtle);
@@ -230,17 +331,11 @@ input.input-error {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background 0.15s;
 }
 
 .btn-spot:hover {
   background: var(--action-hover);
-}
-
-.btn-spot:disabled {
-  background: var(--surface-overlay);
-  color: var(--ink-muted);
-  cursor: not-allowed;
 }
 
 .btn-secondary {
@@ -309,6 +404,80 @@ pre {
   font-size: 14px;
   color: var(--ink-secondary);
   margin: 0 0 20px 0;
+}
+
+.modal-detail-box {
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.modal-detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.modal-detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.modal-detail-row .label {
+  color: var(--ink-secondary);
+}
+
+.modal-detail-row .val {
+  color: var(--ink-primary);
+  font-weight: 600;
+  font-family: ui-monospace, monospace;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-primary-action {
+  flex: 1;
+  padding: 12px;
+  background: var(--action-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-modal-secondary {
+  padding: 12px 18px;
+  background: var(--surface-overlay);
+  color: var(--ink-primary);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-modal-tertiary {
+  padding: 12px 16px;
+  background: transparent;
+  color: var(--ink-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.btn-modal-tertiary:hover {
+  color: var(--status-gps-error);
+  border-color: var(--status-gps-error);
 }
 
 .error-msg {

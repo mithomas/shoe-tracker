@@ -173,6 +173,42 @@ class SightingResourceTest {
     }
 
     @Test
+    fun testDeleteSighting() {
+        val payload = """
+            {
+              "user_id": "Tom",
+              "location": {
+                "latitude": 50.1109,
+                "longitude": 8.6821
+              },
+              "recorded_at": "2026-10-28T14:32:00Z"
+            }
+        """.trimIndent()
+
+        val id = given()
+            .contentType(ContentType.JSON)
+            .body(payload)
+            .`when`()
+            .post("/api/v1/sightings")
+            .then()
+            .statusCode(201)
+            .extract()
+            .path<String>("id")
+
+        given()
+            .`when`()
+            .delete("/api/v1/sightings/$id")
+            .then()
+            .statusCode(204)
+
+        given()
+            .`when`()
+            .delete("/api/v1/sightings/non-existent-id")
+            .then()
+            .statusCode(404)
+    }
+
+    @Test
     fun testRecordSightingMalformedJson() {
         val malformedPayload = "{ user_id: broken-json }"
 

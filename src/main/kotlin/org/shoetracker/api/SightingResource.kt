@@ -26,4 +26,15 @@ class SightingResource(private val service: SightingService) {
     ): SightingListResponse {
         return service.listSightings(userId, limit, offset)
     }
+
+    @DELETE
+    @Path("/{id}")
+    fun deleteSighting(@PathParam("id") id: String): Response {
+        val deleted = service.deleteSighting(id)
+        return if (deleted) {
+            Response.noContent().build()
+        } else {
+            Response.status(Response.Status.NOT_FOUND).build()
+        }
+    }
 }

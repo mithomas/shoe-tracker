@@ -15,7 +15,7 @@
         <span class="logo-title">Shoe Tracker</span>
       </div>
       <div class="header-status">
-        <span id="userChip" class="user-chip" title="Click to view user ID">👤 ...</span>
+        <span id="userChip" class="user-chip" title="Click to view/change user name">👤 ...</span>
         <div id="gpsPill" class="gps-pill locating">
           <span class="dot"></span>
           <span id="gpsPillLabel">Locating...</span>
@@ -23,9 +23,12 @@
       </div>
     </header>
 
-    <!-- Warning Banner for GPS Permission Denied -->
+    <!-- Top Alert Banners -->
     <div id="gpsWarningBanner" class="warning-banner">
       <strong>⚠️ Location Access Required:</strong> Shoe Tracker requires GPS to record coordinate tags on the Autobahn. Please enable location permissions in your browser or device settings.
+    </div>
+    <div id="networkAlertBanner" class="warning-banner" style="background:rgba(239, 68, 68, 0.25); border-color:#EF4444;">
+      <strong>⚠️ Network Error:</strong> Could not reach server. Check connection.
     </div>
 
     <!-- Telemetry Card (Updates every 5s) -->
@@ -37,24 +40,54 @@
       <div class="telemetry-coords" id="telemetryCoords">Waiting for satellites...</div>
     </div>
 
-    <!-- Spotting Section -->
-    <div class="card">
-      <label for="inputUserId">Active User Identifier:</label>
-      <input type="text" id="inputUserId" readonly />
-
-      <label for="inputCoords">Hot Coordinates (from background watcher):</label>
-      <input type="text" id="inputCoords" readonly value="Acquiring GPS fix..." />
-
-      <button class="btn-spot" id="btnSpot">👟 Record Shoe Sighting</button>
+    <!-- Giant 210px Spot Button Area -->
+    <div class="spot-area">
+      <div class="btn-spot-container">
+        <svg class="cooldown-ring" viewBox="0 0 230 230">
+          <circle class="bg" cx="115" cy="115" r="105" fill="none" stroke-width="6"></circle>
+          <circle id="cooldownRingProgress" class="progress" cx="115" cy="115" r="105" fill="none" stroke-width="6"></circle>
+        </svg>
+        <button class="btn-spot-giant waiting-gps" id="btnSpotGiant" aria-label="Spot shoe and log location" disabled>
+          <span class="icon">👟</span>
+          <span class="label" id="btnSpotLabel" aria-live="polite">Waiting for GPS...</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Live Feed / Responses -->
+    <!-- Recent Sightings / Live Feed -->
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span style="font-weight:bold; font-size:14px;">Recent Sightings</span>
         <button class="btn-secondary" id="btnRefresh">Refresh</button>
       </div>
       <div id="output"><pre>Click Refresh to load sightings...</pre></div>
+    </div>
+  </div>
+
+  <!-- Sighting Confirmation Modal Sheet -->
+  <div class="modal-backdrop" id="sightingModal">
+    <div class="modal-sheet">
+      <h2 class="modal-title">👟 Shoe Spotted!</h2>
+      <p class="modal-subtitle">Your sighting has been logged to the highway registry.</p>
+      <div class="modal-detail-box">
+        <div class="modal-detail-row">
+          <span class="label">Time:</span>
+          <span class="val" id="sightingModalTime">--:--:--</span>
+        </div>
+        <div class="modal-detail-row">
+          <span class="label">Location:</span>
+          <span class="val" id="sightingModalCoords">N 00° 00,000' / E 000° 00,000'</span>
+        </div>
+        <div class="modal-detail-row">
+          <span class="label">Spotted By:</span>
+          <span class="val" id="sightingModalUser">--</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary-action" id="btnSightingAwesome">Awesome!</button>
+        <button class="btn-modal-secondary" id="btnSightingViewMap">View on Map</button>
+        <button class="btn-modal-tertiary" id="btnSightingUndo">Undo</button>
+      </div>
     </div>
   </div>
 
@@ -75,31 +108,30 @@
   <script src="/js/format.js"></script>
   <script src="/js/geo.js"></script>
   <script src="/js/onboarding.js"></script>
+  <script src="/js/modal.js"></script>
+  <script src="/js/spot.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { geoWatcher, onboarding, formatLocation } = window.ShoeTracker;
+      const { geoWatcher, onboarding, modal, spotManager, formatLocation } = window.ShoeTracker;
 
-      const inputUserId = document.getElementById('inputUserId');
-      const inputCoords = document.getElementById('inputCoords');
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
       const gpsWarningBanner = document.getElementById('gpsWarningBanner');
       const telemetryCoords = document.getElementById('telemetryCoords');
       const telemetryTicker = document.getElementById('telemetryTicker');
-      const btnSpot = document.getElementById('btnSpot');
       const btnRefresh = document.getElementById('btnRefresh');
       const output = document.getElementById('output');
 
-      // Initialize Onboarding
+      // Initialize Managers
       onboarding.init();
-      onboarding.onNameChange((name) => {
-        inputUserId.value = name;
-      });
-      inputUserId.value = onboarding.getUserId() || '';
+      modal.init();
+      spotManager.init();
 
-      // Initialize Geolocation Watcher
+      // Geolocation state transitions
       geoWatcher.onStatusChange((status, message) => {
         gpsPill.className = `gps-pill ${status}`;
+        spotManager.setGpsStatus(status);
+
         if (status === 'ready') {
           gpsPillLabel.textContent = 'GPS Ready';
           gpsWarningBanner.classList.remove('visible');
@@ -107,22 +139,19 @@
           gpsPillLabel.textContent = 'Locating...';
           gpsWarningBanner.classList.remove('visible');
           telemetryCoords.textContent = 'Acquiring satellites...';
-          inputCoords.value = 'Acquiring satellites...';
         } else {
           gpsPillLabel.textContent = 'GPS Denied';
           gpsWarningBanner.classList.add('visible');
           telemetryCoords.textContent = 'Location access denied.';
-          inputCoords.value = 'Location access denied.';
           telemetryTicker.textContent = 'GPS disabled';
         }
       });
 
-      // Update 5s Telemetry
+      // Update 5s Telemetry Display
       geoWatcher.onTelemetryUpdate((pos, status) => {
         if (pos && status === 'ready') {
           const locStr = formatLocation(pos.latitude, pos.longitude);
           telemetryCoords.textContent = locStr;
-          inputCoords.value = locStr;
           const now = new Date();
           const timeStr = now.toLocaleTimeString();
           telemetryTicker.textContent = `Updated ${timeStr} (±${Math.round(pos.accuracy || 0)}m)`;
@@ -131,44 +160,8 @@
 
       geoWatcher.start();
 
-      // Record Sighting using Hot Coordinates
-      btnSpot.addEventListener('click', async () => {
-        const userId = onboarding.getUserId();
-        if (!userId) {
-          onboarding.show('');
-          return;
-        }
-
-        const hot = geoWatcher.getHotCoordinates();
-        if (!hot) {
-          output.innerHTML = `<pre style="color:#F59E0B;">⚠️ Waiting for GPS satellite lock before recording. Please ensure location access is enabled.</pre>`;
-          return;
-        }
-
-        try {
-          const res = await fetch('/api/v1/sightings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: userId,
-              location: { latitude: hot.latitude, longitude: hot.longitude },
-              recorded_at: hot.recorded_at
-            })
-          });
-          const data = await res.json();
-          if (res.ok) {
-            const locStr = formatLocation(data.location.latitude, data.location.longitude);
-            output.innerHTML = `<pre>POST 201 Created:\nLocation: ${locStr}\n\n${JSON.stringify(data, null, 2)}</pre>`;
-          } else {
-            output.innerHTML = `<pre style="color:#EF4444;">HTTP ${res.status} ${res.statusText}:\n${JSON.stringify(data, null, 2)}</pre>`;
-          }
-        } catch (err) {
-          output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
-        }
-      });
-
       // Refresh list
-      btnRefresh.addEventListener('click', async () => {
+      async function refreshSightings() {
         try {
           const res = await fetch('/api/v1/sightings');
           const data = await res.json();
@@ -180,7 +173,9 @@
         } catch (err) {
           output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
         }
-      });
+      }
+
+      btnRefresh.addEventListener('click', refreshSightings);
     });
   </script>
 </body>

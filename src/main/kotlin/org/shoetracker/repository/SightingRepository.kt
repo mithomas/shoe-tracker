@@ -120,6 +120,16 @@ class SightingRepository(private val dataSource: DataSource) : AutoCloseable {
         }
     }
 
+    fun deleteById(id: String): Boolean {
+        val sql = "DELETE FROM sightings WHERE id = ?"
+        return writeLock.withLock {
+            connection.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, id)
+                stmt.executeUpdate() > 0
+            }
+        }
+    }
+
     @PreDestroy
     override fun close() {
         runCatching { insertStmt.close() }

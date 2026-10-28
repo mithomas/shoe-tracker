@@ -49,6 +49,11 @@ class SightingService(private val repository: SightingRepository) {
         )
     }
 
+    fun deleteSighting(id: String): Boolean {
+        require(id.isNotBlank()) { "id must not be blank." }
+        return repository.deleteById(id.trim())
+    }
+
     private fun Sighting.toResponse(): SightingResponse {
         return SightingResponse(
             id = id,
