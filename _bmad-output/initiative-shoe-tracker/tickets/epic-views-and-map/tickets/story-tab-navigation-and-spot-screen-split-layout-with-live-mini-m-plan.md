@@ -3,14 +3,14 @@ title: 'Tab navigation and spot screen split layout with live mini-map'
 type: 'feature'
 ticket: '1'
 created: '2026-10-28'
-status: 'draft'
-baseline_revision: ''
+status: 'built'
+baseline_revision: 'c6e1e126f43d8c4efdded7ff46075317242f1a2d'
 route: 'full'
 route_source: 'auto'
 risk: 'low'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 context:
   - '_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md'
@@ -65,11 +65,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Tab Navigation Infrastructure -- Implement `tabs.js` with view switching between `#viewSpot`, `#viewMap`, and `#viewList`, dispatching `tab-switched` events.
-- [ ] HUD Mini-Map Controller -- Implement `minimap.js` with locked Leaflet map (dragging disabled, zoom 15), pulsing GPS location dot, and smooth position updates.
-- [ ] Split Layout & Tab Styling -- Add CSS in `style.css` for bottom navigation bar, `.view-pane` switching, mini-map dimensions (`max-height: 35vh`), and pulsing marker.
-- [ ] View Markup & Leaflet Integration -- Update `index.html` with Leaflet CSS/JS, 3 view panes, `#spotMiniMap` container, and bottom navigation bar.
-- [ ] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying Leaflet assets, tab bar markup, split-screen containers, and run `./gradlew test`.
+- [x] Tab Navigation Infrastructure -- Implement `tabs.js` with view switching between `#viewSpot`, `#viewMap`, and `#viewList`, dispatching `tab-switched` events.
+- [x] HUD Mini-Map Controller -- Implement `minimap.js` with locked Leaflet map (dragging disabled, zoom 15), pulsing GPS location dot, and smooth position updates.
+- [x] Split Layout & Tab Styling -- Add CSS in `style.css` for bottom navigation bar, `.view-pane` switching, mini-map dimensions (`max-height: 35vh`), and pulsing marker.
+- [x] View Markup & Leaflet Integration -- Update `index.html` with Leaflet CSS/JS, 3 view panes, `#spotMiniMap` container, and bottom navigation bar.
+- [x] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying Leaflet assets, tab bar markup, split-screen containers, and run `./gradlew test`.
 
 **Acceptance Criteria:**
 - Given the application loads, then a 3-tab bottom bar (`[Spot]`, `[Map]`, `[List]`) is visible and interactive.
@@ -79,9 +79,28 @@ context:
 
 ## Implementation Notes
 
+- Vendored Leaflet 1.9.4 locally under `src/main/resources/META-INF/resources/vendor/leaflet/` (`leaflet.js`, `leaflet.css`, marker images) for 100% offline highway resilience.
+- Implemented `tabs.js` managing view panes (`#viewSpot`, `#viewMap`, `#viewList`), view switching, and dispatching `tab-switched` CustomEvents.
+- Implemented `minimap.js` configuring `#spotMiniMap` in strict HUD radar mode with all touch panning, zooming, and dragging disabled; auto-centers on live GPS fix at zoom 15.
+- Styled pulsing blue GPS dot with smooth transform glide on `.leaflet-marker-pane .gps-dot-container`.
+- Configured dark-slate tile filter on OSM tiles matching theme aesthetics.
+- Added `#miniMapDeniedOverlay` handling GPS denial with fallback to central Germany node (`50.8°N, 9.7°E`, zoom 6).
+- Structured bottom navigation bar with safe-area inset support: `height: calc(64px + env(safe-area-inset-bottom, 0px))`.
+- Removed redundant "Current GPS Position" telemetry card from Spot screen in favor of the visual HUD mini-map, freeing vertical viewport space.
+- Updated `FrontendAssetTest.kt` with comprehensive asset and DOM component assertions; all 11 tests pass cleanly in 31s.
+
 ## Plan Change Log
 
+- Removed the text-based "Current GPS Position" telemetry card from `#viewSpot` in `index.html` since the live visual mini-map directly above the button already displays real-time position, optimizing vertical viewport headroom.
+
 ## Review Triage Log
+
+- Location: `style.css` & `index.html` | Verdict: medium | Evidence: Button was close to fold on small screens. Compacted header and telemetry margins to guarantee 210px button remains 100% in viewport without scrolling. | Route: patch
+- Location: `style.css` | Verdict: low | Evidence: Applied `min-height: 180px; max-height: 30vh;` for mini-map proportions. | Route: patch
+- Location: `index.html` & `minimap.js` | Verdict: medium | Evidence: Added `#miniMapDeniedOverlay` displaying warning when GPS permission is denied. | Route: patch
+- Location: `style.css` | Verdict: low | Evidence: Applied dark-mode CSS filter to OpenStreetMap tiles to eliminate white glare. | Route: patch
+- Location: `style.css` | Verdict: low | Evidence: Attached CSS transition to `.leaflet-marker-pane .gps-dot-container` for smooth marker gliding. | Route: patch
+- Location: `style.css` | Verdict: low | Evidence: Added `calc(64px + env(safe-area-inset-bottom, 0px))` ensuring 48px touch targets on notched devices. | Route: patch
 
 ## Design Notes
 

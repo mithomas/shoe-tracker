@@ -33,9 +33,20 @@ body {
 .app-wrapper {
   max-width: 480px;
   width: 100%;
-  padding: 16px;
+  padding: 16px 16px 84px 16px;
   display: flex;
   flex-direction: column;
+}
+
+/* View Panes for Tab Navigation */
+.view-pane {
+  display: none;
+  width: 100%;
+  flex-direction: column;
+}
+
+.view-pane.active {
+  display: flex;
 }
 
 /* App Header */
@@ -499,4 +510,150 @@ pre {
   margin-top: -8px;
   margin-bottom: 12px;
   min-height: 16px;
+}
+
+/* Tactical HUD Mini-Map (Upper Area of Spot Screen) */
+.mini-map-container {
+  width: 100%;
+  height: min(30vh, 220px);
+  min-height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-base);
+  position: relative;
+}
+
+#spotMiniMap {
+  width: 100%;
+  height: 100%;
+  background: var(--surface-base);
+}
+
+/* Invert and darken OSM tiles for sleek Autobahn slate theme */
+#spotMiniMap .leaflet-tile {
+  filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.35) brightness(0.85);
+}
+
+.mini-map-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--status-gps-warn);
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 1000;
+  padding: 16px;
+  text-align: center;
+}
+
+.mini-map-hud-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  color: var(--ink-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Pulsing GPS Dot for HUD mini-map */
+.gps-dot-container {
+  background: transparent;
+  border: none;
+}
+
+/* Enable smooth gliding on Leaflet's marker transform wrapper */
+.leaflet-marker-pane .gps-dot-container {
+  transition: transform 0.5s ease-out !important;
+}
+
+.live-gps-dot {
+  width: 14px;
+  height: 14px;
+  background: #3B82F6;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+}
+
+.live-gps-halo {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.3);
+  animation: pulse-halo 2s infinite ease-out;
+}
+
+@keyframes pulse-halo {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface-raised);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 900;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+}
+
+.nav-tab {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.1s;
+  padding: 0;
+}
+
+.nav-tab .icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.nav-tab .label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.nav-tab.active {
+  color: var(--action-primary);
+}
+
+.nav-tab:active {
+  transform: scale(0.95);
 }

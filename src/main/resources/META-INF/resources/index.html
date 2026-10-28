@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Shoe Tracker</title>
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -31,43 +32,80 @@
       <strong>⚠️ Network Error:</strong> Could not reach server. Check connection.
     </div>
 
-    <!-- Telemetry Card (Updates every 5s) -->
-    <div class="telemetry-card">
-      <div class="telemetry-header">
-        <span class="telemetry-title">Current GPS Position</span>
-        <span class="telemetry-ticker" id="telemetryTicker">Auto-refresh 5s</span>
+    <!-- View Pane 1: Spot Screen (Default) -->
+    <section id="viewSpot" class="view-pane active">
+      <!-- Upper Area: Tactical HUD Mini-Map -->
+      <div class="mini-map-container">
+        <span class="mini-map-hud-badge">HUD Radar</span>
+        <div id="spotMiniMap"></div>
+        <div id="miniMapDeniedOverlay" class="mini-map-overlay" style="display:none;">
+          <span>⚠️ Location Access Denied — Germany Overview</span>
+        </div>
       </div>
-      <div class="telemetry-coords" id="telemetryCoords">Waiting for satellites...</div>
-    </div>
 
-    <!-- Giant 210px Spot Button Area -->
-    <div class="spot-area">
-      <div class="btn-spot-container">
-        <svg class="cooldown-ring" viewBox="0 0 230 230">
-          <circle class="bg" cx="115" cy="115" r="105" fill="none" stroke-width="6"></circle>
-          <circle id="cooldownRingProgress" class="progress" cx="115" cy="115" r="105" fill="none" stroke-width="6"></circle>
-        </svg>
-        <button class="btn-spot-giant waiting-gps" id="btnSpotGiant" aria-label="Spot shoe and log location" disabled>
-          <span class="icon">👟</span>
-          <span class="label" id="btnSpotLabel" aria-live="polite">Waiting for GPS...</span>
-        </button>
+      <!-- Lower Area: Giant 210px Spot Button -->
+      <div class="spot-area">
+        <div class="btn-spot-container">
+          <svg class="cooldown-ring" viewBox="0 0 230 230">
+            <circle class="bg" cx="115" cy="115" r="105" fill="none" stroke-width="6"></circle>
+            <circle id="cooldownRingProgress" class="progress" cx="115" cy="115" r="105" fill="none" stroke-width="6"></circle>
+          </svg>
+          <button class="btn-spot-giant waiting-gps" id="btnSpotGiant" aria-label="Spot shoe and log location" disabled>
+            <span class="icon">👟</span>
+            <span class="label" id="btnSpotLabel" aria-live="polite">Waiting for GPS...</span>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Recent Sightings / Live Feed -->
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <span style="font-weight:bold; font-size:14px;">Recent Sightings</span>
-        <button class="btn-secondary" id="btnRefresh">Refresh</button>
+      <!-- Recent Sightings / Live Feed -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span style="font-weight:bold; font-size:14px;">Recent Sightings</span>
+          <button class="btn-secondary" id="btnRefresh">Refresh</button>
+        </div>
+        <div id="output"><pre>Click Refresh to load sightings...</pre></div>
       </div>
-      <div id="output"><pre>Click Refresh to load sightings...</pre></div>
-    </div>
 
-    <!-- App Version Footer -->
-    <footer class="app-footer">
-      <span>Shoe Tracker v1.0.0</span>
-    </footer>
+      <!-- App Version Footer -->
+      <footer class="app-footer">
+        <span>Shoe Tracker v1.0.0</span>
+      </footer>
+    </section>
+
+    <!-- View Pane 2: Map Screen (Ready for Story 2.2) -->
+    <section id="viewMap" class="view-pane">
+      <div class="card" style="text-align:center; padding:40px 20px;">
+        <span style="font-size:36px;">🗺️</span>
+        <h3 style="margin:12px 0 6px 0;">Highway Map View</h3>
+        <p style="color:var(--ink-secondary); font-size:14px;">Full interactive map view is being prepared for Story 2.2.</p>
+      </div>
+    </section>
+
+    <!-- View Pane 3: List Screen (Ready for Story 2.3) -->
+    <section id="viewList" class="view-pane">
+      <div class="card" style="text-align:center; padding:40px 20px;">
+        <span style="font-size:36px;">📋</span>
+        <h3 style="margin:12px 0 6px 0;">Historical Sighting List</h3>
+        <p style="color:var(--ink-secondary); font-size:14px;">Chronological list view is being prepared for Story 2.3.</p>
+      </div>
+    </section>
   </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav" id="bottomNav" aria-label="Main Navigation">
+    <button class="nav-tab active" id="tabSpot" data-tab="spot" aria-label="Spot shoe">
+      <span class="icon">👟</span>
+      <span class="label">Spot</span>
+    </button>
+    <button class="nav-tab" id="tabMap" data-tab="map" aria-label="Explore map">
+      <span class="icon">🗺️</span>
+      <span class="label">Map</span>
+    </button>
+    <button class="nav-tab" id="tabList" data-tab="list" aria-label="View history">
+      <span class="icon">📋</span>
+      <span class="label">List</span>
+    </button>
+  </nav>
 
   <!-- Sighting Confirmation Modal Sheet -->
   <div class="modal-backdrop" id="sightingModal">
@@ -110,20 +148,21 @@
     </div>
   </div>
 
+  <script src="/vendor/leaflet/leaflet.js"></script>
   <script src="/js/format.js"></script>
   <script src="/js/geo.js"></script>
   <script src="/js/onboarding.js"></script>
   <script src="/js/modal.js"></script>
   <script src="/js/spot.js"></script>
+  <script src="/js/tabs.js"></script>
+  <script src="/js/minimap.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { geoWatcher, onboarding, modal, spotManager, formatLocation } = window.ShoeTracker;
+      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, formatLocation } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
       const gpsWarningBanner = document.getElementById('gpsWarningBanner');
-      const telemetryCoords = document.getElementById('telemetryCoords');
-      const telemetryTicker = document.getElementById('telemetryTicker');
       const btnRefresh = document.getElementById('btnRefresh');
       const output = document.getElementById('output');
 
@@ -131,6 +170,8 @@
       onboarding.init();
       modal.init();
       spotManager.init();
+      tabManager.init();
+      miniMap.init();
 
       // Geolocation state transitions
       geoWatcher.onStatusChange((status, message) => {
@@ -143,23 +184,9 @@
         } else if (status === 'locating') {
           gpsPillLabel.textContent = 'Locating...';
           gpsWarningBanner.classList.remove('visible');
-          telemetryCoords.textContent = 'Acquiring satellites...';
         } else {
           gpsPillLabel.textContent = 'GPS Denied';
           gpsWarningBanner.classList.add('visible');
-          telemetryCoords.textContent = 'Location access denied.';
-          telemetryTicker.textContent = 'GPS disabled';
-        }
-      });
-
-      // Update 5s Telemetry Display
-      geoWatcher.onTelemetryUpdate((pos, status) => {
-        if (pos && status === 'ready') {
-          const locStr = formatLocation(pos.latitude, pos.longitude);
-          telemetryCoords.textContent = locStr;
-          const now = new Date();
-          const timeStr = now.toLocaleTimeString();
-          telemetryTicker.textContent = `Updated ${timeStr} (±${Math.round(pos.accuracy || 0)}m)`;
         }
       });
 
