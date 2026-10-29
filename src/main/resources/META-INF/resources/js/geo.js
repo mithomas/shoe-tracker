@@ -9,7 +9,7 @@
   class GeolocationWatcher {
     constructor() {
       this.watchId = null;
-      this.state = 'locating'; // 'locating' | 'ready' | 'denied'
+      this.state = 'locating'; // 'locating' | 'ready' | 'no-gps'
       this.latestPosition = null;
       this.statusListeners = [];
       this.telemetryListeners = [];
@@ -28,7 +28,7 @@
       }
 
       if (!('geolocation' in navigator)) {
-        this.setState('denied', 'Geolocation API not supported in this browser.');
+        this.setState('no-gps', 'Geolocation API not supported in this browser.');
         return;
       }
 
@@ -134,7 +134,7 @@
       if (error && error.code === 1) { // PERMISSION_DENIED
         this.latestPosition = null;
         this.stop();
-        this.setState('denied', 'Location permission denied or blocked by OS policy.');
+        this.setState('no-gps', 'Location permission denied or blocked by OS policy.');
       } else {
         this.setState('locating', 'Searching for satellites...');
       }
@@ -146,7 +146,7 @@
     }
 
     emitTelemetry() {
-      if (this.state === 'denied') return;
+      if (this.state === 'no-gps') return;
       this.telemetryListeners.forEach((fn) => fn(this.latestPosition, this.state, this.isMock));
     }
 

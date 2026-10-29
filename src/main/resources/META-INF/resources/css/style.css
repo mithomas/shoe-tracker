@@ -167,7 +167,7 @@ body {
   animation: pulse-dot 1.5s infinite;
 }
 
-.gps-pill.denied {
+.gps-pill.no-gps {
   background: rgba(239, 68, 68, 0.15);
   color: var(--status-gps-error);
   border-color: rgba(239, 68, 68, 0.3);

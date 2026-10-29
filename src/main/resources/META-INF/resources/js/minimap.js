@@ -101,7 +101,7 @@
         }
       });
 
-      this.overlayEl = document.getElementById('miniMapDeniedOverlay');
+      this.overlayEl = document.getElementById('miniMapNoGpsOverlay');
 
       // Hook into Geolocation Watcher
       const { geoWatcher } = window.ShoeTracker;
@@ -116,7 +116,7 @@
 
         geoWatcher.onStatusChange((status) => {
           if (!this.isInitialized) return;
-          if (status === 'denied') {
+          if (status === 'no-gps') {
             if (this.overlayEl) this.overlayEl.style.display = 'flex';
             this.map.setView(this.defaultCenter, this.defaultZoom);
           } else if (status === 'ready') {

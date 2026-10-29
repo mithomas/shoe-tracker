@@ -50,7 +50,7 @@
       } else {
         this.buttonEl.disabled = true;
         this.buttonEl.classList.add('no-gps');
-        this.labelEl.textContent = i18n ? i18n.t('spot.denied') : 'GPS Denied';
+        this.labelEl.textContent = i18n ? i18n.t('spot.noGps') : 'No GPS';
       }
     }
 

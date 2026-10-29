@@ -45,8 +45,8 @@
       <div class="mini-map-container">
         <span class="mini-map-hud-badge" data-i18n="spot.hudBadge">HUD Radar</span>
         <div id="spotMiniMap"></div>
-        <div id="miniMapDeniedOverlay" class="mini-map-overlay" style="display:none;">
-          <span data-i18n="spot.deniedOverlay">⚠️ Location Access Denied</span>
+        <div id="miniMapNoGpsOverlay" class="mini-map-overlay" style="display:none;">
+          <span data-i18n="spot.noGpsOverlay">⚠️ No GPS</span>
         </div>
       </div>
 
@@ -232,7 +232,7 @@
         } else if (status === 'locating') {
           gpsPillLabel.textContent = i18n ? t('gps.locating') : 'Locating...';
         } else {
-          gpsPillLabel.textContent = i18n ? t('gps.denied') : 'GPS Denied';
+          gpsPillLabel.textContent = i18n ? t('gps.noGps') : 'No GPS';
         }
       }
 
