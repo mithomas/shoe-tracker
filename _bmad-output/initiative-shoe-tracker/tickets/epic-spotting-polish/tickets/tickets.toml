@@ -87,3 +87,14 @@ covers = ["R28", "R29", "R30", "R31", "R32", "R33", "R34", "R35"]
 after = [1, 2, 3, 4, 5, 6, 7]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Fix German Spot Button Casing, Button Line-Wrapping, Light Mode Contrast, and Map/Spot Edge Cases"
+description = "Updates German 'spot.ready' in i18n.js from 'SCHUH!' to 'Schuh!' and removes text-transform: uppercase on .btn-spot-giant .label so 'Schuh!' renders in title case; prevents German button line-wrapping across .modal-actions buttons (#btnSightingAwesome, #btnSightingViewMap, #btnSightingUndo) and .btn-spot-giant .label via white-space: nowrap and responsive sizing; replaces hardcoded color: #E2E8F0 on .btn-spot-giant.waiting-gps .label and .btn-spot-giant.no-gps .label with var(--ink-primary) so button text is visible in Light Mode; fixes first-time 'View on Map' race condition in fullmap.js when #fullMap is uninitialized so async fetchSightings() does not overwrite zoom 16 and close the popup; ensures medium-span cluster clicks always advance zoom when fitBounds computes target zoom <= currentZoom; calls showNetworkAlert() in spot.js when POST /api/v1/sightings returns non-2xx; uses data.total in listview.js and removes stale cooldown-ring reference in README.md."
+verify = "German Spot button renders 'Schuh!', German modal and Spot button labels do not wrap mid-phrase across lines, waiting-gps/no-gps button text uses var(--ink-primary) for high contrast in Light Mode, first 'View on Map' click preserves zoom 16 and open popup, medium-span cluster click advances zoom, non-2xx POST shows network alert, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R28", "R29", "R30", "R32", "R33", "R34"]
+after = [8]
+hitl = false
+risk = "low"

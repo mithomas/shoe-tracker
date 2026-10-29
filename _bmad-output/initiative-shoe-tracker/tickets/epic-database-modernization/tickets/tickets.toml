@@ -54,3 +54,14 @@ covers = ["R23", "R24", "R25", "R26", "R27"]
 after = [1, 2, 3, 4]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Harden Contention Causal Traversal, Deterministic Pagination, URL Normalization, MariaDB Unix Socket Support, and Zero Test SQLite Remnants"
+description = "Adds net.java.dev.jna:jna and net.java.dev.jna:jna-platform to build.gradle.kts so MariaDB Connector/J (org.mariadb.jdbc) can open Unix domain sockets via ?localSocket=/var/run/mysqld/mysqld.sock without falling back to a null-address TCP Socket; updates DatabaseContentionExceptionMapper.findContentionException to traverse both SQLException.nextException and Throwable.cause via a queue with an IdentityHashMap visited set (up to 16 nodes) and checks findContentionException inside ThrowableExceptionMapper so wrapped RuntimeException(SQLException) contention still returns HTTP 503 with Retry-After: 1; adds ', id DESC' tie-breaker to ORDER BY in SightingRepository (FIND_WITH_USER_SQL and FIND_ALL_SQL) for deterministic pagination across identical millisecond timestamps; trims and normalizes JDBC URL prefix matching case-insensitively in MultiTargetJdbcDriver; adds default ENV QUARKUS_DATASOURCE_JDBC_URL in Dockerfile.native; and renames legacy sqlite-busy/sqlite-error test fault endpoints and test names to db-busy/db-error while expanding DevOpsAssetTest to scan src/test for zero SQLite remnants."
+verify = "SocketUtility.getSocketHandler() initializes UnixDomainSocket support with JNA on the classpath instead of throwing IllegalArgumentException: connect: The address can't be null on localSocket URLs, wrapped and chained contention exceptions return HTTP 503 with Retry-After: 1, SightingRepository orders by recorded_at DESC, id DESC, MultiTargetJdbcDriver handles whitespace and uppercase JDBC URL prefixes, Dockerfile.native includes default QUARKUS_DATASOURCE_JDBC_URL, zero sqlite remnants exist across src/main and src/test, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R23", "R24", "R26", "R27"]
+after = [5]
+hitl = false
+risk = "low"
