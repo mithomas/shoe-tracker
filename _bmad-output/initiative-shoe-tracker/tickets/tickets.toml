@@ -43,6 +43,6 @@ after = [{ epic = "epic-open-source-devops", needs = "CI pipeline and licensing"
 id = 6
 slug = "epic-database-modernization"
 title = "Database Modernization & GraalVM Native Image"
-description = "Replaces SQLite with pure-Java embedded H2 database (MODE=MySQL) with native TIMESTAMP(3), enables configurable external MariaDB/MySQL or H2 in-memory, and compiles standalone GraalVM native binary."
+description = "Replaces SQLite with pure-Java embedded H2 database (MODE=MySQL) with native TIMESTAMP(3), enables startup switching between embedded H2 file and external MariaDB/MySQL from a single JDBC URL string, and compiles standalone GraalVM native binary."
 covers = ["R23", "R24", "R25", "R26", "R27"]
 after = [{ epic = "epic-architecture-resilience", needs = "Hardened architecture and offline vendoring" }]

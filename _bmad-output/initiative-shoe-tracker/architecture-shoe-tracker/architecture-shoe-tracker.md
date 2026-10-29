@@ -7,8 +7,8 @@ paradigm: 'layered-modular'
 scope: 'initiative-shoe-tracker'
 status: final
 created: '2026-10-28'
-updated: '2026-10-28'
-binds: ["R1", "R2", "R4", "R5", "R6", "R7", "R8", "R9", "C1", "C2", "C3", "C4", "C5", "C6"]
+updated: '2026-10-29'
+binds: ["R1", "R2", "R4", "R5", "R6", "R7", "R8", "R9", "R18", "R19", "R20", "R21", "R22", "R23", "R24", "R25", "R26", "R27", "C1", "C2", "C3", "C4", "C5", "C6"]
 sources: ["_bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md"]
 ---
 
@@ -21,7 +21,7 @@ Layered Two-Tier Modular architecture hosted in a unified OCI container:
 - **API Layer (REST Resources):** Quarkus REST endpoints in `org.shoetracker.api` exposing JSON contracts and RFC 7807 problem details.
 - **Application Services Layer:** `org.shoetracker.service.SightingService` orchestrating business workflows, input validation, and mapping between DTOs and domain entities.
 - **Pure Domain Core:** `org.shoetracker.domain` containing pure domain entities (`Sighting`), value objects (`GeoLocation`), and domain utilities (`UUIDv7`) with zero outward dependencies on repository or DTO layers.
-- **Persistence Layer (Data Access):** `org.shoetracker.repository.SightingRepository` executing parameterized SQL queries over SQLite via Agroal connection pooling.
+- **Persistence Layer (Data Access):** `org.shoetracker.repository.SightingRepository` executing parameterized SQL queries over H2 (`MODE=MySQL`) or MariaDB/MySQL via Agroal connection pooling.
 
 ```mermaid
 graph TD
@@ -29,7 +29,7 @@ graph TD
     API --> SVC[Application Services - SightingService]
     SVC --> DOMAIN[Pure Domain - Sighting, GeoLocation, UUIDv7]
     SVC --> REPO[Sighting Repository - Kotlin]
-    REPO -->|JDBC / Agroal| DB[(SQLite Database - File Volume)]
+    REPO -->|JDBC / Agroal| DB[(H2 File /data or External MariaDB/MySQL)]
 ```
 
 ## Invariants & Rules
@@ -38,14 +38,14 @@ graph TD
 graph LR
     Client[Frontend Client Assets] -->|HTTP /api| REST[REST Controllers]
     REST --> Repository[Data Repository]
-    Repository --> SQLite[(SQLite DB)]
+    Repository --> DB[(H2 File or MariaDB/MySQL)]
 ```
 
-### AD-1 - Direct SQLite JDBC Persistence with Flyway [ADOPTED]
+### AD-1 - Direct SQLite JDBC Persistence with Flyway [SUPERSEDED by AD-9]
 
-- **Binds:** `R1`, `R6`, `C3`
-- **Prevents:** Database driver friction, schema drift, unsupported dialect anomalies between Quarkus ORM and SQLite, and SQLITE_BUSY write lock contention.
-- **Rule:** Persistence must use `org.xerial:sqlite-jdbc` with Quarkus Agroal connection pooling. Schema migrations must be managed via Flyway SQL scripts located in `src/main/resources/db/migration/` containing pure DDL without transaction-unsafe PRAGMA statements. Database writes must be serialized via an in-process lock in the repository to prevent write concurrency lock errors while keeping read queries fully parallel and unlocked. Hibernate/JPA ORM dialects for SQLite are forbidden.
+- **Binds:** `R1`, `R6`
+- **Prevents:** Database driver friction, schema drift, unsupported dialect anomalies between Quarkus ORM and SQLite, and SQLITE_BUSY write lock contention (Epics 1-5; superseded by AD-9 in Epic 6).
+- **Rule:** Superseded in Epic 6 by AD-9 (`io.quarkus:quarkus-jdbc-h2` and `io.quarkus:quarkus-jdbc-mariadb` with Flyway ANSI/MySQL DDL and lock-free Agroal connection checkouts).
 
 ### AD-2 - Single-Container Packaging with Quarkus Classpath Web Resources [ADOPTED]
 
@@ -57,7 +57,7 @@ graph LR
 
 - **Binds:** `C2`, `R27`
 - **Prevents:** Build script maintenance fragmentation across Kotlin projects, and slow container startup times in serverless or auto-scaled environments.
-- **Rule:** The backend must use Gradle with Kotlin DSL (`build.gradle.kts`) targeting Java 25 in Quarkus JVM mode by default, and supports standalone GraalVM native image compilation via in-container Mandrel tooling (`-Dquarkus.native.container-build=true`) with `src/main/docker/Dockerfile.native` for sub-50ms cold starts.
+- **Rule:** The backend must use Gradle with Kotlin DSL (`build.gradle.kts`) targeting Java 25 in Quarkus JVM mode by default, and supports standalone GraalVM native image compilation via in-container Mandrel tooling (`-Dquarkus.native.container-build=true`) with `src/main/docker/Dockerfile.native` for sub-50ms cold starts. All REST DTOs serialized via generic `Response.entity(...)` (such as `ProblemDetails`) must be annotated with `@RegisterForReflection`.
 
 ### AD-4 - Versioned REST API with Nested Location and Wrapped Collection [ADOPTED]
 
@@ -65,11 +65,11 @@ graph LR
 - **Prevents:** Breaking API changes when future geographic or user profile attributes are added, unversioned breaking transitions, and unbounded collection payload memory exhaustion on mobile networks.
 - **Rule:** The REST API must be versioned in the URI path under `/api/v1/sightings`. Creation requests (`POST /api/v1/sightings`) must accept a flat `user_id` string alongside a nested `location` object (`latitude`, `longitude`) and ISO-8601 UTC timestamp `recorded_at`. Query responses (`GET /api/v1/sightings` and POST 201 response) must embed user identity in a `user: { id }` object to insulate future profile extensions without polluting root records. Entity IDs must be generated as time-sortable UUIDv7 strings. Collection queries must return an envelope object `{ "items": [...], "total": ..., "limit": ..., "offset": ... }` and support optional `limit`, `offset`, and `user_id` parameters. Deletion requests (`DELETE /api/v1/sightings/:id`) remove an existing sighting by ID for immediate client-side confirmation undo.
 
-### AD-5 - SQLite Storage Schema and Pragma Configuration [ADOPTED]
+### AD-5 - SQLite Storage Schema and Pragma Configuration [SUPERSEDED by AD-9]
 
-- **Binds:** `R1`, `R2`, `R6`, `C3`
-- **Prevents:** SQLite database write lock timeouts during rapid requests, data loss on container restart, and Flyway transactional DDL errors.
-- **Rule:** Database file must reside at `/data/shoe-tracker.db` mapped to an external volume in production. SQLite connections must configure `journal_mode = WAL` and `busy_timeout = 5000` via DataSource connection URL and init-SQL outside Flyway migrations. The `sightings` table schema must strictly store `(id, user_id, latitude, longitude, recorded_at, created_at)`. For the MVP, `user_id` stores the user's entered name directly as both identity and display name. Dedicated logins, profiles, and changeable usernames are deferred to the backlog. Bearing is excluded until prioritized. Timestamps are stored in UTC and rendered in local client time.
+- **Binds:** `R1`, `R2`, `R6`
+- **Prevents:** SQLite database write lock timeouts during rapid requests, data loss on container restart, and Flyway transactional DDL errors (Epics 1-5; superseded by AD-9 in Epic 6).
+- **Rule:** Superseded in Epic 6 by AD-9. The `sightings` table schema continues to store `(id, user_id, latitude, longitude, recorded_at, created_at)` where `user_id` (`VARCHAR(255)`) stores the user's entered name directly as both identity and display name for MVP.
 
 ### AD-6 - Client Geolocation Watcher, Cooldown and Identity Scoping [ADOPTED]
 
@@ -89,11 +89,11 @@ graph LR
 - **Prevents:** Leaking infrastructure/DTO concerns into the domain core, circular dependencies, and tight coupling.
 - **Rule:** The `org.shoetracker.domain` package must remain pure domain with zero outward dependencies on `repository` or `api.dto`. Application orchestration, validation, and DTO mapping reside in `org.shoetracker.service`. REST controllers reside in `org.shoetracker.api`. Persistence resides in `org.shoetracker.repository`. Static web assets reside in `src/main/resources/META-INF/resources/` per Quarkus root classpath resource convention.
 
-### AD-9 - Embedded H2 Database with Native Timestamps & Multi-Target Runtime Datasource [ADOPTED]
+### AD-9 - Embedded H2 Database with Native Timestamps & Single-URL Startup Datasource Switching [ADOPTED]
 
 - **Binds:** `R23`, `R24`, `R25`, `R26`, `R27`, `C3`
-- **Prevents:** SQLite JNI native binary dependencies, in-process file write serialization locks, inability to compile GraalVM native images, and vendor lock-in preventing external enterprise database usage.
-- **Rule:** Persistence defaults to a pure-Java embedded H2 database (`io.quarkus:quarkus-jdbc-h2`) operating in `MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE` with MVCC row-level locking. File persistence resides at `/data/shoe-tracker` (`.mv.db`). In-memory persistence (`jdbc:h2:mem:shoetracker;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE`) is supported for ephemeral testing. The `sightings` table schema uses ANSI/MySQL DDL with `VARCHAR(36) PRIMARY KEY` and native `TIMESTAMP(3)` columns defaulting to `CURRENT_TIMESTAMP(3)`. Timestamps are bound and extracted in UTC via `Calendar.getInstance(TimeZone.getTimeZone("UTC"))`. `SightingRepository` relies on thread-safe connection checkouts (`dataSource.connection.use`) backed by Agroal statement caching (`quarkus.datasource.jdbc.enable-stm-cache=true`), eliminating in-process `ReentrantLock` write serialization. Standard Quarkus environment variables (`QUARKUS_DATASOURCE_*`) allow runtime switching to external production MariaDB/MySQL instances without code modification.
+- **Prevents:** SQLite JNI native binary dependencies, in-process file write serialization locks, inability to compile GraalVM native images, and vendor lock-in or multi-variable configuration friction when switching to an external database.
+- **Rule:** Both `io.quarkus:quarkus-jdbc-h2` and `io.quarkus:quarkus-jdbc-mariadb` drivers are bundled internally. Persistence defaults to a pure-Java embedded H2 file database operating in `MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE` with MVCC row-level locking (`./data/shoe-tracker` locally, `/data/shoe-tracker` in containers). A single JDBC URL environment variable (`QUARKUS_DATASOURCE_JDBC_URL`, with optional `QUARKUS_DATASOURCE_USERNAME` and `QUARKUS_DATASOURCE_PASSWORD`) controls the target database at startup: the application inspects the driver prefix in the JDBC URL string at startup (`jdbc:h2:file:...` vs `jdbc:mariadb://...` / `jdbc:mysql://...`) and routes/activates the matching internal driver and Flyway migration automatically without requiring separate `db-kind` flags. The `sightings` table schema uses ANSI/MySQL DDL with `id VARCHAR(36) PRIMARY KEY`, `user_id VARCHAR(255) NOT NULL`, `latitude DOUBLE NOT NULL`, `longitude DOUBLE NOT NULL`, and native `TIMESTAMP(3)` columns defaulting to `CURRENT_TIMESTAMP(3)`. Timestamps are bound and extracted in UTC via `Calendar.getInstance(TimeZone.getTimeZone("UTC"))`. `SightingRepository` retains `@Startup` `@PostConstruct` fail-fast `SELECT 1` connectivity verification and uses thread-safe connection checkouts (`dataSource.connection.use`) backed by Agroal statement caching (`quarkus.datasource.jdbc.enable-stm-cache=true`), eliminating in-process `ReentrantLock` write serialization. `DatabaseContentionExceptionMapper` maps ANSI SQLState contention codes (`40001`, `40P01`, `57P01`, `HYT00`), H2 lock codes (`50200`, `90039`, `90072`), and MariaDB/MySQL lock/deadlock codes (`1205`, `1213`) to RFC 7807 `503 Service Unavailable` with `Retry-After: 1`.
 
 ## Consistency Conventions
 
@@ -142,7 +142,7 @@ shoe-tracker/
       resources/
         application.properties          # Quarkus & Agroal configuration
         db/migration/
-          V1__init_sightings.sql        # Initial SQLite DDL
+          V1__init_sightings.sql        # ANSI/MySQL DDL with TIMESTAMP(3)
         META-INF/resources/             # Quarkus root static web assets (served at /)
           index.html                    # Mobile-first HTML5 single page app
           css/
@@ -171,10 +171,10 @@ graph TD
         Port[Host Port: 8080] -->|expose :8080| Container
     end
     subgraph Inside Container
-        Container --> Quarkus[Quarkus JVM Process :8080]
+        Container --> Quarkus[Quarkus JVM or Native Process :8080]
         Quarkus --> Static[Static Assets: /]
         Quarkus --> REST_API[API Endpoints: /api/v1/sightings]
-        Quarkus --> SQLite_File[(/data/shoe-tracker.db)]
+        Quarkus --> DB_Target[(H2 /data/shoe-tracker or External MariaDB/MySQL)]
     end
 ```
 
@@ -182,17 +182,20 @@ graph TD
 
 | Capability / Area | Lives in | Governed by |
 | --- | --- | --- |
-| One-Tap Capture (`R1`) | `frontend/src/main.ts`, `frontend/src/geo.ts` | AD-4, AD-6 |
-| User Onboarding & Name (`R2`) | `frontend/src/main.ts`, `localStorage` | AD-5, AD-6 |
-| List View (`R4`) | `frontend/src/list.ts` | AD-4, AD-6 |
-| Map View & Markers (`R5`) | `frontend/src/map.ts`, Leaflet | AD-4, AD-6 |
-| Lean REST API (`R6`) | `org.shoetracker.api.SightingResource` | AD-1, AD-4 |
-| Tap Cooldown (`R7`) | `frontend/src/main.ts` | AD-6 |
-| Two-Tier Architecture (`C1`) | Frontend SPA / Quarkus Backend | AD-2 |
-| Kotlin & Quarkus (`C2`) | `src/main/kotlin/`, `build.gradle.kts` | AD-3 |
-| SQLite Persistence (`C3`) | `SightingRepository.kt`, `V1__init_sightings.sql` | AD-1, AD-5 |
-| Single Container Packaging (`C4`) | `Dockerfile` | AD-2, AD-5 |
-| Mobile-First UI (`C5`) | `frontend/src/style.css` | AD-2, AD-6 |
+| One-Tap Capture (`R1`) | `src/main/resources/META-INF/resources/js/spot.js`, `geo.js` | AD-4, AD-6 |
+| User Onboarding & Name (`R2`) | `src/main/resources/META-INF/resources/js/onboarding.js`, `localStorage` | AD-6, AD-9 |
+| List View (`R4`) | `src/main/resources/META-INF/resources/js/listview.js` | AD-4, AD-6 |
+| Map View & Markers (`R5`) | `src/main/resources/META-INF/resources/js/fullmap.js`, Leaflet | AD-4, AD-6, AD-7 |
+| Lean REST API (`R6`) | `org.shoetracker.api.SightingResource` | AD-4, AD-8 |
+| Tap Cooldown (`R7`) | `src/main/resources/META-INF/resources/js/spot.js` | AD-6 |
+| Live Mini-Map & Undo (`R8`, `R9`) | `src/main/resources/META-INF/resources/js/minimap.js`, `modal.js` | AD-4, AD-6 |
+| Error Handling & Contention (`R18`, `R20`, `R24`) | `org.shoetracker.api.ExceptionMappers` | AD-9 |
+| Startup Check & Health Probes (`R19`, `R21`, `R25`) | `SightingRepository.kt`, `DatabaseHealthCheck.kt` | AD-9 |
+| Two-Tier Architecture (`C1`) | Frontend SPA / Quarkus Backend | AD-2, AD-8 |
+| Kotlin & Quarkus + Native Image (`C2`, `R27`) | `src/main/kotlin/`, `build.gradle.kts`, `src/main/docker/Dockerfile.native` | AD-3 |
+| H2 & MariaDB/MySQL Persistence (`C3`, `R23`, `R26`) | `SightingRepository.kt`, `V1__init_sightings.sql`, `application.properties` | AD-9 |
+| Single Container Packaging (`C4`) | `Dockerfile`, `src/main/docker/Dockerfile.native` | AD-2, AD-3 |
+| Mobile-First UI (`C5`, `C6`) | `src/main/resources/META-INF/resources/css/style.css` | AD-2, AD-6 |
 
 ## Deferred
 

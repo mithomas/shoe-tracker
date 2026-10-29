@@ -2,9 +2,7 @@
 type: initiative
 title: "Shoe Tracker - Autobahn Shoe Spotting Web App"
 sources: []
-companions:
-  - "_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md"
-  - "_bmad-output/initiative-shoe-tracker/ux-shoe-tracker/ux-shoe-tracker.md"
+companions: ["_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md", "_bmad-output/initiative-shoe-tracker/ux-shoe-tracker/ux-shoe-tracker.md"]
 after: []
 risk: low
 ---
@@ -13,7 +11,7 @@ risk: low
 
 ## Description
 
-A mobile-friendly web application allowing travelers on the autobahn to log spotted shoes with a single tap. The system records the precise geolocation (kept warm in the background to eliminate GPS latency at speed) and timestamp of each shoe sighting under the user's name, providing both a historical list and an interactive map visualization. The application is designed as a two-tier system with a lean REST API, powered by a Kotlin Quarkus backend persisting to SQLite, and packaged together with the frontend inside a single deployable container.
+A mobile-friendly web application allowing travelers on the autobahn to log spotted shoes with a single tap. The system records the precise geolocation (kept warm in the background to eliminate GPS latency at speed) and timestamp of each shoe sighting under the user's name, providing both a historical list and an interactive map visualization. The application is designed as a two-tier system with a lean REST API, powered by a Kotlin Quarkus backend persisting to an embedded H2 database (`MODE=MySQL`) by default or an external MariaDB/MySQL database switched automatically at startup from a single JDBC URL string, and packaged together with the frontend inside a single deployable container (supporting both JVM fast-jar and GraalVM native binary images).
 
 ## Outcome
 
@@ -29,12 +27,22 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - R7: Interface enforces a mandatory cooldown period (e.g., 3-5 seconds) after logging a sighting to prevent accidental duplicate taps.
 - R8: Spot screen displays a live map in the upper half of the screen showing current user position centered and updating in real-time, with the spot button positioned in the lower half.
 - R9: Sighting confirmation modal provides an immediate Undo action allowing the user to cancel and remove an accidental sighting via DELETE /api/v1/sightings/{id}.
+- R18: Catch-all RFC 7807 `ExceptionMapper<Throwable>` returns 500 `application/problem+json` with unique UUID `error_id`, logging stack traces internally and returning sanitized details to clients.
+- R19: `SightingRepository` validates database connectivity fail-fast during `@PostConstruct` (`SELECT 1`) at startup.
+- R20: Database lock contention errors translate into RFC 7807 `503 Service Unavailable` with `Retry-After: 1` header.
+- R21: Quarkus SmallRye Health exposes `/q/health/live` and `/q/health/ready` endpoints verifying application liveness and database connectivity.
+- R22: Continuous Integration workflow executes dedicated Spotless formatting checks, Closure Compiler JavaScript linting, and container build verification on every pull request and push to main.
+- R23: Embedded H2 database (`io.quarkus:quarkus-jdbc-h2`) replaces `sqlite-jdbc` with native `TIMESTAMP(3)` Flyway DDL, removing `writeLock` serialization from `SightingRepository`.
+- R24: Unified `DatabaseContentionExceptionMapper` replaces `SQLiteExceptionMapper`, translating ANSI SQLState contention codes (`40001`, `40P01`, `57P01`, `HYT00`) and vendor lock-timeout codes into RFC 7807 `503 Service Unavailable` with `Retry-After: 1` header across all database kinds.
+- R25: `DatabaseHealthCheck` dynamically reports the connected database product name (`connection.metaData.databaseProductName`) in `/q/health/ready`.
+- R26: Unified single-JDBC-URL datasource configuration bundles both H2 and MariaDB/MySQL drivers internally and switches automatically at startup based on the driver prefix in `QUARKUS_DATASOURCE_JDBC_URL` (`jdbc:h2:file:...` vs `jdbc:mariadb://...`).
+- R27: Quarkus GraalVM native image compilation builds a standalone Linux binary using in-container Mandrel tooling with `src/main/docker/Dockerfile.native` achieving sub-50ms cold starts.
 
 ## Constraints
 
 - C1: Two-tier architecture with frontend separated from backend and shielded by a lean API.
 - C2: Backend implemented in Kotlin using the Quarkus framework.
-- C3: Persistence in SQLite database.
+- C3: Persistence in embedded H2 file database (`MODE=MySQL`) by default, switchable at startup to external MariaDB/MySQL via a single JDBC URL environment variable (`QUARKUS_DATASOURCE_JDBC_URL`).
 - C4: Packaged and hosted as a single container serving both Quarkus backend and frontend assets.
 - C5: Mobile-first responsive UI optimized for quick single-tap action.
 - C6: Spot screen mini-map must operate in locked HUD radar mode (touch dragging, pinching, and keyboard navigation strictly disabled; fixed zoom ~15 auto-centered on GPS position) with height constrained (max 35vh) to guarantee the 210px Spot Button never scrolls off-screen.
@@ -48,12 +56,12 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - First-time access prompts for user name and remembers it in local browser storage across sessions.
 - Browser actively monitors geolocation in the background so tapping the main button records coordinates with zero acquisition lag.
 - Mandatory cooldown engages immediately after tap, blocking duplicate entries for the duration.
-- Sighting record persists to SQLite with timestamp, coordinates, and user name.
-- Sighting confirmation modal allows immediate cancellation of an accidental sighting via an Undo button, deleting it from SQLite.
+- Sighting record persists to the configured database (embedded H2 file by default or external MariaDB/MySQL) with native millisecond timestamp, coordinates, and user name.
+- Sighting confirmation modal allows immediate cancellation of an accidental sighting via an Undo button, deleting it from the database.
 - Spot screen displays a live current-location map in the upper half of the viewport above the spot button.
 - List view renders saved sightings with distinct styling for own shoes and a toggle to hide others.
 - Map view renders markers with distinct color for own shoes and an option to toggle visibility of other users' shoes.
-- The Quarkus container builds, starts, and serves both the frontend web app and the backend API with SQLite persistence.
+- The Quarkus container builds (both JVM fast-jar and GraalVM native image), starts, and serves both the frontend web app and the backend API with persistent database storage.
 
 ## Boundaries
 
