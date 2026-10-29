@@ -27,8 +27,9 @@ Ensures `DB_CLOSE_DELAY=-1` is mandated for in-memory mode so Flyway migrations 
 - Document and support switching to in-memory H2 via `QUARKUS_DATASOURCE_JDBC_URL=jdbc:h2:mem:shoetracker;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE`.
 - Support external MySQL/MariaDB via `QUARKUS_DATASOURCE_DB_KIND=mariadb` and connection credentials.
 - Update `docker-compose.yml` with optional MariaDB service definition and environment documentation.
-- Automated tests verify application startup with default H2 file, in-memory H2, and simulated external datasource configuration.
-- Verify: Application boots cleanly against default H2 file, H2 in-memory, and simulated external MySQL/MariaDB datasource configurations.
+- Document datasource configuration options (external MySQL/MariaDB, embedded H2 file, and H2 in-memory) with environment variable examples in root `README.md`.
+- Automated tests verify application startup with default H2 file, in-memory H2, and simulated external datasource configuration, and assert `README.md` documents datasource configuration options.
+- Verify: Application boots cleanly against default H2 file, H2 in-memory, and simulated external MySQL/MariaDB datasource configurations, and README.md documents datasource configuration.
 
 ## References
 
