@@ -1,0 +1,56 @@
+version: 2
+
+updates:
+  # Gradle dependencies (Quarkus, Kotlin, plugins, libraries)
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "automated-pr"
+    open-pull-requests-limit: 10
+    groups:
+      quarkus:
+        patterns:
+          - "io.quarkus*"
+      minor-and-patch:
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+
+  # Docker base images (eclipse-temurin)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    commit-message:
+      prefix: "chore(docker)"
+    labels:
+      - "dependencies"
+      - "automated-pr"
+    open-pull-requests-limit: 5
+
+  # GitHub Actions (checkout, setup-java, build-push-action, etc.)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    commit-message:
+      prefix: "chore(ci)"
+    labels:
+      - "dependencies"
+      - "automated-pr"
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns:
+          - "*"

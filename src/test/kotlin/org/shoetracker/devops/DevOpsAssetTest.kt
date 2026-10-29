@@ -1,6 +1,7 @@
 package org.shoetracker.devops
 
 import io.quarkus.test.junit.QuarkusTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -44,5 +45,49 @@ class DevOpsAssetTest {
         assertTrue(content.contains("./data:/data"), "Must mount persistent data volume")
         assertTrue(content.contains("\"8080:8080\""), "Must expose port 8080")
         assertTrue(content.contains("restart: unless-stopped"), "Must use unless-stopped restart policy")
+    }
+
+    @Test
+    fun testDependabotConfiguration() {
+        val dependabotFile = File(".github/dependabot.yml")
+        assertTrue(dependabotFile.exists(), "dependabot.yml must exist")
+        val lines = dependabotFile.readLines()
+        val content = dependabotFile.readText()
+
+        // Structural and indentation validation (YAML compliance)
+        assertTrue(content.contains("version: 2"), "Must be Dependabot version 2")
+        assertTrue(lines.none { it.contains("\t") }, "YAML must not contain tab characters")
+        assertTrue(lines.all { line ->
+            val trimmed = line.trimStart()
+            trimmed.isEmpty() || trimmed.startsWith("#") || (line.length - trimmed.length) % 2 == 0
+        }, "YAML must follow 2-space indentation")
+
+        // Split into ecosystem update blocks
+        val blocks = content.split("- package-ecosystem:").drop(1)
+        assertEquals(3, blocks.size, "Must configure exactly 3 package ecosystems")
+
+        // Validate gradle ecosystem block
+        val gradleBlock = blocks.find { it.trimStart().startsWith("\"gradle\"") }
+        assertTrue(gradleBlock != null, "Gradle ecosystem block must exist")
+        assertTrue(gradleBlock!!.contains("interval: \"weekly\""), "Gradle must have weekly schedule")
+        assertTrue(gradleBlock.contains("prefix: \"chore(deps)\""), "Gradle must have chore(deps) prefix")
+        assertTrue(gradleBlock.contains("quarkus:"), "Gradle must define quarkus group")
+        assertTrue(gradleBlock.contains("io.quarkus*"), "Quarkus group must match io.quarkus*")
+        assertTrue(gradleBlock.contains("minor-and-patch:"), "Gradle must define minor-and-patch group")
+        assertTrue(gradleBlock.contains("version-update:semver-minor"), "Must use semver-minor update-type")
+        assertTrue(gradleBlock.contains("version-update:semver-patch"), "Must use semver-patch update-type")
+
+        // Validate docker ecosystem block
+        val dockerBlock = blocks.find { it.trimStart().startsWith("\"docker\"") }
+        assertTrue(dockerBlock != null, "Docker ecosystem block must exist")
+        assertTrue(dockerBlock!!.contains("interval: \"weekly\""), "Docker must have weekly schedule")
+        assertTrue(dockerBlock.contains("prefix: \"chore(docker)\""), "Docker must have chore(docker) prefix")
+
+        // Validate github-actions ecosystem block
+        val actionsBlock = blocks.find { it.trimStart().startsWith("\"github-actions\"") }
+        assertTrue(actionsBlock != null, "GitHub Actions ecosystem block must exist")
+        assertTrue(actionsBlock!!.contains("interval: \"weekly\""), "Actions must have weekly schedule")
+        assertTrue(actionsBlock.contains("prefix: \"chore(ci)\""), "Actions must have chore(ci) prefix")
+        assertTrue(actionsBlock.contains("actions:"), "Actions must define grouping")
     }
 }
