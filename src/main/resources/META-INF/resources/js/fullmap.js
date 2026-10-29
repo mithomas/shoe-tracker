@@ -32,6 +32,13 @@
       });
 
       // Event Bus listeners for real-time optimistic updates
+      window.addEventListener('sightings-loaded', (e) => {
+        this.sightings = Array.isArray(e.detail) ? e.detail.slice() : [];
+        if (this.isInitialized) {
+          this.renderAllMarkers();
+        }
+      });
+
       window.addEventListener('sighting-added', (e) => {
         this.addSighting(e.detail);
       });
@@ -86,8 +93,16 @@
       this.markersLayer = L.layerGroup().addTo(this.map);
       this.isInitialized = true;
 
+      this.map.on('zoomend', () => {
+        this.renderAllMarkers();
+      });
+
       // Invalidate size after layout completes
       this.invalidateSize();
+
+      if (this.sightings.length > 0) {
+        this.renderAllMarkers();
+      }
 
       // Load sightings from REST API
       this.fetchSightings();
@@ -152,9 +167,116 @@
         if (emptyOwnEl) emptyOwnEl.style.display = 'none';
       }
 
-      filtered.forEach(sighting => {
-        this.createMarker(sighting);
+      const currentZoom = this.map ? this.map.getZoom() : this.defaultZoom;
+      const clusters = this.clusterSightings(filtered, currentZoom, currentUserId);
+
+      clusters.forEach((cluster) => {
+        if (cluster.items.length === 1) {
+          this.createMarker(cluster.items[0]);
+        } else {
+          this.createClusterMarker(cluster);
+        }
       });
+    }
+
+    isOwnSighting(sighting, currentUserId) {
+      if (!currentUserId || !sighting) return false;
+      const sUserId = (sighting.user ? sighting.user.id : (sighting.user_id || '')).trim().toLowerCase();
+      return sUserId === currentUserId;
+    }
+
+    clusterSightings(sightings, zoom, currentUserId) {
+      const valid = sightings.filter((s) => s && s.location);
+      if (zoom >= 15) {
+        return valid.map((s) => ({
+          items: [s],
+          lat: s.location.latitude,
+          lon: s.location.longitude,
+          hasOwn: this.isOwnSighting(s, currentUserId)
+        }));
+      }
+
+      // Zoom-adaptive spatial threshold in degrees (collapses nearby sightings at zoom < 15)
+      const cellSize = 180 / Math.pow(2, zoom);
+      const clusters = [];
+
+      valid.forEach((sighting) => {
+        const lat = sighting.location.latitude;
+        const lon = sighting.location.longitude;
+        const isOwn = this.isOwnSighting(sighting, currentUserId);
+
+        let matched = null;
+        for (let i = 0; i < clusters.length; i++) {
+          const c = clusters[i];
+          if (Math.abs(c.lat - lat) <= cellSize && Math.abs(c.lon - lon) <= cellSize) {
+            matched = c;
+            break;
+          }
+        }
+
+        if (matched) {
+          const count = matched.items.length;
+          matched.lat = (matched.lat * count + lat) / (count + 1);
+          matched.lon = (matched.lon * count + lon) / (count + 1);
+          matched.items.push(sighting);
+          if (isOwn) {
+            matched.hasOwn = true;
+          }
+        } else {
+          clusters.push({
+            items: [sighting],
+            lat: lat,
+            lon: lon,
+            hasOwn: isOwn
+          });
+        }
+      });
+
+      return clusters;
+    }
+
+    createClusterMarker(cluster) {
+      if (!this.markersLayer || !cluster || !cluster.items || cluster.items.length < 2) return;
+
+      const count = cluster.items.length;
+      const isOwn = cluster.hasOwn;
+      const badgeClass = isOwn ? 'shoe-cluster-own' : 'shoe-cluster-other';
+      const size = count >= 10 ? 42 : 36;
+      const anchor = size / 2;
+      const { i18n } = window.ShoeTracker;
+      const titleStr = i18n
+        ? i18n.t('map.clusterTitle', { count })
+        : `${count} Sightings - click to zoom`;
+
+      const clusterIcon = L.divIcon({
+        className: 'shoe-cluster-container',
+        html: `<div class="shoe-cluster-badge ${badgeClass}" title="${this.escapeHtml(titleStr)}"><span>${count}</span></div>`,
+        iconSize: [size, size],
+        iconAnchor: [anchor, anchor]
+      });
+
+      const marker = L.marker([cluster.lat, cluster.lon], {
+        icon: clusterIcon
+      });
+
+      marker.on('click', () => {
+        if (!this.map) return;
+        const latLngs = cluster.items.map((s) => [s.location.latitude, s.location.longitude]);
+        const clusterBounds = L.latLngBounds(latLngs);
+        if (!clusterBounds.isValid()) return;
+
+        const latSpan = Math.abs(clusterBounds.getNorth() - clusterBounds.getSouth());
+        const lngSpan = Math.abs(clusterBounds.getEast() - clusterBounds.getWest());
+        const currentZoom = this.map.getZoom();
+
+        if (latSpan < 0.0005 && lngSpan < 0.0005) {
+          this.map.setView(clusterBounds.getCenter(), Math.max(currentZoom + 2, 15));
+        } else {
+          this.map.fitBounds(clusterBounds, { padding: [40, 40], maxZoom: 15 });
+        }
+      });
+
+      this.markersLayer.addLayer(marker);
     }
 
     createMarker(sighting) {

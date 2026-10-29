@@ -763,4 +763,42 @@ class FrontendAssetTest {
             .contains(".mini-shoe-dot-own")
             .contains(".mini-shoe-dot-other")
     }
+
+    @Test
+    fun testMapZoomClusteringWithCountBadges() {
+        val fullMapJs =
+            given()
+                .`when`()
+                .get("/js/fullmap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(fullMapJs)
+            .contains("clusterSightings")
+            .contains("createClusterMarker")
+            .contains("zoom >= 15")
+            .contains("shoe-cluster-badge")
+            .contains("shoe-cluster-own")
+            .contains("shoe-cluster-other")
+            .contains("0.0005")
+            .contains("maxZoom: 15")
+            .contains("zoomend")
+
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains(".shoe-cluster-container")
+            .contains(".shoe-cluster-badge")
+            .contains(".shoe-cluster-own")
+            .contains(".shoe-cluster-other")
+    }
 }
