@@ -34,8 +34,9 @@
     }
 
     setFilter(ownOnly) {
-      if (this.ownOnly === ownOnly) return;
-      this.ownOnly = ownOnly;
+      const normalized = ownOnly === true || ownOnly === 'own';
+      if (this.ownOnly === normalized) return;
+      this.ownOnly = normalized;
       localStorage.setItem('filter_own_only', this.ownOnly ? 'true' : 'false');
 
       this.applyDOMState();

@@ -31,9 +31,15 @@
       }
       if (this.btnViewMap) {
         this.btnViewMap.addEventListener('click', () => {
+          const target = this.currentSighting;
           this.hide();
-          const mapTab = document.getElementById('tabMap');
-          if (mapTab) mapTab.click();
+          const { fullMap } = window.ShoeTracker;
+          if (fullMap && typeof fullMap.focusSighting === 'function' && target) {
+            fullMap.focusSighting(target);
+          } else {
+            const mapTab = document.getElementById('tabMap');
+            if (mapTab) mapTab.click();
+          }
         });
       }
       if (this.btnUndo) {

@@ -13,6 +13,7 @@
       this.isInitialized = false;
       this.sightings = [];
       this.markersById = {};
+      this.pendingFocusId = null;
       this.defaultCenter = [50.8, 9.7]; // Central Germany Autobahn hub
       this.defaultZoom = 6;
     }
@@ -124,7 +125,12 @@
         this.sightings = data.items || [];
         this.renderAllMarkers();
 
-        if (this.sightings.length > 0) {
+        if (this.pendingFocusId) {
+          const targetId = this.pendingFocusId;
+          this.pendingFocusId = null;
+          this.focusSighting(targetId);
+          this.pendingFocusId = null;
+        } else if (this.sightings.length > 0) {
           const latLngs = this.sightings.map(s => [s.location.latitude, s.location.longitude]);
           const bounds = L.latLngBounds(latLngs);
           if (bounds.isValid()) {
@@ -376,6 +382,67 @@
     recolorMarkers() {
       if (this.isInitialized) {
         this.renderAllMarkers();
+      }
+    }
+
+    /**
+     * Deterministically switches to the Map tab, bootstraps the map if needed,
+     * resets the 'My Shoes' filter if targeting another user's sighting,
+     * zooms to 16 so unclustered pins populate markersById, and opens the target popup.
+     */
+    focusSighting(sightingOrId) {
+      if (!sightingOrId) return;
+
+      const { tabManager, filterManager, onboarding, listView } = window.ShoeTracker;
+      let target = null;
+
+      if (typeof sightingOrId === 'object' && sightingOrId.id) {
+        target = sightingOrId;
+        if (!this.sightings.some((s) => s.id === target.id)) {
+          this.sightings.unshift(target);
+        }
+      } else {
+        const idStr = String(sightingOrId);
+        target = this.sightings.find((s) => String(s.id) === idStr) || null;
+        if (!target && listView && Array.isArray(listView.sightings)) {
+          target = listView.sightings.find((s) => String(s.id) === idStr) || null;
+          if (target) {
+            this.sightings.unshift(target);
+          }
+        }
+      }
+
+      const targetId = target ? target.id : sightingOrId;
+      this.pendingFocusId = targetId;
+
+      if (tabManager) {
+        tabManager.switchTab('map');
+      }
+
+      if (!this.isInitialized) {
+        this.bootstrapMap();
+      }
+
+      this.invalidateSize(true);
+
+      if (!target || !target.location || !this.map) return;
+
+      const currentUserId = (onboarding && onboarding.getUserId())
+        ? onboarding.getUserId().trim().toLowerCase()
+        : '';
+      const isOwn = this.isOwnSighting(target, currentUserId);
+
+      if (filterManager && filterManager.isOwnOnly() && !isOwn) {
+        filterManager.setFilter('all');
+      }
+
+      this.map.setView([target.location.latitude, target.location.longitude], 16);
+      this.renderAllMarkers();
+
+      const marker = this.markersById[target.id];
+      if (marker) {
+        marker.openPopup();
+        this.pendingFocusId = null;
       }
     }
 

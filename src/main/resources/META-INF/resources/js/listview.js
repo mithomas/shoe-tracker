@@ -160,6 +160,7 @@
       const formattedTimestamp = `${monthStr} ${dayStr}, ${hh}:${mm}:${ss}`;
       const displayUser = sighting.user ? sighting.user.id : (sighting.user_id || 'Unknown');
       const mySightingBadge = i18n ? i18n.t('list.mySighting') : 'My Sighting';
+      const viewOnMapLabel = i18n ? i18n.t('list.viewOnMap') : 'View on Map';
 
       card.innerHTML = `
         <div class="sighting-card-header">
@@ -175,8 +176,21 @@
             <span class="coords-icon">📍</span>
             <span class="coords-text">${locStr}</span>
           </div>
+          <button type="button" class="btn-card-map" data-sighting-id="${this.escapeHtml(sighting.id)}">
+            🗺️ <span>${this.escapeHtml(viewOnMapLabel)}</span>
+          </button>
         </div>
       `;
+
+      const btnMap = card.querySelector('.btn-card-map');
+      if (btnMap) {
+        btnMap.addEventListener('click', () => {
+          const { fullMap } = window.ShoeTracker;
+          if (fullMap && typeof fullMap.focusSighting === 'function') {
+            fullMap.focusSighting(sighting);
+          }
+        });
+      }
 
       return card;
     }

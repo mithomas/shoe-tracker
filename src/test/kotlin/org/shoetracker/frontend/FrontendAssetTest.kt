@@ -801,4 +801,61 @@ class FrontendAssetTest {
             .contains(".shoe-cluster-own")
             .contains(".shoe-cluster-other")
     }
+
+    @Test
+    fun testJumpToMapViewFromSightingEntry() {
+        val fullMapJs =
+            given()
+                .`when`()
+                .get("/js/fullmap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(fullMapJs)
+            .contains("focusSighting")
+            .contains("switchTab('map')")
+            .contains("setFilter('all')")
+            .contains(", 16)")
+            .contains("openPopup()")
+
+        val listViewJs =
+            given()
+                .`when`()
+                .get("/js/listview.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(listViewJs)
+            .contains("btn-card-map")
+            .contains("list.viewOnMap")
+            .contains("focusSighting")
+
+        val modalJs =
+            given()
+                .`when`()
+                .get("/js/modal.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(modalJs)
+            .contains("focusSighting")
+
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains(".btn-card-map")
+    }
 }
