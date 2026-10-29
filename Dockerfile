@@ -18,6 +18,8 @@ RUN chmod +x ./gradlew && ./gradlew --version --no-daemon
 
 # Copy source code and build Quarkus fast-jar
 COPY src/ /code/src/
+ARG GIT_COMMIT=""
+ENV GIT_COMMIT=${GIT_COMMIT}
 RUN ./gradlew build -x test --no-daemon
 
 # Stage 2: Minimal runnable JRE 25 image

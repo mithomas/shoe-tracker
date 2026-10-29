@@ -47,3 +47,30 @@ kotlin {
         javaParameters = true
     }
 }
+
+val generateVersionProperties by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/resources/version")
+    outputs.dir(outputDir)
+    outputs.upToDateWhen { false }
+    doLast {
+        val gitHash = runCatching {
+            val process = ProcessBuilder("git", "rev-parse", "--short=7", "HEAD").start()
+            val text = process.inputStream.bufferedReader().readText().trim()
+            if (process.waitFor() == 0 && text.length == 7) text else null
+        }.getOrNull()
+            ?: System.getenv("GIT_COMMIT")?.trim()?.takeIf { it.length >= 7 }?.take(7)
+            ?: "unknown"
+
+        val versionFile = outputDir.get().file("version.properties").asFile
+        versionFile.parentFile.mkdirs()
+        versionFile.writeText("version=${project.version}\ncommit=${gitHash}\n")
+    }
+}
+
+sourceSets.main {
+    resources.srcDir(generateVersionProperties)
+}
+
+tasks.named("processResources") {
+    dependsOn(generateVersionProperties)
+}

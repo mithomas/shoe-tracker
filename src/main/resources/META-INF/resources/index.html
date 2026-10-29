@@ -68,7 +68,7 @@
 
       <!-- App Version Footer -->
       <footer class="app-footer">
-        <span>Shoe Tracker v1.0.0</span>
+        <span class="app-version-text">Shoe Tracker v1.0.0</span>
         <span class="footer-divider">|</span>
         <a href="https://github.com/mitch/shoe-tracker" target="_blank" rel="noopener noreferrer" class="footer-license-link">AGPL-3.0 Source</a>
       </footer>
@@ -125,7 +125,7 @@
         <div class="sightings-list" id="sightingsList"></div>
         <!-- App Version Footer -->
         <footer class="app-footer">
-          <span>Shoe Tracker v1.0.0</span>
+          <span class="app-version-text">Shoe Tracker v1.0.0</span>
           <span class="footer-divider">|</span>
           <a href="https://github.com/mitch/shoe-tracker" target="_blank" rel="noopener noreferrer" class="footer-license-link">AGPL-3.0 Source</a>
         </footer>
@@ -220,6 +220,19 @@
       filterManager.init();
       fullMap.init();
       listView.init();
+
+      // Fetch dynamic Git commit and version metadata
+      fetch('/api/v1/version')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.commit && data.commit !== 'unknown') {
+            const ver = data.version ? `v${data.version.replace(/-SNAPSHOT$/i, '')}` : 'v1.0.0';
+            document.querySelectorAll('.app-version-text').forEach(el => {
+              el.textContent = `Shoe Tracker ${ver} (${data.commit})`;
+            });
+          }
+        })
+        .catch(() => {});
 
       // Geolocation state transitions
       geoWatcher.onStatusChange((status, message) => {

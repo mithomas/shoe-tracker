@@ -32,6 +32,8 @@ class FrontendAssetTest {
             .body(containsString("networkAlertBanner"))
             .body(containsString("coords-val"))
             .body(containsString("app-footer"))
+            .body(containsString("app-version-text"))
+            .body(containsString("/api/v1/version"))
             .body(containsString("v1.0.0"))
             .body(containsString("spotMiniMap"))
             .body(containsString("miniMapDeniedOverlay"))
@@ -383,5 +385,21 @@ class FrontendAssetTest {
             .then()
             .statusCode(200)
             .body(containsString(".footer-license-link"))
+    }
+
+    @Test
+    fun testFrontendVersionFormattingLogic() {
+        fun formatFooterVersion(version: String?, commit: String?): String {
+            if (commit.isNullOrBlank() || commit == "unknown") {
+                return "Shoe Tracker v1.0.0"
+            }
+            val ver = if (!version.isNullOrBlank()) "v${version.replace(Regex("-SNAPSHOT$", RegexOption.IGNORE_CASE), "")}" else "v1.0.0"
+            return "Shoe Tracker $ver ($commit)"
+        }
+
+        assertEquals("Shoe Tracker v1.0.0 (593f825)", formatFooterVersion("1.0.0-SNAPSHOT", "593f825"))
+        assertEquals("Shoe Tracker v2.1.0 (abc1234)", formatFooterVersion("2.1.0", "abc1234"))
+        assertEquals("Shoe Tracker v1.0.0", formatFooterVersion("1.0.0", null))
+        assertEquals("Shoe Tracker v1.0.0", formatFooterVersion("1.0.0", "unknown"))
     }
 }
