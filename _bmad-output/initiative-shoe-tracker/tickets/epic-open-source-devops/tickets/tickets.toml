@@ -45,12 +45,34 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 6
+type = "story"
+title = "AssertJ Fluent Assertions for Kotlin Test Suites"
+description = "Adds org.assertj:assertj-core to test dependencies and refactors Kotlin test suites to use fluent assertThat assertions with rich contextual failure diffs."
+verify = "All Kotlin test suites compile and pass using AssertJ assertThat assertions."
+covers = ["R15"]
+after = [4]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Zero-Node Pure-JVM Linting and Formatting Suite"
+description = "Adds Spotless Gradle plugin with ktlint for Kotlin source and *.gradle.kts, pure-JVM web formatting for HTML/CSS/JS, and pure-JVM JavaScript static analysis via Google Closure Compiler into ./gradlew check."
+verify = "./gradlew check, ./gradlew spotlessCheck, and lint tasks pass cleanly with zero Node.js dependencies."
+covers = ["R16"]
+after = [6]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 5
 type = "story"
 title = "DevOps Refactor Sweep"
-description = "Audits workflow syntax, verifies local container build with Git hash stamping, and runs full test suite."
-verify = "All Gradle check suites and container build verification pass cleanly."
-covers = ["R10", "R11", "R12", "R13", "R14"]
-after = [1, 2, 3, 4]
+description = "Audits workflow syntax, verifies local container build with Git hash stamping, runs Spotless/linter checks, and verifies full test suite."
+verify = "All Gradle check suites, Spotless formatting, and container build verification pass cleanly."
+covers = ["R10", "R11", "R12", "R13", "R14", "R15", "R16"]
+after = [1, 2, 3, 4, 6, 7]
 hitl = false
 risk = "low"

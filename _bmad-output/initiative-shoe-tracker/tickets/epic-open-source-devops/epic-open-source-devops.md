@@ -2,7 +2,7 @@
 type: epic
 title: "Open Source Licensing & CI/CD Publication"
 parent: "initiative-shoe-tracker"
-covers: ["R10", "R11", "R12", "R13", "R14"]
+covers: ["R10", "R11", "R12", "R13", "R14", "R15", "R16"]
 sources: []
 companions: []
 after: ["epic-views-and-map"]
@@ -14,11 +14,11 @@ risk: low
 
 ## Description
 
-Adopts the GNU Affero General Public License (AGPL-3.0) for the repository, establishes a GitHub Actions workflow for automated test execution, publishes multi-platform container images to Docker Hub on release tags, exposes the Git commit hash in the version display, and configures automated Dependabot dependency updates.
+Adopts the GNU Affero General Public License (AGPL-3.0) for the repository, establishes a GitHub Actions workflow for automated test execution, publishes multi-platform container images to Docker Hub on release tags, exposes the Git commit hash in the version display, configures automated Dependabot dependency updates, migrates tests to AssertJ fluent assertions, and enforces code hygiene across Kotlin and web assets via a 100% pure-JVM Spotless and Closure Compiler linting suite.
 
 ## Outcome
 
-Shoe Tracker is legally protected as copyleft open-source software, continuously tested and published to Docker Hub upon release, stamped with traceable Git commit metadata, and kept up-to-date automatically.
+Shoe Tracker is legally protected as copyleft open-source software, continuously tested and published to Docker Hub upon release, stamped with traceable Git commit metadata, kept up-to-date automatically, and guarded by fluent tests and pure-JVM linting and formatting.
 
 ## Requirements
 
@@ -27,6 +27,8 @@ Shoe Tracker is legally protected as copyleft open-source software, continuously
 - R12: Release workflow builds and publishes multi-platform container images to Docker Hub on semantic version tags (`v*`).
 - R13: Version display in footer and `/api/v1/version` reports current Git short commit hash.
 - R14: Dependabot monitors Gradle, Docker, and GitHub Actions dependencies weekly.
+- R15: Test assertions across Kotlin integration and unit test suites use AssertJ fluent assertions (`assertThat`) with detailed failure diffs.
+- R16: Build lifecycle enforces code hygiene, formatting, and linting across Kotlin and web assets via pure JVM Spotless and Closure Compiler without Node.js dependencies.
 
 ## Done when
 
@@ -37,6 +39,8 @@ Shoe Tracker is legally protected as copyleft open-source software, continuously
 - `.github/workflows/ci.yml` runs `./gradlew check test` on PRs and main branch pushes.
 - Release workflow pushes `<dockerhub-user>/shoe-tracker:<version>` and `:latest` images to Docker Hub on `v*` tags.
 - `.github/dependabot.yml` monitors Gradle, Docker, and GitHub Actions dependencies.
+- Kotlin test suites assert conditions using AssertJ `assertThat`.
+- `./gradlew check` and `./gradlew spotlessCheck` enforce formatting and linting for Kotlin (`ktlint`), Gradle scripts, HTML/CSS/JS web assets, and Closure Compiler JS analysis.
 
 ## Boundaries
 
