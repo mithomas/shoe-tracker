@@ -7,6 +7,8 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import org.shoetracker.api.dto.ProblemDetails
+import org.sqlite.SQLiteErrorCode
+import org.sqlite.SQLiteException
 
 @Provider
 class IllegalArgumentExceptionMapper : ExceptionMapper<IllegalArgumentException> {
@@ -78,6 +80,58 @@ class WebApplicationExceptionMapper : ExceptionMapper<WebApplicationException> {
             .type("application/problem+json")
             .entity(problem)
             .build()
+    }
+}
+
+@Provider
+class SQLiteExceptionMapper : ExceptionMapper<SQLiteException> {
+    private val logger = org.jboss.logging.Logger.getLogger(SQLiteExceptionMapper::class.java)
+
+    override fun toResponse(exception: SQLiteException): Response {
+        val errorId = java.util.UUID.randomUUID().toString()
+        val isBusyOrLocked = isBusyOrLocked(exception.resultCode)
+
+        if (isBusyOrLocked) {
+            logger.warn("SQLite lock contention [error_id=$errorId, code=${exception.resultCode}]: ${exception.message}")
+            val problem =
+                ProblemDetails(
+                    title = "Service Unavailable",
+                    status = Response.Status.SERVICE_UNAVAILABLE.statusCode,
+                    detail = "Database is temporarily busy. Please retry in 1 second.",
+                    instance = "/api/v1/sightings",
+                    errorId = errorId,
+                )
+            return Response
+                .status(Response.Status.SERVICE_UNAVAILABLE)
+                .header("Retry-After", "1")
+                .type("application/problem+json")
+                .entity(problem)
+                .build()
+        } else {
+            logger.error(
+                "SQLite database error [error_id=$errorId, code=${exception.resultCode}]: ${exception.message}",
+                exception,
+            )
+            val problem =
+                ProblemDetails(
+                    title = "Internal Server Error",
+                    status = Response.Status.INTERNAL_SERVER_ERROR.statusCode,
+                    detail = "A database error occurred. Please reference error ID: $errorId",
+                    instance = "/api/v1/sightings",
+                    errorId = errorId,
+                )
+            return Response
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
+                .type("application/problem+json")
+                .entity(problem)
+                .build()
+        }
+    }
+
+    private fun isBusyOrLocked(code: SQLiteErrorCode?): Boolean {
+        if (code == null) return false
+        val name = code.name
+        return name.startsWith("SQLITE_BUSY") || name.startsWith("SQLITE_LOCKED")
     }
 }
 

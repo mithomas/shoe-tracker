@@ -298,4 +298,69 @@ class SightingResourceTest {
             .contains(entity.errorId)
             .doesNotContain("Corrupt SQLite database block")
     }
+
+    @Test
+    fun testSqliteBusyProducesRfc7807ServiceUnavailableWithRetryAfterHeader() {
+        val response =
+            given()
+                .`when`()
+                .get("/api/test/fault/sqlite-busy")
+                .then()
+                .statusCode(503)
+                .contentType("application/problem+json")
+                .header("Retry-After", "1")
+                .extract()
+
+        val problem = response.`as`(ProblemDetails::class.java)
+        assertThat(problem.status).isEqualTo(503)
+        assertThat(problem.title).isEqualTo("Service Unavailable")
+        assertThat(problem.errorId).isNotNull().matches("^[0-9a-fA-F-]{36}$")
+        assertThat(problem.detail).contains("Database is temporarily busy. Please retry in 1 second.")
+    }
+
+    @Test
+    fun testSqliteCorruptProducesRfc7807InternalServerError() {
+        val problem =
+            given()
+                .`when`()
+                .get("/api/test/fault/sqlite-error")
+                .then()
+                .statusCode(500)
+                .contentType("application/problem+json")
+                .extract()
+                .`as`(ProblemDetails::class.java)
+
+        assertThat(problem.status).isEqualTo(500)
+        assertThat(problem.title).isEqualTo("Internal Server Error")
+        assertThat(problem.errorId).isNotNull().matches("^[0-9a-fA-F-]{36}$")
+        assertThat(problem.detail)
+            .contains("A database error occurred")
+            .doesNotContain("database disk image is malformed")
+    }
+
+    @Test
+    fun testSQLiteExceptionMapperDirectUnitContract() {
+        val mapper = SQLiteExceptionMapper()
+
+        // Test SQLITE_BUSY
+        val busyEx = org.sqlite.SQLiteException("database locked", org.sqlite.SQLiteErrorCode.SQLITE_BUSY)
+        val busyResp = mapper.toResponse(busyEx)
+        assertThat(busyResp.status).isEqualTo(503)
+        assertThat(busyResp.getHeaderString("Retry-After")).isEqualTo("1")
+        val busyProblem = busyResp.entity as ProblemDetails
+        assertThat(busyProblem.title).isEqualTo("Service Unavailable")
+
+        // Test SQLITE_LOCKED
+        val lockedEx = org.sqlite.SQLiteException("table locked", org.sqlite.SQLiteErrorCode.SQLITE_LOCKED)
+        val lockedResp = mapper.toResponse(lockedEx)
+        assertThat(lockedResp.status).isEqualTo(503)
+
+        // Test non-busy error (e.g. SQLITE_CORRUPT)
+        val corruptEx = org.sqlite.SQLiteException("corrupt file", org.sqlite.SQLiteErrorCode.SQLITE_CORRUPT)
+        val corruptResp = mapper.toResponse(corruptEx)
+        assertThat(corruptResp.status).isEqualTo(500)
+        val corruptProblem = corruptResp.entity as ProblemDetails
+        assertThat(corruptProblem.title).isEqualTo("Internal Server Error")
+        assertThat(corruptProblem.detail).doesNotContain("corrupt file")
+    }
 }
