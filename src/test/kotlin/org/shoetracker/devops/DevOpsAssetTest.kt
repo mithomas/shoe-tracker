@@ -30,12 +30,17 @@ class DevOpsAssetTest {
 
         // Check release job
         assertThat(content)
+            .contains("refs/heads/main")
+            .contains("startsWith(github.ref, 'refs/tags/v')")
             .contains("docker/setup-qemu-action@v3")
             .contains("docker/setup-buildx-action@v3")
             .contains("docker/login-action@v3")
+            .contains("docker/metadata-action@v5")
+            .contains("type=raw,value=dev")
             .contains("docker/build-push-action@v6")
             .contains("linux/amd64,linux/arm64")
             .contains("GIT_COMMIT")
+            .contains("env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''")
     }
 
     @Test
