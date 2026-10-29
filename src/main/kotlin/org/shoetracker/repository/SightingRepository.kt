@@ -2,77 +2,41 @@ package org.shoetracker.repository
 
 import io.quarkus.runtime.Startup
 import jakarta.annotation.PostConstruct
-import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 import org.shoetracker.domain.GeoLocation
 import org.shoetracker.domain.Sighting
-import java.sql.Connection
-import java.sql.PreparedStatement
 import java.sql.ResultSet
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.util.concurrent.locks.ReentrantLock
+import java.sql.Timestamp
+import java.util.Calendar
+import java.util.TimeZone
 import javax.sql.DataSource
-import kotlin.concurrent.withLock
 
 @Startup
 @ApplicationScoped
 class SightingRepository(
     private val dataSource: DataSource,
-) : AutoCloseable {
-    private val writeLock = ReentrantLock()
-    private val readLock = ReentrantLock()
-
-    // Formatter ensuring fixed-length 3-digit milliseconds for strict lexicographical sorting in SQLite TEXT columns
-    private val isoFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSX").withZone(ZoneOffset.UTC)
-
-    private lateinit var connection: Connection
-    private lateinit var insertStmt: PreparedStatement
-    private lateinit var findWithUserStmt: PreparedStatement
-    private lateinit var findAllStmt: PreparedStatement
-    private lateinit var countWithUserStmt: PreparedStatement
-    private lateinit var countAllStmt: PreparedStatement
-    private lateinit var deleteAllStmt: PreparedStatement
-    private lateinit var deleteByIdStmt: PreparedStatement
-
+) {
     @PostConstruct
     fun init() {
-        val conn = dataSource.connection
         // Fail-fast connectivity check
-        conn.createStatement().use { stmt ->
-            stmt.executeQuery("SELECT 1").close()
+        dataSource.connection.use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.executeQuery("SELECT 1").close()
+            }
         }
-
-        connection = conn
-        insertStmt =
-            conn.prepareStatement(
-                "INSERT INTO sightings (id, user_id, latitude, longitude, recorded_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-            )
-        findWithUserStmt =
-            conn.prepareStatement(
-                "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
-            )
-        findAllStmt =
-            conn.prepareStatement(
-                "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
-            )
-        countWithUserStmt = conn.prepareStatement("SELECT COUNT(*) FROM sightings WHERE user_id = ?")
-        countAllStmt = conn.prepareStatement("SELECT COUNT(*) FROM sightings")
-        deleteAllStmt = conn.prepareStatement("DELETE FROM sightings")
-        deleteByIdStmt = conn.prepareStatement("DELETE FROM sightings WHERE id = ?")
     }
 
     fun insert(sighting: Sighting): Sighting {
-        writeLock.withLock {
-            insertStmt.clearParameters()
-            insertStmt.setString(1, sighting.id)
-            insertStmt.setString(2, sighting.userId)
-            insertStmt.setDouble(3, sighting.location.latitude)
-            insertStmt.setDouble(4, sighting.location.longitude)
-            insertStmt.setString(5, isoFormatter.format(sighting.recordedAt))
-            insertStmt.setString(6, isoFormatter.format(sighting.createdAt))
-            insertStmt.executeUpdate()
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(INSERT_SQL).use { stmt ->
+                stmt.setString(1, sighting.id)
+                stmt.setString(2, sighting.userId)
+                stmt.setDouble(3, sighting.location.latitude)
+                stmt.setDouble(4, sighting.location.longitude)
+                stmt.setTimestamp(5, Timestamp.from(sighting.recordedAt), utcCalendar())
+                stmt.setTimestamp(6, Timestamp.from(sighting.createdAt), utcCalendar())
+                stmt.executeUpdate()
+            }
         }
         return sighting
     }
@@ -82,71 +46,58 @@ class SightingRepository(
         limit: Int,
         offset: Int,
     ): List<Sighting> {
-        readLock.withLock {
-            val stmt =
+        dataSource.connection.use { conn ->
+            val sql = if (userId != null) FIND_WITH_USER_SQL else FIND_ALL_SQL
+            conn.prepareStatement(sql).use { stmt ->
                 if (userId != null) {
-                    findWithUserStmt.clearParameters()
-                    findWithUserStmt.setString(1, userId)
-                    findWithUserStmt.setInt(2, limit)
-                    findWithUserStmt.setInt(3, offset)
-                    findWithUserStmt
+                    stmt.setString(1, userId)
+                    stmt.setInt(2, limit)
+                    stmt.setInt(3, offset)
                 } else {
-                    findAllStmt.clearParameters()
-                    findAllStmt.setInt(1, limit)
-                    findAllStmt.setInt(2, offset)
-                    findAllStmt
+                    stmt.setInt(1, limit)
+                    stmt.setInt(2, offset)
                 }
 
-            stmt.executeQuery().use { rs ->
-                val list = mutableListOf<Sighting>()
-                while (rs.next()) {
-                    list.add(mapRow(rs))
+                stmt.executeQuery().use { rs ->
+                    val list = mutableListOf<Sighting>()
+                    while (rs.next()) {
+                        list.add(mapRow(rs))
+                    }
+                    return list
                 }
-                return list
             }
         }
     }
 
     fun countSightings(userId: String?): Long {
-        readLock.withLock {
-            val stmt =
+        dataSource.connection.use { conn ->
+            val sql = if (userId != null) COUNT_WITH_USER_SQL else COUNT_ALL_SQL
+            conn.prepareStatement(sql).use { stmt ->
                 if (userId != null) {
-                    countWithUserStmt.clearParameters()
-                    countWithUserStmt.setString(1, userId)
-                    countWithUserStmt
-                } else {
-                    countAllStmt.clearParameters()
-                    countAllStmt
+                    stmt.setString(1, userId)
                 }
-
-            stmt.executeQuery().use { rs ->
-                return if (rs.next()) rs.getLong(1) else 0L
+                stmt.executeQuery().use { rs ->
+                    return if (rs.next()) rs.getLong(1) else 0L
+                }
             }
         }
     }
 
     fun deleteAll() {
-        writeLock.withLock {
-            deleteAllStmt.executeUpdate()
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(DELETE_ALL_SQL).use { stmt ->
+                stmt.executeUpdate()
+            }
         }
     }
 
-    fun deleteById(id: String): Boolean = writeLock.withLock {
-        deleteByIdStmt.clearParameters()
-        deleteByIdStmt.setString(1, id)
-        deleteByIdStmt.executeUpdate() > 0
-    }
-
-    @PreDestroy
-    override fun close() {
-        if (::insertStmt.isInitialized) runCatching { insertStmt.close() }
-        if (::findWithUserStmt.isInitialized) runCatching { findWithUserStmt.close() }
-        if (::findAllStmt.isInitialized) runCatching { findAllStmt.close() }
-        if (::countWithUserStmt.isInitialized) runCatching { countWithUserStmt.close() }
-        if (::countAllStmt.isInitialized) runCatching { countAllStmt.close() }
-        if (::deleteAllStmt.isInitialized) runCatching { deleteAllStmt.close() }
-        if (::deleteByIdStmt.isInitialized) runCatching { deleteByIdStmt.close() }
-        if (::connection.isInitialized) runCatching { connection.close() }
+    fun deleteById(id: String): Boolean {
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(DELETE_BY_ID_SQL).use { stmt ->
+                stmt.setString(1, id)
+                return stmt.executeUpdate() > 0
+            }
+        }
     }
 
     private fun mapRow(rs: ResultSet): Sighting = Sighting(
@@ -157,7 +108,24 @@ class SightingRepository(
             latitude = rs.getDouble("latitude"),
             longitude = rs.getDouble("longitude"),
         ),
-        recordedAt = Instant.parse(rs.getString("recorded_at")),
-        createdAt = Instant.parse(rs.getString("created_at")),
+        recordedAt = rs.getTimestamp("recorded_at", utcCalendar()).toInstant(),
+        createdAt = rs.getTimestamp("created_at", utcCalendar()).toInstant(),
     )
+
+    private fun utcCalendar(): Calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+
+    companion object {
+        private const val INSERT_SQL =
+            "INSERT INTO sightings (id, user_id, latitude, longitude, recorded_at, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+        private const val FIND_WITH_USER_SQL =
+            "SELECT id, user_id, latitude, longitude, recorded_at, created_at " +
+                "FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC LIMIT ? OFFSET ?"
+        private const val FIND_ALL_SQL =
+            "SELECT id, user_id, latitude, longitude, recorded_at, created_at " +
+                "FROM sightings ORDER BY recorded_at DESC LIMIT ? OFFSET ?"
+        private const val COUNT_WITH_USER_SQL = "SELECT COUNT(*) FROM sightings WHERE user_id = ?"
+        private const val COUNT_ALL_SQL = "SELECT COUNT(*) FROM sightings"
+        private const val DELETE_ALL_SQL = "DELETE FROM sightings"
+        private const val DELETE_BY_ID_SQL = "DELETE FROM sightings WHERE id = ?"
+    }
 }

@@ -13,6 +13,9 @@ import java.sql.Connection
 import java.sql.SQLException
 import java.sql.SQLFeatureNotSupportedException
 import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 import java.util.logging.Logger
 import javax.sql.DataSource
 
@@ -31,7 +34,7 @@ class SightingRepositoryTest {
 
     @Test
     fun testEagerStatementsAndCrudOperations() {
-        val now = Instant.now()
+        val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
         val sighting =
             Sighting(
                 id = "018f4a2b-1234-7000-8000-111122223333",
@@ -52,6 +55,8 @@ class SightingRepositoryTest {
         assertThat(items).hasSize(1)
         assertThat(items[0].id).isEqualTo(sighting.id)
         assertThat(items[0].userId).isEqualTo("EagerUser")
+        assertThat(items[0].recordedAt).isEqualTo(now)
+        assertThat(items[0].createdAt).isEqualTo(now)
 
         // DeleteById
         val deleted = repository.deleteById(sighting.id)
@@ -61,6 +66,55 @@ class SightingRepositoryTest {
         // Delete non-existent
         val deletedNonExistent = repository.deleteById("non-existent")
         assertThat(deletedNonExistent).isFalse()
+    }
+
+    @Test
+    fun testConcurrentMultiThreadedCrudOperations() {
+        val threadCount = 8
+        val recordsPerThread = 10
+        val executor = Executors.newFixedThreadPool(threadCount)
+        try {
+            val baseTime = Instant.parse("2026-10-29T12:00:00.123Z").truncatedTo(ChronoUnit.MILLIS)
+            val tasks =
+                (0 until threadCount).map { threadIdx ->
+                    Callable {
+                        for (i in 0 until recordsPerThread) {
+                            val id = "018f4a2b-%04d-7000-8000-%012d".format(threadIdx, i)
+                            val timestamp = baseTime.plusMillis((threadIdx * 100 + i).toLong())
+                            val sighting =
+                                Sighting(
+                                    id = id,
+                                    userId = "User-$threadIdx",
+                                    location =
+                                    GeoLocation(
+                                        latitude = 50.0 + threadIdx * 0.01,
+                                        longitude = 8.0 + i * 0.01,
+                                    ),
+                                    recordedAt = timestamp,
+                                    createdAt = timestamp,
+                                )
+                            repository.insert(sighting)
+                            val tempId = "018f4a2b-%04d-7000-9000-%012d".format(threadIdx, i)
+                            repository.insert(sighting.copy(id = tempId))
+                            val userSightings = repository.findSightings("User-$threadIdx", limit = 50, offset = 0)
+                            assertThat(userSightings).isNotEmpty
+                            val userCount = repository.countSightings("User-$threadIdx")
+                            assertThat(userCount).isGreaterThanOrEqualTo(1L)
+                            assertThat(repository.deleteById(tempId)).isTrue()
+                        }
+                    }
+                }
+
+            val futures = executor.invokeAll(tasks)
+            futures.forEach { it.get() }
+
+            val totalExpected = (threadCount * recordsPerThread).toLong()
+            assertThat(repository.countSightings(null)).isEqualTo(totalExpected)
+            val allSightings = repository.findSightings(null, limit = 500, offset = 0)
+            assertThat(allSightings).hasSize(totalExpected.toInt())
+        } finally {
+            executor.shutdownNow()
+        }
     }
 
     @Test
@@ -94,8 +148,5 @@ class SightingRepositoryTest {
         assertThatThrownBy { badRepo.init() }
             .isInstanceOf(SQLException::class.java)
             .hasMessageContaining("Simulated database unreachable")
-
-        // Close on uninitialized repository does not throw
-        badRepo.close()
     }
 }

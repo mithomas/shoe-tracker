@@ -7,8 +7,7 @@ import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import org.shoetracker.api.dto.ProblemDetails
-import org.sqlite.SQLiteErrorCode
-import org.sqlite.SQLiteException
+import java.sql.SQLException
 
 @Provider
 class IllegalArgumentExceptionMapper : ExceptionMapper<IllegalArgumentException> {
@@ -84,15 +83,18 @@ class WebApplicationExceptionMapper : ExceptionMapper<WebApplicationException> {
 }
 
 @Provider
-class SQLiteExceptionMapper : ExceptionMapper<SQLiteException> {
-    private val logger = org.jboss.logging.Logger.getLogger(SQLiteExceptionMapper::class.java)
+class DatabaseContentionExceptionMapper : ExceptionMapper<SQLException> {
+    private val logger = org.jboss.logging.Logger.getLogger(DatabaseContentionExceptionMapper::class.java)
 
-    override fun toResponse(exception: SQLiteException): Response {
+    override fun toResponse(exception: SQLException): Response {
         val errorId = java.util.UUID.randomUUID().toString()
-        val isBusyOrLocked = isBusyOrLocked(exception.resultCode)
+        val isBusyOrLocked = isBusyOrLocked(exception)
 
         if (isBusyOrLocked) {
-            logger.warn("SQLite lock contention [error_id=$errorId, code=${exception.resultCode}]: ${exception.message}")
+            logger.warn(
+                "Database lock contention [error_id=$errorId, sqlState=${exception.sqlState}, " +
+                    "code=${exception.errorCode}]: ${exception.message}",
+            )
             val problem =
                 ProblemDetails(
                     title = "Service Unavailable",
@@ -109,7 +111,8 @@ class SQLiteExceptionMapper : ExceptionMapper<SQLiteException> {
                 .build()
         } else {
             logger.error(
-                "SQLite database error [error_id=$errorId, code=${exception.resultCode}]: ${exception.message}",
+                "Database error [error_id=$errorId, sqlState=${exception.sqlState}, " +
+                    "code=${exception.errorCode}]: ${exception.message}",
                 exception,
             )
             val problem =
@@ -128,10 +131,12 @@ class SQLiteExceptionMapper : ExceptionMapper<SQLiteException> {
         }
     }
 
-    private fun isBusyOrLocked(code: SQLiteErrorCode?): Boolean {
-        if (code == null) return false
-        val name = code.name
-        return name.startsWith("SQLITE_BUSY") || name.startsWith("SQLITE_LOCKED")
+    private fun isBusyOrLocked(exception: SQLException): Boolean = exception.sqlState in CONTENTION_SQL_STATES ||
+        exception.errorCode in CONTENTION_ERROR_CODES
+
+    companion object {
+        private val CONTENTION_SQL_STATES = setOf("40001", "40P01", "57P01", "HYT00")
+        private val CONTENTION_ERROR_CODES = setOf(50200, 90039, 90072)
     }
 }
 

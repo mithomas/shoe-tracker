@@ -22,7 +22,7 @@ dependencies {
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-agroal")
     implementation("io.quarkus:quarkus-flyway")
-    implementation("org.xerial:sqlite-jdbc:3.53.4.0")
+    implementation("io.quarkus:quarkus-jdbc-h2")
     implementation("com.fasterxml.uuid:java-uuid-generator:5.2.0")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-smallrye-health")

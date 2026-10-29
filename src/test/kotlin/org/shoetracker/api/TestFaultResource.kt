@@ -3,8 +3,7 @@ package org.shoetracker.api
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
-import org.sqlite.SQLiteErrorCode
-import org.sqlite.SQLiteException
+import java.sql.SQLException
 
 @Path("/api/test/fault")
 class TestFaultResource {
@@ -16,10 +15,10 @@ class TestFaultResource {
     @GET
     @Path("/sqlite-busy")
     @Produces("application/json")
-    fun throwSqliteBusy(): String = throw SQLiteException("database is locked", SQLiteErrorCode.SQLITE_BUSY)
+    fun throwSqliteBusy(): String = throw SQLException("database is locked", "40001", 50200)
 
     @GET
     @Path("/sqlite-error")
     @Produces("application/json")
-    fun throwSqliteError(): String = throw SQLiteException("database disk image is malformed", SQLiteErrorCode.SQLITE_CORRUPT)
+    fun throwSqliteError(): String = throw SQLException("database disk image is malformed", "HY000", 90030)
 }

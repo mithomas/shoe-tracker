@@ -340,23 +340,23 @@ class SightingResourceTest {
 
     @Test
     fun testSQLiteExceptionMapperDirectUnitContract() {
-        val mapper = SQLiteExceptionMapper()
+        val mapper = DatabaseContentionExceptionMapper()
 
-        // Test SQLITE_BUSY
-        val busyEx = org.sqlite.SQLiteException("database locked", org.sqlite.SQLiteErrorCode.SQLITE_BUSY)
+        // Test SQLState 40001 / H2 lock timeout (50200)
+        val busyEx = java.sql.SQLException("database locked", "40001", 50200)
         val busyResp = mapper.toResponse(busyEx)
         assertThat(busyResp.status).isEqualTo(503)
         assertThat(busyResp.getHeaderString("Retry-After")).isEqualTo("1")
         val busyProblem = busyResp.entity as ProblemDetails
         assertThat(busyProblem.title).isEqualTo("Service Unavailable")
 
-        // Test SQLITE_LOCKED
-        val lockedEx = org.sqlite.SQLiteException("table locked", org.sqlite.SQLiteErrorCode.SQLITE_LOCKED)
+        // Test H2 deadlock / lock error code (90039)
+        val lockedEx = java.sql.SQLException("table locked", "HY000", 90039)
         val lockedResp = mapper.toResponse(lockedEx)
         assertThat(lockedResp.status).isEqualTo(503)
 
-        // Test non-busy error (e.g. SQLITE_CORRUPT)
-        val corruptEx = org.sqlite.SQLiteException("corrupt file", org.sqlite.SQLiteErrorCode.SQLITE_CORRUPT)
+        // Test non-busy error (e.g. HY000 corrupt file)
+        val corruptEx = java.sql.SQLException("corrupt file", "HY000", 90030)
         val corruptResp = mapper.toResponse(corruptEx)
         assertThat(corruptResp.status).isEqualTo(500)
         val corruptProblem = corruptResp.entity as ProblemDetails
