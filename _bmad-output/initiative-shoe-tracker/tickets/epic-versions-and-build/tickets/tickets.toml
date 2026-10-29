@@ -54,3 +54,14 @@ covers = ["R40"]
 after = [1, 2, 3, 4]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Replace 'GPS Denied' with 'No GPS' / 'Kein GPS' Across UI Labels, i18n Keys, DOM IDs, CSS Classes, and Geolocation State"
+description = "Renames the 'denied' geolocation state to 'no-gps' in geo.js and minimap.js, renames #miniMapDeniedOverlay to #miniMapNoGpsOverlay and .gps-pill.denied to .gps-pill.no-gps, renames i18n keys to gps.noGps, spot.noGps, and spot.noGpsOverlay, updates their texts to 'No GPS' / '⚠️ No GPS' (EN) and 'Kein GPS' / '⚠️ Kein GPS' (DE), and updates FrontendAssetTest.kt."
+verify = "index.html, style.css, geo.js, minimap.js, spot.js, and i18n.js use no-gps / noGps identifiers and render 'No GPS' / '⚠️ No GPS' (EN) and 'Kein GPS' / '⚠️ Kein GPS' (DE), and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R41"]
+after = [1, 2, 3, 4, 5]
+hitl = false
+risk = "low"

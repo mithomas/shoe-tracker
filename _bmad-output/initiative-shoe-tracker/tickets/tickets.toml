@@ -52,5 +52,5 @@ id = 7
 slug = "epic-versions-and-build"
 title = "Build Toolchain Modernization, CI/CD Upgrades & UI Polish"
 description = "Upgrades Gradle toolchain, Kotlin bytecode target, and CI to JDK 25; migrates GitHub Actions to v5 (Node 24); streamlines Docker Hub container builds to linux/amd64 without QEMU overhead; updates Docker Hub image references to mithomas/shoe-tracker; and removes the redundant '— Germany Overview' suffix from the GPS denied mini-map overlay."
-covers = ["R36", "R37", "R38", "R39", "R40"]
+covers = ["R36", "R37", "R38", "R39", "R40", "R41"]
 after = [{ epic = "epic-database-modernization", needs = "Modernized build and CI asset test suite" }]

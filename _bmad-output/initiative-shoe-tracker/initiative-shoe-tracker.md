@@ -50,6 +50,7 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - R38: Docker Hub CI release job builds and publishes only the `linux/amd64` container platform without `linux/arm64` cross-compilation or `docker/setup-qemu-action` emulation overhead.
 - R39: Default container image in `docker-compose.yml` (`${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}`) and container deployment examples in `README.md` reference `mithomas/shoe-tracker` instead of placeholder `mitch/shoe-tracker`.
 - R40: HUD mini-map location-denied overlay (`#miniMapDeniedOverlay` in `index.html` and `spot.deniedOverlay` in `i18n.js`) displays concise `⚠️ Location Access Denied` (EN) and `⚠️ Standortzugriff verweigert` (DE) without the redundant ` — Germany Overview` / ` — Deutschland-Übersicht` suffix.
+- R41: Geolocation unavailable/denied state (`no-gps`), DOM/CSS/i18n identifiers (`#miniMapNoGpsOverlay`, `.gps-pill.no-gps`, `gps.noGps`, `spot.noGps`, `spot.noGpsOverlay`), and UI labels across the header GPS pill, giant Spot button, and HUD mini-map overlay use concise `No GPS` / `⚠️ No GPS` (EN) and `Kein GPS` / `⚠️ Kein GPS` (DE) instead of `GPS Denied` / `GPS Verweigert` / `Location Access Denied`.
 
 ## Constraints
 
