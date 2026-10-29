@@ -8,6 +8,7 @@ companions: []
 after: ["epic-open-source-devops"]
 refined: true
 risk: low
+status: "done"
 ---
 
 # Architecture Hardening & Offline Resilience
