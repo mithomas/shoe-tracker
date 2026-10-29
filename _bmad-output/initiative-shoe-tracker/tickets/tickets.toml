@@ -46,3 +46,11 @@ title = "Database Modernization & GraalVM Native Image"
 description = "Replaces SQLite with pure-Java embedded H2 database (MODE=MySQL) with native TIMESTAMP(3), enables startup switching between embedded H2 file and external MariaDB/MySQL from a single JDBC URL string, and compiles standalone GraalVM native binary."
 covers = ["R23", "R24", "R25", "R26", "R27"]
 after = [{ epic = "epic-architecture-resilience", needs = "Hardened architecture and offline vendoring" }]
+
+[[epic]]
+id = 7
+slug = "epic-versions-and-build"
+title = "Build Toolchain Modernization, CI/CD Upgrades & UI Polish"
+description = "Upgrades Gradle toolchain, Kotlin bytecode target, and CI to JDK 25; migrates GitHub Actions to v5 (Node 24); streamlines Docker Hub container builds to linux/amd64 without QEMU overhead; updates Docker Hub image references to mithomas/shoe-tracker; and removes the redundant '— Germany Overview' suffix from the GPS denied mini-map overlay."
+covers = ["R36", "R37", "R38", "R39", "R40"]
+after = [{ epic = "epic-database-modernization", needs = "Modernized build and CI asset test suite" }]

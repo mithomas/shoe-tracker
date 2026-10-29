@@ -1,0 +1,56 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Fully Move to JDK 25 for Local Development, Build Toolchain, and GitHub Actions CI Workflow"
+description = "Upgrades build.gradle.kts (JavaVersion.VERSION_25, vendor-agnostic JavaLanguageVersion.of(25) toolchain, and Kotlin JvmTarget.JVM_25), updates .github/workflows/ci.yml ('- name: Set up JDK 25' and java-version: '25' with distribution: 'temurin'), updates README.md ('Java 25' and 'JDK 25'), and adds JDK 25 assertions (and absence of JDK 21) for ci.yml, build.gradle.kts, and README.md in DevOpsAssetTest.kt."
+verify = "build.gradle.kts compiles and runs tests on JDK 25 with zero VERSION_21/JVM_21 references, .github/workflows/ci.yml configures 'Set up JDK 25' and java-version: '25' with zero JDK 21 references, README.md specifies JDK 25, and ./gradlew check test passes."
+covers = ["R36"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Upgrade GitHub Actions in CI Workflow from v4 (Node 20) to v5 (Node 24)"
+description = "Upgrades actions/checkout@v4 (in both test and release jobs), actions/setup-java@v4, and gradle/actions/wrapper-validation@v4 in .github/workflows/ci.yml to @v5 (Node 24) and updates DevOpsAssetTest.kt to assert @v5 and forbid @v4."
+verify = ".github/workflows/ci.yml uses actions/checkout@v5, actions/setup-java@v5, and gradle/actions/wrapper-validation@v5 with zero @v4 references, and DevOpsAssetTest passes."
+covers = ["R37"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Build and Publish Only linux/amd64 Container Image in CI Workflow"
+description = "Updates the release job in .github/workflows/ci.yml to set platforms: linux/amd64 only, removes the docker/setup-qemu-action@v3 step, updates the release job name to 'Publish Container to Docker Hub', and updates DevOpsAssetTest.kt to assert platforms: linux/amd64 and forbid linux/arm64 and setup-qemu-action."
+verify = ".github/workflows/ci.yml builds only linux/amd64 without QEMU setup or linux/arm64, and DevOpsAssetTest passes."
+covers = ["R38"]
+after = [1, 2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Update Docker Hub Username to mithomas and Image Name to shoe-tracker in Examples and README"
+description = "Updates docker-compose.yml default image from mitch/shoe-tracker:latest to mithomas/shoe-tracker:latest, documents mithomas/shoe-tracker (:latest and :dev) in README.md container examples, and asserts mithomas/shoe-tracker (and absence of mitch/shoe-tracker) in DevOpsAssetTest.kt."
+verify = "docker-compose.yml and README.md reference mithomas/shoe-tracker with zero mitch/shoe-tracker Docker Hub references (while preserving github.com/mitch/shoe-tracker source links), and DevOpsAssetTest passes."
+covers = ["R39"]
+after = [1, 2, 3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Remove '— Germany Overview' Suffix from GPS Denied Mini-Map Overlay"
+description = "Removes the redundant ' — Germany Overview' (EN) and ' — Deutschland-Übersicht' (DE) suffix from #miniMapDeniedOverlay in index.html and spot.deniedOverlay in i18n.js so the overlay displays '⚠️ Location Access Denied' / '⚠️ Standortzugriff verweigert', and updates FrontendAssetTest.kt."
+verify = "index.html and i18n.js render '⚠️ Location Access Denied' and '⚠️ Standortzugriff verweigert' without 'Germany Overview' or 'Deutschland-Übersicht', and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R40"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

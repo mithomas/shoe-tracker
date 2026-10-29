@@ -45,6 +45,11 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - R33: Sighting entries in the List view (`#sightingsList`) include a `"View on Map"` action button that switches to the `[Map]` tab, automatically switches the filter to `"All Shoes"` if `"My Shoes"` is active and the target sighting belongs to another user, smoothly centers and zooms the map (`zoom 16`) on the sighting's coordinates, and opens its marker popup.
 - R34: Interface displays reactive Total and Personal sighting counters (e.g., `"12 Total | 4 Mine"` in English / `"12 Gesamt | 4 Meine"` in German) across views, recalculating immediately on sighting creation, undo/deletion, and username changes without requiring a page reload.
 - R35: Static web assets consume Leaflet via the `org.mvnpm:leaflet:1.9.4` Maven dependency in `build.gradle.kts` (tracked by Dependabot) with local high-DPI retina marker assets (`marker-icon-2x.png`) and an offline tile fallback indicator when map tiles fail to load, and serve a dedicated sneaker favicon (`/favicon.svg` and `/favicon.ico`) declared in `index.html`.
+- R36: Local development, Gradle Java toolchain (`JavaLanguageVersion.of(25)`), `sourceCompatibility`/`targetCompatibility` (`JavaVersion.VERSION_25`), Kotlin `JvmTarget.JVM_25`, GitHub Actions CI (`java-version: '25'`), and `README.md` prerequisites target JDK 25 with zero Java 21 fallbacks.
+- R37: GitHub Actions CI workflow (`.github/workflows/ci.yml`) runs on `actions/checkout@v5`, `actions/setup-java@v5`, and `gradle/actions/wrapper-validation@v5` targeting Node.js 24 natively with zero `@v4` references.
+- R38: Docker Hub CI release job builds and publishes only the `linux/amd64` container platform without `linux/arm64` cross-compilation or `docker/setup-qemu-action` emulation overhead.
+- R39: Default container image in `docker-compose.yml` (`${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}`) and container deployment examples in `README.md` reference `mithomas/shoe-tracker` instead of placeholder `mitch/shoe-tracker`.
+- R40: HUD mini-map location-denied overlay (`#miniMapDeniedOverlay` in `index.html` and `spot.deniedOverlay` in `i18n.js`) displays concise `⚠️ Location Access Denied` (EN) and `⚠️ Standortzugriff verweigert` (DE) without the redundant ` — Germany Overview` / ` — Deutschland-Übersicht` suffix.
 
 ## Constraints
 

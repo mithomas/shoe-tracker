@@ -1,11 +1,11 @@
 ---
 type: story
 title: "Update Docker Hub Username to mithomas and Image Name to shoe-tracker in Examples and README"
-parent: ""
-covers: []
+parent: "epic-versions-and-build"
+covers: ["R39"]
 sources: []
 companions: []
-after: []
+after: ["story-build-amd64-container-only.md"]
 risk: low
 hitl: false
 refined: true
@@ -20,20 +20,20 @@ Updates all Docker Hub image references, container run examples, and `docker-com
 ## Requirements
 
 1. **Default Image in Docker Compose**
-   **Given** `docker-compose.yml` (and any compose examples) defines the container image with an environment fallback
+   **Given** `docker-compose.yml` defines the container image with an environment fallback
    **When** `DOCKERHUB_IMAGE` is not explicitly set
    **Then** the default image reference resolves to `mithomas/shoe-tracker:latest` (`${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}`) instead of `mitch/shoe-tracker:latest`
 
 2. **README Container and Compose Examples**
    **Given** `README.md` documents running Shoe Tracker via Docker and Docker Compose
    **When** a user reads the container deployment and quickstart examples
-   **Then** the documentation references `mithomas/shoe-tracker` (e.g., `mithomas/shoe-tracker:latest` / `mithomas/shoe-tracker:dev`) as the published Docker Hub image
+   **Then** the documentation explicitly references `mithomas/shoe-tracker` (`mithomas/shoe-tracker:latest` and `mithomas/shoe-tracker:dev`) as the published Docker Hub image
    **And** no Docker Hub image example uses the placeholder `mitch/shoe-tracker`
 
 3. **Automated DevOps Asset Verification**
    **Given** `DevOpsAssetTest.kt` validates `docker-compose.yml` and `README.md`
-   **When** `./gradlew test` runs
-   **Then** the test suite asserts that `docker-compose.yml` and `README.md` reference `mithomas/shoe-tracker`
+   **When** `./gradlew check test` runs
+   **Then** `testDockerComposeConfiguration` asserts that `docker-compose.yml` and `README.md` reference `mithomas/shoe-tracker` and do not contain `mitch/shoe-tracker`
 
 ## Boundaries
 
