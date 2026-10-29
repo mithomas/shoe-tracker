@@ -23,16 +23,19 @@ class MultiTargetJdbcDriver : Driver {
         url: String?,
         info: Properties?,
     ): Connection? {
-        if (url == null) return null
+        val trimmed = url?.trim() ?: return null
         return when {
-            url.startsWith("jdbc:h2:") -> h2Driver.connect(url, info)
-            url.startsWith("jdbc:mariadb:") -> mariaDbDriver.connect(url, info)
-            url.startsWith("jdbc:mysql:") -> {
+            trimmed.startsWith("jdbc:h2:", ignoreCase = true) ->
+                h2Driver.connect(normalizePrefix(trimmed, "jdbc:h2:"), info)
+            trimmed.startsWith("jdbc:mariadb:", ignoreCase = true) ->
+                mariaDbDriver.connect(normalizePrefix(trimmed, "jdbc:mariadb:"), info)
+            trimmed.startsWith("jdbc:mysql:", ignoreCase = true) -> {
+                val normalizedMysql = normalizePrefix(trimmed, "jdbc:mysql:")
                 val targetUrl =
-                    if (mariaDbDriver.acceptsURL(url)) {
-                        url
+                    if (mariaDbDriver.acceptsURL(normalizedMysql)) {
+                        normalizedMysql
                     } else {
-                        "jdbc:mariadb:" + url.removePrefix("jdbc:mysql:")
+                        "jdbc:mariadb:" + normalizedMysql.substring("jdbc:mysql:".length)
                     }
                 mariaDbDriver.connect(targetUrl, info)
             }
@@ -40,29 +43,45 @@ class MultiTargetJdbcDriver : Driver {
         }
     }
 
-    override fun acceptsURL(url: String?): Boolean = url != null &&
-        (
-            url.startsWith("jdbc:h2:") ||
-                url.startsWith("jdbc:mariadb:") ||
-                url.startsWith("jdbc:mysql:")
-            )
+    override fun acceptsURL(url: String?): Boolean {
+        val trimmed = url?.trim() ?: return false
+        return trimmed.startsWith("jdbc:h2:", ignoreCase = true) ||
+            trimmed.startsWith("jdbc:mariadb:", ignoreCase = true) ||
+            trimmed.startsWith("jdbc:mysql:", ignoreCase = true)
+    }
 
     override fun getPropertyInfo(
         url: String?,
         info: Properties?,
-    ): Array<DriverPropertyInfo> = when {
-        url == null -> emptyArray()
-        url.startsWith("jdbc:h2:") -> h2Driver.getPropertyInfo(url, info)
-        url.startsWith("jdbc:mariadb:") || url.startsWith("jdbc:mysql:") ->
-            mariaDbDriver.getPropertyInfo(
-                if (url.startsWith("jdbc:mysql:") && !mariaDbDriver.acceptsURL(url)) {
-                    "jdbc:mariadb:" + url.removePrefix("jdbc:mysql:")
-                } else {
-                    url
-                },
-                info,
-            )
-        else -> emptyArray()
+    ): Array<DriverPropertyInfo> {
+        val trimmed = url?.trim() ?: return emptyArray()
+        return when {
+            trimmed.startsWith("jdbc:h2:", ignoreCase = true) ->
+                h2Driver.getPropertyInfo(normalizePrefix(trimmed, "jdbc:h2:"), info)
+            trimmed.startsWith("jdbc:mariadb:", ignoreCase = true) ->
+                mariaDbDriver.getPropertyInfo(normalizePrefix(trimmed, "jdbc:mariadb:"), info)
+            trimmed.startsWith("jdbc:mysql:", ignoreCase = true) -> {
+                val normalizedMysql = normalizePrefix(trimmed, "jdbc:mysql:")
+                mariaDbDriver.getPropertyInfo(
+                    if (!mariaDbDriver.acceptsURL(normalizedMysql)) {
+                        "jdbc:mariadb:" + normalizedMysql.substring("jdbc:mysql:".length)
+                    } else {
+                        normalizedMysql
+                    },
+                    info,
+                )
+            }
+            else -> emptyArray()
+        }
+    }
+
+    private fun normalizePrefix(
+        url: String,
+        lowercasePrefix: String,
+    ): String = if (url.startsWith(lowercasePrefix)) {
+        url
+    } else {
+        lowercasePrefix + url.substring(lowercasePrefix.length)
     }
 
     override fun getMajorVersion(): Int = 1

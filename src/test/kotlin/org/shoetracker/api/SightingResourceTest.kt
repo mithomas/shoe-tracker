@@ -283,7 +283,7 @@ class SightingResourceTest {
     @Test
     fun testThrowableExceptionMapperDirectUnitContract() {
         val mapper = ThrowableExceptionMapper()
-        val exception = IllegalStateException("Corrupt SQLite database block")
+        val exception = IllegalStateException("Corrupt database block")
         val response = mapper.toResponse(exception)
 
         assertThat(response.status).isEqualTo(500)
@@ -296,15 +296,21 @@ class SightingResourceTest {
         assertThat(entity.detail)
             .contains("An unexpected server error occurred")
             .contains(entity.errorId)
-            .doesNotContain("Corrupt SQLite database block")
+            .doesNotContain("Corrupt database block")
+
+        // Wrapped SQLException inside RuntimeException should still return 503 Retry-After: 1
+        val wrappedBusy = RuntimeException("Transaction wrapper failed", java.sql.SQLException("Lock timeout", "40001", 50200))
+        val wrappedResponse = mapper.toResponse(wrappedBusy)
+        assertThat(wrappedResponse.status).isEqualTo(503)
+        assertThat(wrappedResponse.getHeaderString("Retry-After")).isEqualTo("1")
     }
 
     @Test
-    fun testSqliteBusyProducesRfc7807ServiceUnavailableWithRetryAfterHeader() {
+    fun testDatabaseBusyProducesRfc7807ServiceUnavailableWithRetryAfterHeader() {
         val response =
             given()
                 .`when`()
-                .get("/api/test/fault/sqlite-busy")
+                .get("/api/test/fault/db-busy")
                 .then()
                 .statusCode(503)
                 .contentType("application/problem+json")
@@ -319,11 +325,11 @@ class SightingResourceTest {
     }
 
     @Test
-    fun testSqliteCorruptProducesRfc7807InternalServerError() {
+    fun testDatabaseCorruptProducesRfc7807InternalServerError() {
         val problem =
             given()
                 .`when`()
-                .get("/api/test/fault/sqlite-error")
+                .get("/api/test/fault/db-error")
                 .then()
                 .statusCode(500)
                 .contentType("application/problem+json")
@@ -339,7 +345,7 @@ class SightingResourceTest {
     }
 
     @Test
-    fun testSQLiteExceptionMapperDirectUnitContract() {
+    fun testDatabaseContentionExceptionMapperDirectUnitContract() {
         val mapper = DatabaseContentionExceptionMapper()
 
         // Test SQLState 40001 / H2 lock timeout (50200)
@@ -373,6 +379,12 @@ class SightingResourceTest {
         val wrapperWithNext = java.sql.SQLException("Batch execution failed", "HY000", 0)
         wrapperWithNext.setNextException(java.sql.SQLException("Inner H2 lock", "40001", 50200))
         assertThat(mapper.toResponse(wrapperWithNext).status).isEqualTo(503)
+
+        // Test branching causal chain where outer SQLException has BOTH non-contention nextException AND contention cause
+        val wrapperWithBoth = java.sql.SQLException("Batch wrapper error", "HY000", 0)
+        wrapperWithBoth.setNextException(java.sql.SQLException("Secondary warning", "01000", 0))
+        wrapperWithBoth.initCause(java.sql.SQLException("Underlying deadlock", "40001", 1213))
+        assertThat(mapper.toResponse(wrapperWithBoth).status).isEqualTo(503)
 
         // Test non-busy error (e.g. HY000 corrupt file)
         val corruptEx = java.sql.SQLException("corrupt file", "HY000", 90030)

@@ -15,13 +15,16 @@ class MultiTargetJdbcDriverTest {
         assertThat(driver.acceptsURL("jdbc:h2:file:./build/test-data/driver-test;MODE=MySQL")).isTrue()
         assertThat(driver.acceptsURL("jdbc:mariadb://localhost:3306/shoetracker")).isTrue()
         assertThat(driver.acceptsURL("jdbc:mysql://localhost:3306/shoetracker")).isTrue()
+        assertThat(driver.acceptsURL("  JDBC:MARIADB://localhost:3306/shoetracker  ")).isTrue()
+        assertThat(driver.acceptsURL("  JDBC:MYSQL://localhost:3306/shoetracker  ")).isTrue()
+        assertThat(driver.acceptsURL("  JDBC:H2:mem:test  ")).isTrue()
         assertThat(driver.acceptsURL("jdbc:postgresql://localhost:5432/db")).isFalse()
         assertThat(driver.acceptsURL(null)).isFalse()
     }
 
     @Test
     fun testConnectDelegatesToH2DriverAndReportsProductName() {
-        val url = "jdbc:h2:mem:multitarget_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE"
+        val url = "  JDBC:H2:mem:multitarget_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE  "
         driver.connect(url, Properties()).use { conn ->
             assertThat(conn).isNotNull
             assertThat(conn!!.metaData.databaseProductName).isEqualTo("H2")
@@ -35,8 +38,21 @@ class MultiTargetJdbcDriverTest {
         }.isInstanceOf(SQLException::class.java)
 
         assertThatThrownBy {
-            driver.connect("jdbc:mysql://127.0.0.1:1/shoetracker?connectTimeout=100", Properties())
+            driver.connect("  JDBC:MYSQL://127.0.0.1:1/shoetracker?connectTimeout=100  ", Properties())
         }.isInstanceOf(SQLException::class.java)
+    }
+
+    @Test
+    fun testMariaDbLocalSocketUsesUnixDomainSocketViaJnaInsteadOfNullAddress() {
+        // When JNA is present on the classpath, ?localSocket= attempts AF_UNIX socket connection
+        // and throws SQLException (missing socket file) rather than IllegalArgumentException("connect: The address can't be null")
+        assertThatThrownBy {
+            driver.connect(
+                "jdbc:mariadb://localhost/shoetracker?localSocket=/tmp/nonexistent-shoetracker-mysqld.sock",
+                Properties(),
+            )
+        }.isInstanceOf(SQLException::class.java)
+            .hasMessageContaining("Socket fail to connect")
     }
 
     @Test

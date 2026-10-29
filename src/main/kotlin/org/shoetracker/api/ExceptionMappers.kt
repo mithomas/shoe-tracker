@@ -8,6 +8,9 @@ import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
 import org.shoetracker.api.dto.ProblemDetails
 import java.sql.SQLException
+import java.util.ArrayDeque
+import java.util.Collections
+import java.util.IdentityHashMap
 
 @Provider
 class IllegalArgumentExceptionMapper : ExceptionMapper<IllegalArgumentException> {
@@ -91,24 +94,7 @@ class DatabaseContentionExceptionMapper : ExceptionMapper<SQLException> {
         val contentionEx = findContentionException(exception)
 
         if (contentionEx != null) {
-            logger.warn(
-                "Database lock contention [error_id=$errorId, sqlState=${contentionEx.sqlState}, " +
-                    "code=${contentionEx.errorCode}]: ${contentionEx.message}",
-            )
-            val problem =
-                ProblemDetails(
-                    title = "Service Unavailable",
-                    status = Response.Status.SERVICE_UNAVAILABLE.statusCode,
-                    detail = "Database is temporarily busy. Please retry in 1 second.",
-                    instance = "/api/v1/sightings",
-                    errorId = errorId,
-                )
-            return Response
-                .status(Response.Status.SERVICE_UNAVAILABLE)
-                .header("Retry-After", "1")
-                .type("application/problem+json")
-                .entity(problem)
-                .build()
+            return buildContentionResponse(contentionEx, errorId)
         } else {
             logger.error(
                 "Database error [error_id=$errorId, sqlState=${exception.sqlState}, " +
@@ -131,27 +117,66 @@ class DatabaseContentionExceptionMapper : ExceptionMapper<SQLException> {
         }
     }
 
-    private fun findContentionException(root: SQLException): SQLException? {
-        var current: Throwable? = root
-        var depth = 0
-        while (current != null && depth++ < 16) {
-            if (current is SQLException && isBusyOrLocked(current)) return current
-            current =
-                if (current is SQLException && current.nextException != null && current.nextException !== current.cause) {
-                    current.nextException
-                } else {
-                    current.cause
-                }
-        }
-        return null
-    }
-
-    private fun isBusyOrLocked(exception: SQLException): Boolean = exception.sqlState in CONTENTION_SQL_STATES ||
-        exception.errorCode in CONTENTION_ERROR_CODES
-
     companion object {
+        private val logger = org.jboss.logging.Logger.getLogger(DatabaseContentionExceptionMapper::class.java)
         private val CONTENTION_SQL_STATES = setOf("40001", "40P01", "57P01", "HYT00")
         private val CONTENTION_ERROR_CODES = setOf(50200, 90039, 90072, 1205, 1213)
+        private const val MAX_TRAVERSAL_NODES = 16
+
+        fun findContentionException(root: Throwable?): SQLException? {
+            if (root == null) return null
+            val queue = ArrayDeque<Throwable>()
+            val visited = Collections.newSetFromMap(IdentityHashMap<Throwable, Boolean>())
+            queue.add(root)
+            visited.add(root)
+            var inspected = 0
+
+            while (queue.isNotEmpty() && inspected < MAX_TRAVERSAL_NODES) {
+                val current = queue.removeFirst()
+                inspected++
+                if (current is SQLException && isBusyOrLocked(current)) {
+                    return current
+                }
+                if (current is SQLException) {
+                    val next = current.nextException
+                    if (next != null && visited.add(next)) {
+                        queue.addLast(next)
+                    }
+                }
+                val cause = current.cause
+                if (cause != null && visited.add(cause)) {
+                    queue.addLast(cause)
+                }
+            }
+            return null
+        }
+
+        fun buildContentionResponse(
+            contentionEx: SQLException,
+            errorId: String = java.util.UUID.randomUUID().toString(),
+        ): Response {
+            logger.warn(
+                "Database lock contention [error_id=$errorId, sqlState=${contentionEx.sqlState}, " +
+                    "code=${contentionEx.errorCode}]: ${contentionEx.message}",
+            )
+            val problem =
+                ProblemDetails(
+                    title = "Service Unavailable",
+                    status = Response.Status.SERVICE_UNAVAILABLE.statusCode,
+                    detail = "Database is temporarily busy. Please retry in 1 second.",
+                    instance = "/api/v1/sightings",
+                    errorId = errorId,
+                )
+            return Response
+                .status(Response.Status.SERVICE_UNAVAILABLE)
+                .header("Retry-After", "1")
+                .type("application/problem+json")
+                .entity(problem)
+                .build()
+        }
+
+        private fun isBusyOrLocked(exception: SQLException): Boolean = exception.sqlState in CONTENTION_SQL_STATES ||
+            exception.errorCode in CONTENTION_ERROR_CODES
     }
 }
 
@@ -160,6 +185,11 @@ class ThrowableExceptionMapper : ExceptionMapper<Throwable> {
     private val logger = org.jboss.logging.Logger.getLogger(ThrowableExceptionMapper::class.java)
 
     override fun toResponse(exception: Throwable): Response {
+        val contentionEx = DatabaseContentionExceptionMapper.findContentionException(exception)
+        if (contentionEx != null) {
+            return DatabaseContentionExceptionMapper.buildContentionResponse(contentionEx)
+        }
+
         val errorId = java.util.UUID.randomUUID().toString()
         logger.error("Unhandled server exception [error_id=$errorId]: ${exception.message}", exception)
 

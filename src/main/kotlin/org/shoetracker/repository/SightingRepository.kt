@@ -119,10 +119,10 @@ class SightingRepository(
             "INSERT INTO sightings (id, user_id, latitude, longitude, recorded_at, created_at) VALUES (?, ?, ?, ?, ?, ?)"
         private const val FIND_WITH_USER_SQL =
             "SELECT id, user_id, latitude, longitude, recorded_at, created_at " +
-                "FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC LIMIT ? OFFSET ?"
+                "FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC, id DESC LIMIT ? OFFSET ?"
         private const val FIND_ALL_SQL =
             "SELECT id, user_id, latitude, longitude, recorded_at, created_at " +
-                "FROM sightings ORDER BY recorded_at DESC LIMIT ? OFFSET ?"
+                "FROM sightings ORDER BY recorded_at DESC, id DESC LIMIT ? OFFSET ?"
         private const val COUNT_WITH_USER_SQL = "SELECT COUNT(*) FROM sightings WHERE user_id = ?"
         private const val COUNT_ALL_SQL = "SELECT COUNT(*) FROM sightings"
         private const val DELETE_ALL_SQL = "DELETE FROM sightings"

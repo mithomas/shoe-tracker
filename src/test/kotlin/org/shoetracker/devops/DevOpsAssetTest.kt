@@ -172,6 +172,7 @@ class DevOpsAssetTest {
         assertThat(content)
             .contains("FROM registry.access.redhat.com/ubi9/ubi-minimal")
             .contains("COPY --chown=185:185 build/*-runner /work/application")
+            .contains("QUARKUS_DATASOURCE_JDBC_URL=\"jdbc:h2:file:/data/shoe-tracker;MODE=MySQL")
             .contains("EXPOSE 8080")
             .contains("USER 185")
             .contains("ENTRYPOINT [\"./application\"")
@@ -214,6 +215,10 @@ class DevOpsAssetTest {
                 add(File(".github/workflows/ci.yml"))
                 add(File("README.md"))
                 File("src/main").walkTopDown().filter { it.isFile }.forEach { add(it) }
+                File("src/test")
+                    .walkTopDown()
+                    .filter { it.isFile && it.name != "DevOpsAssetTest.kt" }
+                    .forEach { add(it) }
             }
 
         filesToInspect.forEach { file ->

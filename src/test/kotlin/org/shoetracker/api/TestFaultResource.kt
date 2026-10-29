@@ -13,12 +13,12 @@ class TestFaultResource {
     fun throwUnhandled(): String = throw RuntimeException("Simulated internal database explosion")
 
     @GET
-    @Path("/sqlite-busy")
+    @Path("/db-busy")
     @Produces("application/json")
-    fun throwSqliteBusy(): String = throw SQLException("database is locked", "40001", 50200)
+    fun throwDatabaseBusy(): String = throw SQLException("database is locked", "40001", 50200)
 
     @GET
-    @Path("/sqlite-error")
+    @Path("/db-error")
     @Produces("application/json")
-    fun throwSqliteError(): String = throw SQLException("database disk image is malformed", "HY000", 90030)
+    fun throwDatabaseError(): String = throw SQLException("database disk image is malformed", "HY000", 90030)
 }
