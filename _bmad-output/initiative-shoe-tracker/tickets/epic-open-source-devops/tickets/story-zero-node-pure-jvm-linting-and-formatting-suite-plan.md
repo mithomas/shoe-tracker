@@ -48,6 +48,8 @@ Oneshot route selected: Spotless and Closure Compiler Gradle configuration, base
 | quick | `build.gradle.kts` redundant `implementation("io.quarkus:quarkus-rest")` | low | patch | Removed redundant dependency already brought in by `quarkus-rest-jackson`. |
 | quick | `lintJs` task lacked output declarations and deterministic input ordering | medium | patch | Added incremental output marker (`reports/lintJs/marker.txt`), sorted input files deterministically, and guarded against empty file sets. |
 | quick | `build.gradle.kts` used deprecated `indentWithSpaces(2)` | low | patch | Switched to `leadingTabsToSpaces(2)` per Spotless 7 recommendation. |
+| quick | `Dockerfile` omitted `.editorconfig` during build stage | high | patch | Added `.editorconfig` to `COPY` directive so ktlint respects 120-char limit inside container. |
+| quick | Missing `.gitattributes` triggered line-ending failures under `core.autocrlf=true` | high | patch | Added `.gitattributes` enforcing LF for text files and protecting binary assets (*.png, etc.). |
 
 ## Verification
 
@@ -55,3 +57,4 @@ Oneshot route selected: Spotless and Closure Compiler Gradle configuration, base
 - `./gradlew check test` -- expected: All checks, Spotless validation, JS linting, and tests pass cleanly.
 - `./gradlew spotlessCheck` -- expected: Zero formatting violations across Kotlin and web assets.
 - `./gradlew lintJs` -- expected: Zero JavaScript static analysis errors on pure JVM.
+- `docker build --build-arg GIT_COMMIT=3da1997 -t shoe-tracker:test .` -- expected: Container build and internal Spotless check pass cleanly.

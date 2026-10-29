@@ -102,6 +102,18 @@ class DevOpsAssetTest {
         assertThat(editorConfig).exists().isFile()
         assertThat(editorConfig.readText()).contains("max_line_length = 120")
 
+        val gitAttributes = File(".gitattributes")
+        assertThat(gitAttributes).exists().isFile()
+        val gitAttributesText = gitAttributes.readText()
+        assertThat(gitAttributesText)
+            .contains("eol=lf")
+            .contains("*.bat text eol=crlf")
+            .contains("*.png binary")
+
+        val dockerfile = File("Dockerfile")
+        assertThat(dockerfile).exists().isFile()
+        assertThat(dockerfile.readText()).contains("COPY .editorconfig gradlew")
+
         val buildFile = File("build.gradle.kts")
         assertThat(buildFile).exists().isFile()
         val content = buildFile.readText()

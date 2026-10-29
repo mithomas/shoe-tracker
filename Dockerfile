@@ -13,7 +13,7 @@ RUN for cert in /tmp/certs/*.crt; do \
 
 # Copy Gradle wrapper and build configuration
 COPY gradle/ /code/gradle/
-COPY gradlew gradlew.bat gradle.properties settings.gradle.kts build.gradle.kts /code/
+COPY .editorconfig gradlew gradlew.bat gradle.properties settings.gradle.kts build.gradle.kts /code/
 RUN chmod +x ./gradlew && ./gradlew --version --no-daemon
 
 # Copy source code and build Quarkus fast-jar
