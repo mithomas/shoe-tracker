@@ -1,8 +1,17 @@
 package org.shoetracker.devops
 
+import io.quarkus.runtime.annotations.RegisterForReflection
 import io.quarkus.test.junit.QuarkusTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.shoetracker.api.VersionResponse
+import org.shoetracker.api.dto.CreateSightingRequest
+import org.shoetracker.api.dto.GeoLocationDto
+import org.shoetracker.api.dto.ProblemDetails
+import org.shoetracker.api.dto.SightingListResponse
+import org.shoetracker.api.dto.SightingResponse
+import org.shoetracker.api.dto.UserDto
+import org.shoetracker.repository.MultiTargetJdbcDriver
 import java.io.File
 
 @QuarkusTest
@@ -152,5 +161,45 @@ class DevOpsAssetTest {
             .contains("val lintJs by tasks.registering")
             .contains("com.google.javascript:closure-compiler")
             .contains("tasks.named(\"check\")")
+    }
+
+    @Test
+    fun testNativeDockerfileAndReflectionAnnotations() {
+        val nativeDockerfile = File("src/main/docker/Dockerfile.native")
+        assertThat(nativeDockerfile).exists().isFile()
+        val content = nativeDockerfile.readText()
+
+        assertThat(content)
+            .contains("FROM registry.access.redhat.com/ubi9/ubi-minimal")
+            .contains("COPY --chown=185:185 build/*-runner /work/application")
+            .contains("EXPOSE 8080")
+            .contains("USER 185")
+            .contains("ENTRYPOINT [\"./application\"")
+
+        val dtoClasses =
+            listOf(
+                GeoLocationDto::class.java,
+                UserDto::class.java,
+                CreateSightingRequest::class.java,
+                SightingResponse::class.java,
+                SightingListResponse::class.java,
+                ProblemDetails::class.java,
+                VersionResponse::class.java,
+                MultiTargetJdbcDriver::class.java,
+            )
+        dtoClasses.forEach { clazz ->
+            assertThat(clazz.isAnnotationPresent(RegisterForReflection::class.java))
+                .withFailMessage("Expected ${clazz.name} to be annotated with @RegisterForReflection")
+                .isTrue()
+        }
+
+        val appProps = File("src/main/resources/application.properties").readText()
+        assertThat(appProps)
+            .contains("quarkus.native.resources.includes=version.properties,db/migration/**")
+
+        val dockerIgnore = File(".dockerignore").readText()
+        assertThat(dockerIgnore)
+            .contains("build/*")
+            .contains("!build/*-runner")
     }
 }

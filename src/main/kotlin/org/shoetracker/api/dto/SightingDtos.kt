@@ -2,17 +2,21 @@ package org.shoetracker.api.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.quarkus.runtime.annotations.RegisterForReflection
 import java.time.Instant
 
+@RegisterForReflection
 data class GeoLocationDto(
     val latitude: Double,
     val longitude: Double,
 )
 
+@RegisterForReflection
 data class UserDto(
     val id: String,
 )
 
+@RegisterForReflection
 data class CreateSightingRequest(
     @JsonProperty("user_id")
     val userId: String?,
@@ -21,6 +25,7 @@ data class CreateSightingRequest(
     val recordedAt: Instant?,
 )
 
+@RegisterForReflection
 data class SightingResponse(
     val id: String,
     val user: UserDto,
@@ -31,6 +36,7 @@ data class SightingResponse(
     val createdAt: Instant,
 )
 
+@RegisterForReflection
 data class SightingListResponse(
     val items: List<SightingResponse>,
     val total: Long,
@@ -38,6 +44,7 @@ data class SightingListResponse(
     val offset: Int,
 )
 
+@RegisterForReflection
 data class ProblemDetails(
     val type: String = "about:blank",
     val title: String,

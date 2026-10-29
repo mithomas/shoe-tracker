@@ -37,6 +37,12 @@ dependencies {
 group = "org.shoetracker"
 version = "1.0.0-SNAPSHOT"
 
+if (System.getProperty("quarkus.native.enabled") == "true" &&
+    System.getProperty("quarkus.package.jar.enabled") == null
+) {
+    System.setProperty("quarkus.package.jar.enabled", "false")
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21

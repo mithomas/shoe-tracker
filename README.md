@@ -85,6 +85,18 @@ Shoe Tracker bundles both the pure-Java H2 driver (`io.quarkus:quarkus-jdbc-h2`)
   QUARKUS_DATASOURCE_PASSWORD="secret"
   ```
 
+### GraalVM Native Image Build
+
+Compile a standalone Linux native binary using a Mandrel container build (achieving sub-50ms startup) and package it with `src/main/docker/Dockerfile.native`:
+```bash
+# 1. Compile the native runner binary via Mandrel container build
+./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true -x test
+
+# 2. Package the native runner into a minimal UBI9 container image (running as non-root UID 185)
+docker build -f src/main/docker/Dockerfile.native -t shoe-tracker:native .
+```
+*Note: Because Quarkus's H2 GraalVM substitution disables embedded `jdbc:h2:file:` mode inside native binaries, point the native binary at an external MariaDB/MySQL server (`QUARKUS_DATASOURCE_JDBC_URL=jdbc:mariadb://...`) or an H2 TCP server (`QUARKUS_DATASOURCE_JDBC_URL=jdbc:h2:tcp://...;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE`).*
+
 ### Run Automated Tests
 ```bash
 ./gradlew test
