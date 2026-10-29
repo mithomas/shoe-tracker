@@ -1,0 +1,56 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Global RFC 7807 500 ExceptionMapper with Error ID Correlation & Sanitized Payload"
+description = "Adds catch-all ExceptionMapper<Throwable> mapping unhandled 500 server errors to application/problem+json with unique UUID error_id, internal stack trace logging, and sanitized client error messages."
+verify = "Unhandled server exceptions return HTTP 500 RFC 7807 problem details with error_id and sanitized message without leaking internal stack traces."
+covers = ["R18"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Eager Prepared Statements & Startup Fail-Fast Validation in SightingRepository"
+description = "Replaces lazy JDBC connection and PreparedStatement properties in SightingRepository with eager @PostConstruct initialization and fail-fast SELECT 1 validation."
+verify = "SightingRepository compiles all SQL statements upon CDI initialization and fails fast at startup if connection or queries are invalid."
+covers = ["R19"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "SQLite Lock Error Translation to RFC 7807 503 Service Unavailable"
+description = "Adds SQLiteExceptionMapper translating org.sqlite.SQLiteException (such as SQLITE_BUSY or write contention timeouts) into RFC 7807 503 Service Unavailable with Retry-After header."
+verify = "Simulated or real SQLite lock timeouts return HTTP 503 application/problem+json with Retry-After: 1 header."
+covers = ["R20"]
+after = [2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Quarkus SmallRye Health Liveness & Readiness Probes"
+description = "Adds quarkus-smallrye-health dependency and configures /q/health/live and /q/health/ready probes with SQLite database connectivity checks for container orchestration."
+verify = "GET /q/health/live and /q/health/ready return HTTP 200 UP with database check status."
+covers = ["R21"]
+after = [3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Architecture Resilience Refactor Sweep & Stress Verification"
+description = "Audits exception mapping hierarchy, validates eager statement initialization, tests database contention resilience, runs full test suite and Spotless linter, and verifies multi-stage container build."
+verify = "All Gradle checks, Spotless formatting, health probes, and container builds pass cleanly."
+covers = ["R18", "R19", "R20", "R21"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

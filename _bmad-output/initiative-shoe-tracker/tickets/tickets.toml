@@ -35,8 +35,8 @@ after = [{ epic = "epic-views-and-map", needs = "Sightings views and verified te
 id = 5
 slug = "epic-architecture-resilience"
 title = "Architecture Hardening & Offline Resilience"
-description = "Hardens system resilience with global RFC 7807 500 error mappers, local vendoring of Leaflet assets for dead-zone vehicle resilience, eager prepared statements, and DOM CustomEvents pub/sub."
-covers = []
+description = "Hardens system resilience with global RFC 7807 500 error mappers with UUID correlation, eager @PostConstruct prepared statements and fail-fast startup, SQLite lock error translation to 503, and SmallRye health probes."
+covers = ["R18", "R19", "R20", "R21"]
 after = [{ epic = "epic-open-source-devops", needs = "CI pipeline and licensing" }]
 
 [[epic]]
