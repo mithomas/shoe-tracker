@@ -45,6 +45,10 @@
           this.toggleTheme();
         });
       }
+
+      window.addEventListener('lang-changed', () => {
+        this.updateToggleButton();
+      });
     }
 
     getStoredTheme() {
@@ -108,7 +112,10 @@
       if (!this.toggleBtnEl) return;
       const isLight = this.currentTheme === 'light';
       this.toggleBtnEl.textContent = isLight ? '🌙' : '☀️';
-      const label = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+      const { i18n } = window.ShoeTracker;
+      const label = isLight
+        ? (i18n ? i18n.t('theme.switchDark') : 'Switch to dark mode')
+        : (i18n ? i18n.t('theme.switchLight') : 'Switch to light mode');
       this.toggleBtnEl.setAttribute('aria-label', label);
       this.toggleBtnEl.setAttribute('title', label);
     }

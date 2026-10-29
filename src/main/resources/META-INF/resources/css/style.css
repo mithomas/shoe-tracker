@@ -965,6 +965,10 @@ pre {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
+[data-theme="light"] .shoe-cluster-other {
+  border-color: #FFFFFF;
+}
+
 /* Dark Theme Leaflet Popup Styling */
 .sighting-leaflet-popup .leaflet-popup-content-wrapper {
   background: var(--surface-raised);
@@ -1008,6 +1012,12 @@ pre {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+[data-theme="light"] .badge-own {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563EB;
+  border-color: rgba(37, 99, 235, 0.35);
 }
 
 .sighting-popup-card .popup-row {

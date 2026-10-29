@@ -66,7 +66,10 @@
       'onboarding.errLong': 'Name must be 64 characters or fewer.',
       'counter.total': 'Total',
       'counter.mine': 'Mine',
-      'counter.summary': '{total} Total | {mine} Mine'
+      'counter.summary': '{total} Total | {mine} Mine',
+      'header.userChipTitle': 'Click to view/change user name',
+      'theme.switchDark': 'Switch to dark mode',
+      'theme.switchLight': 'Switch to light mode'
     },
     de: {
       'gps.locating': 'Suche GPS...',
@@ -125,7 +128,10 @@
       'onboarding.errLong': 'Der Name darf maximal 64 Zeichen lang sein.',
       'counter.total': 'Gesamt',
       'counter.mine': 'Meine',
-      'counter.summary': '{total} Gesamt | {mine} Meine'
+      'counter.summary': '{total} Gesamt | {mine} Meine',
+      'header.userChipTitle': 'Klicken, um den Benutzernamen zu ändern',
+      'theme.switchDark': 'Zum Dunkelmodus wechseln',
+      'theme.switchLight': 'Zum Hellmodus wechseln'
     }
   };
 
@@ -244,6 +250,12 @@
         const key = el.getAttribute('data-i18n-placeholder');
         if (key) {
           el.setAttribute('placeholder', this.t(key));
+        }
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+        const key = el.getAttribute('data-i18n-title');
+        if (key) {
+          el.setAttribute('title', this.t(key));
         }
       });
     }

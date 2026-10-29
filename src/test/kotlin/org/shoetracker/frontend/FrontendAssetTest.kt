@@ -858,4 +858,45 @@ class FrontendAssetTest {
         assertThat(css)
             .contains(".btn-card-map")
     }
+
+    @Test
+    fun testEpic3SpottingPolishEndToEndVerification() {
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        // R28: Cooldown removed, modal preserved
+        assertThat(html)
+            .doesNotContain("cooldownRingProgress")
+            .contains("sightingModal")
+            // R29 & R30: Theme & Language header controls
+            .contains("themeToggleBtn")
+            .contains("langToggleBtn")
+            .contains("data-i18n-title=\"header.userChipTitle\"")
+            // R31: Spot counter card and list counter badge
+            .contains("spotCounterCard")
+            .contains("listCountBadge")
+            // R35: Favicon & Offline tile banner
+            .contains("offlineTileBanner")
+            .contains("/favicon.svg")
+            .contains("/favicon.ico")
+
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains("[data-theme=\"light\"] .badge-own")
+            .contains("[data-theme=\"light\"] .shoe-cluster-other")
+    }
 }
