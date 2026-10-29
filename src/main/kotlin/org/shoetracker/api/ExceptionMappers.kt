@@ -80,3 +80,27 @@ class WebApplicationExceptionMapper : ExceptionMapper<WebApplicationException> {
             .build()
     }
 }
+
+@Provider
+class ThrowableExceptionMapper : ExceptionMapper<Throwable> {
+    private val logger = org.jboss.logging.Logger.getLogger(ThrowableExceptionMapper::class.java)
+
+    override fun toResponse(exception: Throwable): Response {
+        val errorId = java.util.UUID.randomUUID().toString()
+        logger.error("Unhandled server exception [error_id=$errorId]: ${exception.message}", exception)
+
+        val problem =
+            ProblemDetails(
+                title = "Internal Server Error",
+                status = Response.Status.INTERNAL_SERVER_ERROR.statusCode,
+                detail = "An unexpected server error occurred. Please reference error ID: $errorId",
+                instance = "/api/v1/sightings",
+                errorId = errorId,
+            )
+        return Response
+            .status(Response.Status.INTERNAL_SERVER_ERROR)
+            .type("application/problem+json")
+            .entity(problem)
+            .build()
+    }
+}

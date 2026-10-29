@@ -258,4 +258,44 @@ class SightingResourceTest {
             .then()
             .statusCode(400)
     }
+
+    @Test
+    fun testGlobalUnhandledServerExceptionProducesRfc7807ProblemDetails() {
+        val problem =
+            given()
+                .`when`()
+                .get("/api/test/fault/unhandled")
+                .then()
+                .statusCode(500)
+                .contentType("application/problem+json")
+                .extract()
+                .`as`(ProblemDetails::class.java)
+
+        assertThat(problem.status).isEqualTo(500)
+        assertThat(problem.title).isEqualTo("Internal Server Error")
+        assertThat(problem.errorId).isNotNull().matches("^[0-9a-fA-F-]{36}$")
+        assertThat(problem.detail)
+            .contains("An unexpected server error occurred")
+            .contains(problem.errorId)
+            .doesNotContain("Simulated internal database explosion")
+    }
+
+    @Test
+    fun testThrowableExceptionMapperDirectUnitContract() {
+        val mapper = ThrowableExceptionMapper()
+        val exception = IllegalStateException("Corrupt SQLite database block")
+        val response = mapper.toResponse(exception)
+
+        assertThat(response.status).isEqualTo(500)
+        assertThat(response.mediaType.toString()).contains("application/problem+json")
+
+        val entity = response.entity as ProblemDetails
+        assertThat(entity.status).isEqualTo(500)
+        assertThat(entity.title).isEqualTo("Internal Server Error")
+        assertThat(entity.errorId).isNotNull().matches("^[0-9a-fA-F-]{36}$")
+        assertThat(entity.detail)
+            .contains("An unexpected server error occurred")
+            .contains(entity.errorId)
+            .doesNotContain("Corrupt SQLite database block")
+    }
 }
