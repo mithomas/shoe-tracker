@@ -24,6 +24,7 @@
       this.loadingEl = document.getElementById('listLoadingBanner');
       this.errorEl = document.getElementById('listErrorBanner');
       this.emptyEl = document.getElementById('listEmptyCard');
+      this.emptyOwnEl = document.getElementById('listEmptyOwnCard');
 
       const btnRefresh = document.getElementById('btnListRefresh');
       if (btnRefresh) {
@@ -50,6 +51,13 @@
 
       window.addEventListener('user-changed', () => {
         this.recolorCards();
+      });
+
+      window.addEventListener('filter-changed', (e) => {
+        this.ownOnly = e.detail.ownOnly;
+        if (this.isLoaded) {
+          this.renderList();
+        }
       });
     }
 
@@ -80,16 +88,34 @@
       if (!this.listEl) return;
       this.listEl.innerHTML = '';
 
-      this.updateCounter();
+      const { onboarding, filterManager } = window.ShoeTracker;
+      const ownOnly = filterManager ? filterManager.isOwnOnly() : (this.ownOnly || false);
+      const currentUserId = (onboarding && onboarding.getUserId()) ? onboarding.getUserId().trim().toLowerCase() : '';
+
+      const filtered = this.sightings.filter(s => {
+        if (!ownOnly) return true;
+        const sUserId = (s.user ? s.user.id : (s.user_id || '')).trim().toLowerCase();
+        return currentUserId && sUserId === currentUserId;
+      });
+
+      this.updateCounter(filtered.length);
+
+      if (ownOnly && filtered.length === 0) {
+        if (this.emptyEl) this.emptyEl.style.display = 'none';
+        if (this.emptyOwnEl) this.emptyOwnEl.style.display = 'block';
+        return;
+      }
 
       if (this.sightings.length === 0) {
         if (this.emptyEl) this.emptyEl.style.display = 'block';
+        if (this.emptyOwnEl) this.emptyOwnEl.style.display = 'none';
         return;
       }
 
       if (this.emptyEl) this.emptyEl.style.display = 'none';
+      if (this.emptyOwnEl) this.emptyOwnEl.style.display = 'none';
 
-      this.sightings.forEach(sighting => {
+      filtered.forEach(sighting => {
         const card = this.buildCardElement(sighting);
         this.listEl.appendChild(card);
       });
@@ -139,31 +165,30 @@
     addSighting(sighting) {
       if (!sighting || !sighting.id) return;
       this.sightings.unshift(sighting);
-      this.updateCounter();
 
-      if (this.emptyEl) this.emptyEl.style.display = 'none';
-
-      if (this.isLoaded && this.listEl) {
-        const card = this.buildCardElement(sighting);
-        card.classList.add('card-new-anim');
-        this.listEl.insertBefore(card, this.listEl.firstChild);
+      if (this.isLoaded) {
+        this.renderList();
+        const firstCard = this.listEl ? this.listEl.firstElementChild : null;
+        if (firstCard && firstCard.id === `sighting-card-${sighting.id}`) {
+          firstCard.classList.add('card-new-anim');
+        }
       }
     }
 
     removeSighting(id) {
       if (!id) return;
       this.sightings = this.sightings.filter(s => s.id !== id);
-      this.updateCounter();
 
       const card = document.getElementById(`sighting-card-${id}`);
       if (card) {
         card.classList.add('card-remove-anim');
         setTimeout(() => {
-          if (card.parentNode) card.parentNode.removeChild(card);
-          if (this.sightings.length === 0 && this.emptyEl) {
-            this.emptyEl.style.display = 'block';
+          if (this.isLoaded) {
+            this.renderList();
           }
         }, 250);
+      } else if (this.isLoaded) {
+        this.renderList();
       }
     }
 
@@ -173,9 +198,16 @@
       }
     }
 
-    updateCounter() {
-      if (this.counterEl) {
-        const total = this.sightings.length;
+    updateCounter(filteredCount) {
+      if (!this.counterEl) return;
+      const { filterManager } = window.ShoeTracker;
+      const ownOnly = filterManager ? filterManager.isOwnOnly() : (this.ownOnly || false);
+      const total = this.sightings.length;
+
+      if (ownOnly) {
+        const count = filteredCount !== undefined ? filteredCount : total;
+        this.counterEl.textContent = `${count} of ${total} sightings`;
+      } else {
         this.counterEl.textContent = `${total} ${total === 1 ? 'sighting' : 'sightings'}`;
       }
     }

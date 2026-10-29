@@ -43,6 +43,13 @@
       window.addEventListener('user-changed', () => {
         this.recolorMarkers();
       });
+
+      window.addEventListener('filter-changed', (e) => {
+        this.ownOnly = e.detail.ownOnly;
+        if (this.isInitialized) {
+          this.renderAllMarkers();
+        }
+      });
     }
 
     bootstrapMap() {
@@ -72,9 +79,11 @@
     async fetchSightings() {
       const loadingEl = document.getElementById('fullMapLoading');
       const emptyEl = document.getElementById('fullMapEmpty');
+      const emptyOwnEl = document.getElementById('fullMapEmptyOwn');
 
       if (loadingEl) loadingEl.style.display = 'block';
       if (emptyEl) emptyEl.style.display = 'none';
+      if (emptyOwnEl) emptyOwnEl.style.display = 'none';
 
       try {
         const res = await fetch('/api/v1/sightings?limit=500');
@@ -83,10 +92,7 @@
         this.sightings = data.items || [];
         this.renderAllMarkers();
 
-        if (this.sightings.length === 0) {
-          if (emptyEl) emptyEl.style.display = 'block';
-        } else {
-          if (emptyEl) emptyEl.style.display = 'none';
+        if (this.sightings.length > 0) {
           const latLngs = this.sightings.map(s => [s.location.latitude, s.location.longitude]);
           const bounds = L.latLngBounds(latLngs);
           if (bounds.isValid()) {
@@ -105,7 +111,31 @@
       this.markersLayer.clearLayers();
       this.markersById = {};
 
-      this.sightings.forEach(sighting => {
+      const { onboarding, filterManager } = window.ShoeTracker;
+      const ownOnly = filterManager ? filterManager.isOwnOnly() : (this.ownOnly || false);
+      const currentUserId = (onboarding && onboarding.getUserId()) ? onboarding.getUserId().trim().toLowerCase() : '';
+
+      const emptyEl = document.getElementById('fullMapEmpty');
+      const emptyOwnEl = document.getElementById('fullMapEmptyOwn');
+
+      const filtered = this.sightings.filter(s => {
+        if (!ownOnly) return true;
+        const sUserId = (s.user ? s.user.id : (s.user_id || '')).trim().toLowerCase();
+        return currentUserId && sUserId === currentUserId;
+      });
+
+      if (ownOnly && filtered.length === 0) {
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (emptyOwnEl) emptyOwnEl.style.display = 'block';
+      } else if (this.sightings.length === 0) {
+        if (emptyEl) emptyEl.style.display = 'block';
+        if (emptyOwnEl) emptyOwnEl.style.display = 'none';
+      } else {
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (emptyOwnEl) emptyOwnEl.style.display = 'none';
+      }
+
+      filtered.forEach(sighting => {
         this.createMarker(sighting);
       });
     }
@@ -184,17 +214,15 @@
       if (!sighting || !sighting.id) return;
       this.sightings.unshift(sighting);
       if (this.isInitialized) {
-        this.createMarker(sighting);
+        this.renderAllMarkers();
       }
     }
 
     removeSighting(id) {
       if (!id) return;
       this.sightings = this.sightings.filter(s => s.id !== id);
-      const marker = this.markersById[id];
-      if (marker && this.markersLayer) {
-        this.markersLayer.removeLayer(marker);
-        delete this.markersById[id];
+      if (this.isInitialized) {
+        this.renderAllMarkers();
       }
     }
 

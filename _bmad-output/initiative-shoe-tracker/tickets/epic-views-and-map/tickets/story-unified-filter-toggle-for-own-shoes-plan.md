@@ -3,14 +3,15 @@ title: 'Unified filter toggle for own shoes'
 type: 'feature'
 ticket: '4'
 created: '2026-10-28'
-status: 'draft'
-baseline_revision: ''
+status: 'built'
+baseline_revision: '7321d53599b2bbb4536cb601b5084747e76268a0'
 route: 'full'
 route_source: 'auto'
 risk: 'low'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran:
+  - 'quick'
 review_loop_iteration: 0
 context:
   - '_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md'
@@ -64,12 +65,12 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Filter Controller -- Implement `filter.js` with toggle state management, `localStorage` persistence, and `filter-changed` event dispatching.
-- [ ] Map View Filter Integration -- Update `fullmap.js` to show/hide markers based on active filter state and show empty-filter message.
-- [ ] List View Filter Integration -- Update `listview.js` to show/hide cards based on active filter state and update count display.
-- [ ] Segmented Pill Styling -- Add CSS in `style.css` for `.filter-pill-container` and `.filter-pill-btn`.
-- [ ] View Markup -- Add filter toggle markup to `#viewMap` and `#viewList` in `index.html`.
-- [ ] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying filter assets and run `./gradlew test`.
+- [x] Filter Controller -- Implement `filter.js` with toggle state management, `localStorage` persistence, and `filter-changed` event dispatching.
+- [x] Map View Filter Integration -- Update `fullmap.js` to show/hide markers based on active filter state and show empty-filter message.
+- [x] List View Filter Integration -- Update `listview.js` to show/hide cards based on active filter state and update count display.
+- [x] Segmented Pill Styling -- Add CSS in `style.css` for `.filter-pill-container` and `.filter-pill-btn`.
+- [x] View Markup -- Add filter toggle markup to `#viewMap` and `#viewList` in `index.html`.
+- [x] Automated Test Suite -- Update `FrontendAssetTest.kt` verifying filter assets and run `./gradlew test`.
 
 **Acceptance Criteria:**
 - Given the Map view, when toggling "My Shoes", then only markers belonging to the active user remain visible.
@@ -82,6 +83,13 @@ context:
 ## Plan Change Log
 
 ## Review Triage Log
+
+| Lens | Finding | Verdict | Route | Evidence / Rationale |
+|---|---|---|---|---|
+| quick | `fullmap.js:135` Viewport camera jump on every state update | medium | patch | `renderAllMarkers()` called `fitBounds` unconditionally on every marker re-render; should only fit bounds on initial load. |
+| quick | `fullmap.js:118` & `listview.js:102` Generic empty state displayed when global sightings is 0 even if "My Shoes" active | medium | patch | Matrix requires showing personal empty banner whenever "My Shoes" is active and user has 0 sightings; prioritize `ownOnly && filtered.length === 0` check. |
+| quick | `style.css:174` Missing CSS variable `--accent-blue` | false | rejected | Disproved: `--accent-blue: #3B82F6` is explicitly defined in `:root` at `style.css:15`. |
+| quick | `filter.js:28` No `filter-changed` dispatched on `user-changed` when `ownOnly: false` | false | rejected | Disproved: When `ownOnly` is false, no items are filtered, and `user-changed` is handled directly by `fullmap.js` and `listview.js` for recoloring. |
 
 ## Design Notes
 

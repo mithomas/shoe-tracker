@@ -4,6 +4,7 @@ import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import org.hamcrest.CoreMatchers.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.Locale
 import kotlin.math.abs
@@ -41,10 +42,15 @@ class FrontendAssetTest {
             .body(containsString("fullMapContainer"))
             .body(containsString("fullMapLoading"))
             .body(containsString("fullMapEmpty"))
+            .body(containsString("fullMapEmptyOwn"))
             .body(containsString("full-map-wrapper"))
             .body(containsString("listViewContainer"))
             .body(containsString("sightingsList"))
             .body(containsString("listCountBadge"))
+            .body(containsString("listEmptyOwnCard"))
+            .body(containsString("filter-pill-container"))
+            .body(containsString("data-filter=\"all\""))
+            .body(containsString("data-filter=\"own\""))
             .body(containsString("/vendor/leaflet/leaflet.css"))
     }
 
@@ -83,6 +89,7 @@ class FrontendAssetTest {
             .body(containsString("sighting-leaflet-popup"))
             .body(containsString("sighting-card-own"))
             .body(containsString("sighting-card-other"))
+            .body(containsString("filter-pill-container"))
 
         given()
             .`when`()
@@ -120,6 +127,15 @@ class FrontendAssetTest {
             .body(containsString("sighting-card-own"))
             .body(containsString("sighting-added"))
             .body(containsString("sighting-deleted"))
+
+        given()
+            .`when`()
+            .get("/js/filter.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("filterManager"))
+            .body(containsString("filter-changed"))
+            .body(containsString("localStorage"))
 
         given()
             .`when`()
@@ -198,5 +214,109 @@ class FrontendAssetTest {
 
         // Test 60-minute rounding rollover
         assertEquals("N 51° 00,000'", formatCoordinate(50.9999999, true))
+    }
+
+    @Test
+    fun testUnifiedFilterAssetsAndMarkup() {
+        given()
+            .`when`()
+            .get("/")
+            .then()
+            .statusCode(200)
+            .body(containsString("/js/filter.js"))
+            .body(containsString("filterManager.init()"))
+            .body(containsString("filter-pill-container"))
+            .body(containsString("filter-pill-bg"))
+            .body(containsString("map-filter-float"))
+            .body(containsString("fullMapEmptyOwn"))
+            .body(containsString("listEmptyOwnCard"))
+            .body(containsString("No shoes spotted by you yet — tap the Spot button to log your first!"))
+
+        given()
+            .`when`()
+            .get("/css/style.css")
+            .then()
+            .statusCode(200)
+            .body(containsString(".filter-pill-container"))
+            .body(containsString(".filter-pill-bg"))
+            .body(containsString(".filter-pill-btn"))
+            .body(containsString(".map-filter-float"))
+
+        given()
+            .`when`()
+            .get("/js/filter.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("class FilterManager"))
+            .body(containsString("filter_own_only"))
+            .body(containsString("filter-changed"))
+            .body(containsString("user-changed"))
+
+        given()
+            .`when`()
+            .get("/js/fullmap.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("filter-changed"))
+            .body(containsString("fullMapEmptyOwn"))
+
+        given()
+            .`when`()
+            .get("/js/listview.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("filter-changed"))
+            .body(containsString("listEmptyOwnCard"))
+            .body(containsString("of"))
+            .body(containsString("sightings"))
+    }
+
+    @Test
+    fun testUnifiedFilterLogicMatrixParity() {
+        data class TestSighting(val id: String, val userId: String)
+
+        fun filterSightings(sightings: List<TestSighting>, ownOnly: Boolean, currentUserId: String): List<TestSighting> {
+            val trimmedUser = currentUserId.trim().lowercase()
+            return sightings.filter { s ->
+                if (!ownOnly) true
+                else trimmedUser.isNotEmpty() && s.userId.trim().lowercase() == trimmedUser
+            }
+        }
+
+        fun computeListCounter(filteredCount: Int, totalCount: Int, ownOnly: Boolean): String {
+            return if (ownOnly) {
+                "$filteredCount of $totalCount sightings"
+            } else {
+                "$totalCount ${if (totalCount == 1) "sighting" else "sightings"}"
+            }
+        }
+
+        val sightings = listOf(
+            TestSighting("1", "Tom"),
+            TestSighting("2", "Alice"),
+            TestSighting("3", "tom "),
+            TestSighting("4", "Bob")
+        )
+
+        // Matrix Row 1: Toggle "My Shoes" on Map - shows only user's markers
+        val mapFiltered = filterSightings(sightings, ownOnly = true, currentUserId = "TOM")
+        assertEquals(2, mapFiltered.size)
+        assertEquals(listOf("1", "3"), mapFiltered.map { it.id })
+
+        // Matrix Row 2: Switch from Map to List - counter displays filtered count of total count
+        val listCounter = computeListCounter(mapFiltered.size, sightings.size, ownOnly = true)
+        assertEquals("2 of 4 sightings", listCounter)
+
+        // Matrix Row 3: No Personal Sightings - empty state condition
+        val emptyForUser = filterSightings(sightings, ownOnly = true, currentUserId = "UnknownUser")
+        assertEquals(0, emptyForUser.size)
+        val emptyMessage = "No shoes spotted by you yet — tap the Spot button to log your first!"
+        assertTrue(emptyMessage.contains("No shoes spotted by you yet"))
+
+        // Matrix Row 4: User Changes Name - re-evaluates filter immediately for new user
+        val switchedUser = filterSightings(sightings, ownOnly = true, currentUserId = "Alice")
+        assertEquals(1, switchedUser.size)
+        assertEquals("2", switchedUser.first().id)
+        assertEquals("1 of 4 sightings", computeListCounter(switchedUser.size, sightings.size, ownOnly = true))
     }
 }

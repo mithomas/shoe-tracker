@@ -75,12 +75,20 @@
     <!-- View Pane 2: Full Map Screen -->
     <section id="viewMap" class="view-pane">
       <div class="full-map-wrapper" id="fullMapContainer">
+        <div class="filter-pill-container map-filter-float" role="group" aria-label="Filter shoes on map">
+          <div class="filter-pill-bg"></div>
+          <button class="filter-pill-btn active" data-filter="all">All Shoes</button>
+          <button class="filter-pill-btn" data-filter="own">My Shoes</button>
+        </div>
         <div id="fullMap"></div>
-        <div id="fullMapLoading" class="map-overlay-banner" style="display:none;">
+        <div id="fullMapLoading" class="map-overlay-banner" style="display:none; top: 72px;">
           <span>⏳ Loading highway sightings...</span>
         </div>
-        <div id="fullMapEmpty" class="map-overlay-banner" style="display:none;">
+        <div id="fullMapEmpty" class="map-overlay-banner" style="display:none; top: 72px;">
           <span>👟 No shoes spotted yet! Tap the Spot button to be the first.</span>
+        </div>
+        <div id="fullMapEmptyOwn" class="map-overlay-banner" style="display:none; top: 72px;">
+          <span>👟 No shoes spotted by you yet — tap the Spot button to log your first!</span>
         </div>
       </div>
     </section>
@@ -88,6 +96,11 @@
     <!-- View Pane 3: Historical List Screen -->
     <section id="viewList" class="view-pane">
       <div class="list-view-container" id="listViewContainer">
+        <div class="filter-pill-container" role="group" aria-label="Filter sightings list">
+          <div class="filter-pill-bg"></div>
+          <button class="filter-pill-btn active" data-filter="all">All Shoes</button>
+          <button class="filter-pill-btn" data-filter="own">My Shoes</button>
+        </div>
         <div class="list-header">
           <span class="list-count-badge" id="listCountBadge">0 sightings</span>
           <button class="btn-secondary" id="btnListRefresh">Refresh</button>
@@ -102,6 +115,10 @@
           <span class="empty-icon">👟</span>
           <h3>No shoes spotted yet!</h3>
           <p>No shoes spotted yet! Tap the Spot button to be the first.</p>
+        </div>
+        <div id="listEmptyOwnCard" class="empty-list-card" style="display:none;">
+          <span class="empty-icon">👟</span>
+          <p>No shoes spotted by you yet — tap the Spot button to log your first!</p>
         </div>
         <div class="sightings-list" id="sightingsList"></div>
       </div>
@@ -175,9 +192,10 @@
   <script src="/js/minimap.js"></script>
   <script src="/js/fullmap.js"></script>
   <script src="/js/listview.js"></script>
+  <script src="/js/filter.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, formatLocation } = window.ShoeTracker;
+      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, formatLocation } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
@@ -191,6 +209,7 @@
       spotManager.init();
       tabManager.init();
       miniMap.init();
+      filterManager.init();
       fullMap.init();
       listView.init();
 
