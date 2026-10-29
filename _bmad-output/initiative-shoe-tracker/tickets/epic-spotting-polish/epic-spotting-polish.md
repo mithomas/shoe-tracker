@@ -14,7 +14,7 @@ risk: low
 
 ## Description
 
-Polishes the passenger road-trip experience on the Autobahn. Eliminates redundant button cooldown locks now that the confirmation modal intercepts taps, adds a light/dark theme mode toggle in the top bar with system auto-detection, introduces German and English localization with authentic Autobahn terminology ("SCHUH!"), renders nearby existing shoe sightings directly on the live tracking mini-map, and includes high-DPI retina Leaflet marker assets with graceful offline tile fallback notices.
+Polishes the passenger road-trip experience on the Autobahn. Eliminates redundant button cooldown locks now that the confirmation modal intercepts taps, adds a light/dark theme mode toggle in the top bar with system auto-detection, introduces German and English localization with authentic Autobahn terminology ("SCHUH!"), renders nearby existing shoe sightings directly on the live tracking mini-map, includes high-DPI retina Leaflet marker assets with graceful offline tile fallback notices, and adds a dedicated sneaker favicon (SVG & ICO) to eliminate browser 404 errors.
 
 ## Outcome
 
@@ -27,6 +27,7 @@ Passengers enjoy a frictionless, high-contrast, localized spotting experience ad
 - 3-second button cooldown ring is removed in favor of the immediate confirmation modal.
 - Live tracking mini-map renders nearby logged shoes as compact dot markers as the vehicle moves.
 - Leaflet high-DPI retina marker assets (`marker-icon-2x.png`) are locally available and an offline indicator informs the user if map tiles cannot load.
+- Dedicated sneaker favicon (SVG & ICO) is served at /favicon.svg and /favicon.ico and declared in index.html to eliminate 404s.
 
 ## Boundaries
 
