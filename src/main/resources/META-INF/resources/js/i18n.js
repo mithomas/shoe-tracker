@@ -75,7 +75,7 @@
       'gps.locating': 'Suche GPS...',
       'gps.ready': 'GPS Bereit',
       'gps.denied': 'GPS Verweigert',
-      'spot.ready': 'SCHUH!',
+      'spot.ready': 'Schuh!',
       'spot.waiting': 'Warte auf GPS...',
       'spot.denied': 'GPS Verweigert',
       'spot.recent': 'Letzte Sichtungen',

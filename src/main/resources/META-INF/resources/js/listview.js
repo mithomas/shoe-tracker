@@ -17,6 +17,7 @@
       this.errorEl = null;
       this.emptyEl = null;
       this.sightings = [];
+      this.totalCount = 0;
       this.isLoaded = false;
     }
 
@@ -91,6 +92,7 @@
         }
         const data = await res.json();
         this.sightings = data.items || [];
+        this.totalCount = typeof data.total === 'number' ? data.total : this.sightings.length;
         this.isLoaded = true;
         this.renderList();
         window.dispatchEvent(new CustomEvent('sightings-loaded', { detail: this.sightings }));
@@ -116,7 +118,7 @@
         return currentUserId && sUserId === currentUserId;
       });
 
-      this.updateCounter(filtered.length);
+      this.updateCounter();
 
       if (ownOnly && filtered.length === 0) {
         if (this.emptyEl) this.emptyEl.style.display = 'none';
@@ -198,6 +200,7 @@
     addSighting(sighting) {
       if (!sighting || !sighting.id) return;
       this.sightings.unshift(sighting);
+      this.totalCount = Math.max((this.totalCount || 0) + 1, this.sightings.length);
       this.updateCounter();
 
       if (this.isLoaded) {
@@ -211,7 +214,11 @@
 
     removeSighting(id) {
       if (!id) return;
+      const prevLen = this.sightings.length;
       this.sightings = this.sightings.filter(s => s.id !== id);
+      if (this.sightings.length < prevLen && this.totalCount > 0) {
+        this.totalCount -= 1;
+      }
       this.updateCounter();
 
       const card = document.getElementById(`sighting-card-${id}`);
@@ -250,7 +257,7 @@
      */
     updateCounter() {
       const { i18n } = window.ShoeTracker;
-      const total = this.sightings.length;
+      const total = Math.max(this.totalCount || 0, this.sightings.length);
       const mine = this.countMineSightings();
       const summaryText = i18n
         ? i18n.t('counter.summary', { total, mine })

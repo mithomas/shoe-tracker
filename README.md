@@ -10,7 +10,7 @@ Traveling at 150 km/h leaves only seconds to spot and record roadside curiositie
 
 **Shoe Tracker** solves this with a purpose-built mobile interface:
 - **Zero-Latency GPS:** Actively caches coordinates in the background via `navigator.geolocation.watchPosition` so coordinates are hot the instant you tap.
-- **Giant Spot Button:** Oversized, glanceable 210px touch target with a 3-second cooldown ring and confirmation modal to prevent accidental double-taps.
+- **Giant Spot Button:** Oversized, glanceable 210px touch target with an in-flight submission lock and confirmation modal to prevent accidental double-taps.
 - **Navigational Precision:** Coordinates rendered in standard highway GPS notation (`N XX° MM,MMM'` / `E XXX° MM,MMM'`).
 - **Interactive Map & Timeline:** Displays all recorded shoes on an OpenStreetMap / Leaflet map, distinctly highlighting your own shoes with an instant toggle to filter out other users.
 - **Single-Container Deployment:** Quarkus backend and modern frontend packaged together in a single container with embedded H2 (`MODE=MySQL`) file persistence or external MariaDB/MySQL support.

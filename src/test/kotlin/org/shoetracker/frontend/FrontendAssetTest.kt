@@ -682,7 +682,8 @@ class FrontendAssetTest {
             .contains("navigator.language")
             .contains("lang-changed")
             .contains("SHOE SPOTTED!")
-            .contains("SCHUH!")
+            .contains("'spot.ready': 'Schuh!'")
+            .doesNotContain("'spot.ready': 'SCHUH!'")
             .contains("GPS Ready")
             .contains("GPS Bereit")
             .contains("Waiting for GPS...")
@@ -898,5 +899,8 @@ class FrontendAssetTest {
         assertThat(css)
             .contains("[data-theme=\"light\"] .badge-own")
             .contains("[data-theme=\"light\"] .shoe-cluster-other")
+            .contains("color: var(--ink-primary);")
+            .contains("white-space: nowrap;")
+            .doesNotContain("color: #E2E8F0;")
     }
 }

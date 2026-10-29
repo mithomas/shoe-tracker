@@ -98,14 +98,16 @@
           })
         });
 
-        const data = await res.json();
         if (res.ok) {
+          const data = await res.json();
           // Open Confirmation Modal
           if (modal) {
             modal.showSighting(data);
           }
           // Dispatch global sighting-added event for Map, List, and Counter views
           window.dispatchEvent(new CustomEvent('sighting-added', { detail: data }));
+        } else {
+          this.showNetworkAlert();
         }
       } catch (err) {
         this.showNetworkAlert();

@@ -14,6 +14,7 @@
       this.sightings = [];
       this.markersById = {};
       this.pendingFocusId = null;
+      this.isFetching = false;
       this.defaultCenter = [50.8, 9.7]; // Central Germany Autobahn hub
       this.defaultZoom = 6;
     }
@@ -118,6 +119,7 @@
       if (emptyEl) emptyEl.style.display = 'none';
       if (emptyOwnEl) emptyOwnEl.style.display = 'none';
 
+      this.isFetching = true;
       try {
         const res = await fetch('/api/v1/sightings?limit=500');
         if (!res.ok) return;
@@ -128,8 +130,8 @@
         if (this.pendingFocusId) {
           const targetId = this.pendingFocusId;
           this.pendingFocusId = null;
+          this.isFetching = false;
           this.focusSighting(targetId);
-          this.pendingFocusId = null;
         } else if (this.sightings.length > 0) {
           const latLngs = this.sightings.map(s => [s.location.latitude, s.location.longitude]);
           const bounds = L.latLngBounds(latLngs);
@@ -140,6 +142,7 @@
       } catch (err) {
         console.error('Failed to fetch sightings for map:', err);
       } finally {
+        this.isFetching = false;
         if (loadingEl) loadingEl.style.display = 'none';
       }
     }
@@ -274,8 +277,11 @@
         const latSpan = Math.abs(clusterBounds.getNorth() - clusterBounds.getSouth());
         const lngSpan = Math.abs(clusterBounds.getEast() - clusterBounds.getWest());
         const currentZoom = this.map.getZoom();
+        const targetZoom = typeof this.map.getBoundsZoom === 'function'
+          ? this.map.getBoundsZoom(clusterBounds, false, L.point(80, 80))
+          : currentZoom + 2;
 
-        if (latSpan < 0.0005 && lngSpan < 0.0005) {
+        if ((latSpan < 0.0005 && lngSpan < 0.0005) || targetZoom <= currentZoom) {
           this.map.setView(clusterBounds.getCenter(), Math.max(currentZoom + 2, 15));
         } else {
           this.map.fitBounds(clusterBounds, { padding: [40, 40], maxZoom: 15 });
@@ -442,7 +448,9 @@
       const marker = this.markersById[target.id];
       if (marker) {
         marker.openPopup();
-        this.pendingFocusId = null;
+        if (!this.isFetching) {
+          this.pendingFocusId = null;
+        }
       }
     }
 
