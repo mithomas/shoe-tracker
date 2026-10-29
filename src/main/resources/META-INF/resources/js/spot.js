@@ -60,8 +60,7 @@
         return;
       }
 
-      const { onboarding, geoWatcher, modal, formatLocation } = window.ShoeTracker;
-      const outputEl = document.getElementById('output');
+      const { onboarding, geoWatcher, modal } = window.ShoeTracker;
 
       // 2. Identity Check
       const userId = onboarding ? onboarding.getUserId() : null;
@@ -73,9 +72,6 @@
       // 3. Hot Coordinates Check
       const hot = geoWatcher ? geoWatcher.getHotCoordinates() : null;
       if (!hot) {
-        if (outputEl) {
-          outputEl.innerHTML = `<pre style="color:#F59E0B;">⚠️ Waiting for GPS satellite lock before recording.</pre>`;
-        }
         return;
       }
 
@@ -108,23 +104,11 @@
           if (modal) {
             modal.showSighting(data);
           }
-          // Dispatch global sighting-added event for Map and List views
+          // Dispatch global sighting-added event for Map, List, and Counter views
           window.dispatchEvent(new CustomEvent('sighting-added', { detail: data }));
-
-          if (outputEl) {
-            const locStr = formatLocation(data.location.latitude, data.location.longitude);
-            outputEl.innerHTML = `<pre>POST 201 Created:\nLocation: ${locStr}\n\n${JSON.stringify(data, null, 2)}</pre>`;
-          }
-        } else {
-          if (outputEl) {
-            outputEl.innerHTML = `<pre style="color:#EF4444;">HTTP ${res.status} ${res.statusText}:\n${JSON.stringify(data, null, 2)}</pre>`;
-          }
         }
       } catch (err) {
         this.showNetworkAlert();
-        if (outputEl) {
-          outputEl.innerHTML = `<pre style="color:#EF4444;">Could not reach server. Check connection.</pre>`;
-        }
       } finally {
         this.isSubmitting = false;
         this.setGpsStatus(this.gpsStatus);

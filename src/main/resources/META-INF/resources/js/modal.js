@@ -73,12 +73,8 @@
 
       try {
         const res = await fetch(`/api/v1/sightings/${id}`, { method: 'DELETE' });
-        const outputEl = document.getElementById('output');
         if (res.ok) {
           window.dispatchEvent(new CustomEvent('sighting-deleted', { detail: id }));
-          if (outputEl) {
-            outputEl.innerHTML = `<pre style="color:#F59E0B;">↩️ Sighting undone and removed from registry.</pre>`;
-          }
         }
       } catch (err) {
         console.error('Error undoing sighting:', err);

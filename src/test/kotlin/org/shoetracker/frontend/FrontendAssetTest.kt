@@ -694,4 +694,73 @@ class FrontendAssetTest {
             .contains("What's your name?")
             .contains("Wie heißt du?")
     }
+
+    @Test
+    fun testSightingCountersAndMiniMapDots() {
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(html)
+            .contains("spotCounterCard")
+            .contains("spotCounterSummary")
+            .contains("spotTotalCount")
+            .contains("spotMineCount")
+            .doesNotContain("id=\"output\"")
+            .doesNotContain("id=\"btnRefresh\"")
+
+        val listViewJs =
+            given()
+                .`when`()
+                .get("/js/listview.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(listViewJs)
+            .contains("sightings-loaded")
+            .contains("countMineSightings")
+            .contains("spotTotalCount")
+            .contains("spotMineCount")
+            .contains("spotCounterSummary")
+            .contains("counter.summary")
+
+        val miniMapJs =
+            given()
+                .`when`()
+                .get("/js/minimap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(miniMapJs)
+            .contains("sightingsLayer")
+            .contains("renderSightingDots")
+            .contains("mini-shoe-dot-own")
+            .contains("mini-shoe-dot-other")
+            .contains("sightings-loaded")
+            .contains("sighting-added")
+            .contains("sighting-deleted")
+
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains(".sighting-counter-card")
+            .contains(".mini-shoe-dot-own")
+            .contains(".mini-shoe-dot-other")
+    }
 }

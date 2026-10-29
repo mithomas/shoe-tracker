@@ -9,6 +9,8 @@
     constructor() {
       this.map = null;
       this.marker = null;
+      this.sightingsLayer = null;
+      this.sightings = [];
       this.containerEl = null;
       this.isInitialized = false;
       this.isPaused = false;
@@ -50,6 +52,9 @@
         if (offlineBanner) offlineBanner.classList.remove('visible');
       });
 
+      // Layer for nearby spotted shoe dots
+      this.sightingsLayer = L.layerGroup().addTo(this.map);
+
       // Pulsing Live GPS Marker
       const gpsIcon = L.divIcon({
         className: 'gps-dot-container',
@@ -58,8 +63,32 @@
         iconAnchor: [12, 12]
       });
 
-      this.marker = L.marker(this.defaultCenter, { icon: gpsIcon, interactive: false }).addTo(this.map);
+      this.marker = L.marker(this.defaultCenter, { icon: gpsIcon, interactive: false, zIndexOffset: 1000 }).addTo(this.map);
       this.isInitialized = true;
+
+      // Listen for sighting events to render nearby shoe dots on HUD radar
+      window.addEventListener('sightings-loaded', (e) => {
+        this.sightings = Array.isArray(e.detail) ? e.detail.slice() : [];
+        this.renderSightingDots();
+      });
+
+      window.addEventListener('sighting-added', (e) => {
+        if (e.detail && e.detail.id) {
+          this.sightings.unshift(e.detail);
+          this.renderSightingDots();
+        }
+      });
+
+      window.addEventListener('sighting-deleted', (e) => {
+        if (e.detail) {
+          this.sightings = this.sightings.filter(s => s.id !== e.detail);
+          this.renderSightingDots();
+        }
+      });
+
+      window.addEventListener('user-changed', () => {
+        this.renderSightingDots();
+      });
 
       // Listen for tab switches to pause/resume rendering
       window.addEventListener('tab-switched', (e) => {
@@ -122,6 +151,36 @@
           this.updatePosition(hot.latitude, hot.longitude);
         }
       }
+    }
+
+    renderSightingDots() {
+      if (!this.sightingsLayer) return;
+      this.sightingsLayer.clearLayers();
+
+      const { onboarding } = window.ShoeTracker;
+      const currentUserId = (onboarding && onboarding.getUserId()) ? onboarding.getUserId().trim().toLowerCase() : '';
+
+      this.sightings.forEach((s) => {
+        if (!s || !s.location) return;
+        const sUserId = (s.user ? s.user.id : (s.user_id || '')).trim().toLowerCase();
+        const isOwn = currentUserId && sUserId === currentUserId;
+        const dotClass = isOwn ? 'mini-shoe-dot mini-shoe-dot-own' : 'mini-shoe-dot mini-shoe-dot-other';
+        const size = isOwn ? 10 : 8;
+        const anchor = size / 2;
+
+        const dotIcon = L.divIcon({
+          className: 'mini-shoe-dot-container',
+          html: `<div class="${dotClass}"></div>`,
+          iconSize: [size, size],
+          iconAnchor: [anchor, anchor]
+        });
+
+        const dotMarker = L.marker([s.location.latitude, s.location.longitude], {
+          icon: dotIcon,
+          interactive: false
+        });
+        this.sightingsLayer.addLayer(dotMarker);
+      });
     }
 
     invalidateSize(immediate = false) {

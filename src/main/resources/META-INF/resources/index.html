@@ -60,13 +60,22 @@
         </div>
       </div>
 
-      <!-- Recent Sightings / Live Feed -->
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <span style="font-weight:bold; font-size:14px;" data-i18n="spot.recent">Recent Sightings</span>
-          <button class="btn-secondary" id="btnRefresh" data-i18n="spot.refresh">Refresh</button>
+      <!-- Sighting Counter Card (Story 3.5) -->
+      <div class="card sighting-counter-card" id="spotCounterCard">
+        <div class="sighting-counter-header">
+          <span class="sighting-counter-title" data-i18n="spot.recent">Recent Sightings</span>
+          <span class="sighting-counter-badge" id="spotCounterSummary">0 Total | 0 Mine</span>
         </div>
-        <div id="output"><pre>Click Refresh to load sightings...</pre></div>
+        <div class="sighting-counter-grid">
+          <div class="counter-stat">
+            <span class="counter-stat-val" id="spotTotalCount">0</span>
+            <span class="counter-stat-label" data-i18n="counter.total">Total</span>
+          </div>
+          <div class="counter-stat counter-stat-own">
+            <span class="counter-stat-val" id="spotMineCount">0</span>
+            <span class="counter-stat-label" data-i18n="counter.mine">Mine</span>
+          </div>
+        </div>
       </div>
 
       <!-- App Version Footer -->
@@ -107,7 +116,7 @@
           <button class="filter-pill-btn" data-filter="own" data-i18n="filter.own">My Shoes</button>
         </div>
         <div class="list-header">
-          <span class="list-count-badge" id="listCountBadge">0 sightings</span>
+          <span class="list-count-badge" id="listCountBadge">0 Total | 0 Mine</span>
           <button class="btn-secondary" id="btnListRefresh" data-i18n="spot.refresh">Refresh</button>
         </div>
         <div id="listLoadingBanner" class="map-overlay-banner" style="position:static; transform:none; margin-bottom:12px; display:none; text-align:center;">
@@ -208,13 +217,11 @@
   <script src="/js/filter.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { themeManager, i18n, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, formatLocation } = window.ShoeTracker;
+      const { themeManager, i18n, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
       const gpsWarningBanner = document.getElementById('gpsWarningBanner');
-      const btnRefresh = document.getElementById('btnRefresh');
-      const output = document.getElementById('output');
 
       let currentGpsStatus = 'locating';
       function updateGpsPillText(status) {
@@ -273,23 +280,6 @@
       });
 
       geoWatcher.start();
-
-      // Refresh list
-      async function refreshSightings() {
-        try {
-          const res = await fetch('/api/v1/sightings');
-          const data = await res.json();
-          const formattedItems = (data.items || []).map(item => ({
-            ...item,
-            formatted_location: formatLocation(item.location.latitude, item.location.longitude)
-          }));
-          output.innerHTML = `<pre>GET 200 OK (${data.total} total):\n\n${JSON.stringify({ ...data, items: formattedItems }, null, 2)}</pre>`;
-        } catch (err) {
-          output.innerHTML = `<pre style="color:#EF4444;">Error: ${err.message}</pre>`;
-        }
-      }
-
-      btnRefresh.addEventListener('click', refreshSightings);
     });
   </script>
 </body>

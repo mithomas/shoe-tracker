@@ -10,6 +10,9 @@
       this.containerEl = null;
       this.listEl = null;
       this.counterEl = null;
+      this.spotSummaryEl = null;
+      this.spotTotalEl = null;
+      this.spotMineEl = null;
       this.loadingEl = null;
       this.errorEl = null;
       this.emptyEl = null;
@@ -21,6 +24,9 @@
       this.containerEl = document.getElementById('listViewContainer');
       this.listEl = document.getElementById('sightingsList');
       this.counterEl = document.getElementById('listCountBadge');
+      this.spotSummaryEl = document.getElementById('spotCounterSummary');
+      this.spotTotalEl = document.getElementById('spotTotalCount');
+      this.spotMineEl = document.getElementById('spotMineCount');
       this.loadingEl = document.getElementById('listLoadingBanner');
       this.errorEl = document.getElementById('listErrorBanner');
       this.emptyEl = document.getElementById('listEmptyCard');
@@ -30,6 +36,10 @@
       if (btnRefresh) {
         btnRefresh.addEventListener('click', () => this.fetchSightings());
       }
+
+      // Warm-load sightings on initial startup so counters and mini-map are populated on boot
+      this.updateCounter();
+      this.fetchSightings();
 
       // Fetch sightings when switching to List tab if not yet loaded
       window.addEventListener('tab-switched', (e) => {
@@ -61,6 +71,7 @@
       });
 
       window.addEventListener('lang-changed', () => {
+        this.updateCounter();
         if (this.isLoaded) {
           this.renderList();
         }
@@ -82,6 +93,7 @@
         this.sightings = data.items || [];
         this.isLoaded = true;
         this.renderList();
+        window.dispatchEvent(new CustomEvent('sightings-loaded', { detail: this.sightings }));
       } catch (err) {
         console.error('Failed to fetch sightings for list:', err);
         if (this.errorEl) this.errorEl.style.display = 'block';
@@ -172,6 +184,7 @@
     addSighting(sighting) {
       if (!sighting || !sighting.id) return;
       this.sightings.unshift(sighting);
+      this.updateCounter();
 
       if (this.isLoaded) {
         this.renderList();
@@ -185,6 +198,7 @@
     removeSighting(id) {
       if (!id) return;
       this.sightings = this.sightings.filter(s => s.id !== id);
+      this.updateCounter();
 
       const card = document.getElementById(`sighting-card-${id}`);
       if (card) {
@@ -200,22 +214,45 @@
     }
 
     recolorCards() {
+      this.updateCounter();
       if (this.isLoaded) {
         this.renderList();
       }
     }
 
-    updateCounter(filteredCount) {
-      if (!this.counterEl) return;
-      const { filterManager } = window.ShoeTracker;
-      const ownOnly = filterManager ? filterManager.isOwnOnly() : (this.ownOnly || false);
-      const total = this.sightings.length;
+    countMineSightings() {
+      const { onboarding } = window.ShoeTracker;
+      const currentUserId = (onboarding && onboarding.getUserId()) ? onboarding.getUserId().trim().toLowerCase() : '';
+      if (!currentUserId) return 0;
+      return this.sightings.filter(s => {
+        const sUserId = (s.user ? s.user.id : (s.user_id || '')).trim().toLowerCase();
+        return sUserId === currentUserId;
+      }).length;
+    }
 
-      if (ownOnly) {
-        const count = filteredCount !== undefined ? filteredCount : total;
-        this.counterEl.textContent = `${count} of ${total} sightings`;
-      } else {
-        this.counterEl.textContent = `${total} ${total === 1 ? 'sighting' : 'sightings'}`;
+    /**
+     * Updates both the Spot screen counter card and the List header counter badge
+     * with the breakdown of personal vs total sightings ("12 Total | 4 Mine").
+     */
+    updateCounter() {
+      const { i18n } = window.ShoeTracker;
+      const total = this.sightings.length;
+      const mine = this.countMineSightings();
+      const summaryText = i18n
+        ? i18n.t('counter.summary', { total, mine })
+        : `${total} Total | ${mine} Mine`;
+
+      if (this.counterEl) {
+        this.counterEl.textContent = summaryText;
+      }
+      if (this.spotSummaryEl) {
+        this.spotSummaryEl.textContent = summaryText;
+      }
+      if (this.spotTotalEl) {
+        this.spotTotalEl.textContent = String(total);
+      }
+      if (this.spotMineEl) {
+        this.spotMineEl.textContent = String(mine);
       }
     }
 

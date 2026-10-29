@@ -697,6 +697,100 @@ pre {
   100% { transform: scale(1.6); opacity: 0; }
 }
 
+/* Compact Sighting Dots on HUD Mini-Map (Story 3.5) */
+.mini-shoe-dot-container {
+  background: transparent;
+  border: none;
+}
+
+.mini-shoe-dot {
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.mini-shoe-dot-own {
+  width: 10px;
+  height: 10px;
+  background: #3B82F6;
+  border: 1.5px solid #FFFFFF;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.8);
+}
+
+.mini-shoe-dot-other {
+  width: 8px;
+  height: 8px;
+  background: #94A3B8;
+  border: 1px solid #334155;
+}
+
+/* Sighting Counter Card on Spot Screen (Story 3.5) */
+.sighting-counter-card {
+  padding: 14px 16px;
+}
+
+.sighting-counter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sighting-counter-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink-primary);
+}
+
+.sighting-counter-badge {
+  background: var(--surface-overlay);
+  color: var(--ink-secondary);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sighting-counter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.counter-stat {
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.counter-stat-own {
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+.counter-stat-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink-primary);
+  line-height: 1.1;
+}
+
+.counter-stat-own .counter-stat-val {
+  color: var(--accent-blue);
+}
+
+.counter-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-secondary);
+}
+
 /* Bottom Navigation Bar */
 .bottom-nav {
   position: fixed;
