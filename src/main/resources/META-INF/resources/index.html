@@ -18,6 +18,7 @@
         <span class="logo-title">Shoe Tracker</span>
       </div>
       <div class="header-status">
+        <button id="themeToggleBtn" class="header-pill-btn" type="button" aria-label="Switch theme" title="Switch theme">☀️</button>
         <span id="userChip" class="user-chip" title="Click to view/change user name">👤 ...</span>
         <div id="gpsPill" class="gps-pill locating">
           <span class="dot"></span>
@@ -192,6 +193,7 @@
   </div>
 
   <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/js/theme.js"></script>
   <script src="/js/format.js"></script>
   <script src="/js/geo.js"></script>
   <script src="/js/onboarding.js"></script>
@@ -204,7 +206,7 @@
   <script src="/js/filter.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, formatLocation } = window.ShoeTracker;
+      const { themeManager, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, formatLocation } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
@@ -213,6 +215,7 @@
       const output = document.getElementById('output');
 
       // Initialize Managers
+      themeManager.init();
       onboarding.init();
       modal.init();
       spotManager.init();

@@ -597,4 +597,55 @@ class FrontendAssetTest {
         assertThat(formatFooterVersion("1.0.0", null)).isEqualTo("Shoe Tracker v1.0.0")
         assertThat(formatFooterVersion("1.0.0", "unknown")).isEqualTo("Shoe Tracker v1.0.0")
     }
+
+    @Test
+    fun testLightAndDarkThemeSwitcherServedAndConfigured() {
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(html)
+            .contains("themeToggleBtn")
+            .contains("header-pill-btn")
+            .contains("/js/theme.js")
+            .contains("themeManager.init()")
+
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains("[data-theme=\"light\"]")
+            .contains("--surface-base: #F8FAFC")
+            .contains("--surface-raised: #FFFFFF")
+            .contains("--map-overlay-bg")
+            .contains("filter: none")
+            .contains(".header-pill-btn")
+            .contains("flex-wrap: wrap")
+
+        val themeJs =
+            given()
+                .`when`()
+                .get("/js/theme.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(themeJs)
+            .contains("class ThemeManager")
+            .contains("prefers-color-scheme: dark")
+            .contains("data-theme")
+            .contains("theme-changed")
+    }
 }
