@@ -1,7 +1,10 @@
 package org.shoetracker.repository
 
+import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier
+import io.agroal.api.exceptionsorter.MySQLExceptionSorter
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.flywaydb.core.internal.database.DatabaseTypeRegister
 import org.junit.jupiter.api.Test
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -66,5 +69,39 @@ class MultiTargetJdbcDriverTest {
         assertThatThrownBy {
             DriverManager.getConnection("jdbc:postgresql://localhost:5432/db")
         }.isInstanceOf(SQLException::class.java)
+    }
+
+    @Test
+    fun testFlywayDatabaseTypeRegisterSupportsMariaDb118MysqlAndH2() {
+        val mariaDbType = DatabaseTypeRegister.getDatabaseTypeForUrl("jdbc:mariadb://localhost:3306/shoetracker", null)
+        assertThat(mariaDbType.name).isEqualTo("MariaDB")
+        assertThat(mariaDbType.handlesDatabaseProductNameAndVersion("MariaDB 11.8", "11.8.0-MariaDB", null)).isTrue()
+
+        val mysqlType = DatabaseTypeRegister.getDatabaseTypeForUrl("jdbc:mysql://localhost:3306/shoetracker", null)
+        assertThat(mysqlType.name).isEqualTo("MySQL")
+        assertThat(mysqlType.handlesDatabaseProductNameAndVersion("MySQL 8.4", "8.4.0", null)).isTrue()
+
+        val h2Type = DatabaseTypeRegister.getDatabaseTypeForUrl("jdbc:h2:file:/data/shoe-tracker;MODE=MySQL", null)
+        assertThat(h2Type.name).isEqualTo("H2")
+        assertThat(h2Type.handlesDatabaseProductNameAndVersion("H2 2.4", "2.4.240", null)).isTrue()
+    }
+
+    @Test
+    fun testMultiTargetAgroalConnectionConfigurerInstallsMysqlExceptionSorter() {
+        val configurer = MultiTargetAgroalConnectionConfigurer()
+        val supplier = AgroalDataSourceConfigurationSupplier()
+        supplier.connectionPoolConfiguration().maxSize(1)
+
+        configurer.disableSslSupport("other", supplier, mutableMapOf())
+        configurer.setExceptionSorter("other", supplier)
+
+        val sorter =
+            supplier
+                .get()
+                .connectionPoolConfiguration()
+                .exceptionSorter()
+        assertThat(sorter).isInstanceOf(MySQLExceptionSorter::class.java)
+        assertThat(sorter.isFatal(SQLException("Connection reset", "08S01"))).isTrue()
+        assertThat(sorter.isFatal(SQLException("Constraint violation", "23000"))).isFalse()
     }
 }

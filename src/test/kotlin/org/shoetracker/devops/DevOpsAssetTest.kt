@@ -11,6 +11,7 @@ import org.shoetracker.api.dto.ProblemDetails
 import org.shoetracker.api.dto.SightingListResponse
 import org.shoetracker.api.dto.SightingResponse
 import org.shoetracker.api.dto.UserDto
+import org.shoetracker.repository.MultiTargetAgroalConnectionConfigurer
 import org.shoetracker.repository.MultiTargetJdbcDriver
 import java.io.File
 
@@ -82,6 +83,7 @@ class DevOpsAssetTest {
         val dockerfile = File("Dockerfile")
         assertThat(dockerfile.readText())
             .contains("jdbc:h2:file:/data/shoe-tracker;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE")
+            .contains("--enable-native-access=ALL-UNNAMED")
             .doesNotContain("jdbc:sqlite:")
 
         val readme = File("README.md")
@@ -172,6 +174,8 @@ class DevOpsAssetTest {
             .contains("JavaLanguageVersion.of(25)")
             .contains("JavaVersion.VERSION_25")
             .contains("JvmTarget.JVM_25")
+            .contains("io.quarkus:quarkus-flyway-mysql")
+            .contains("--enable-native-access=ALL-UNNAMED")
             .doesNotContain("VERSION_21")
             .doesNotContain("JVM_21")
             .contains("id(\"com.diffplug.spotless\")")
@@ -210,6 +214,7 @@ class DevOpsAssetTest {
                 ProblemDetails::class.java,
                 VersionResponse::class.java,
                 MultiTargetJdbcDriver::class.java,
+                MultiTargetAgroalConnectionConfigurer::class.java,
             )
         dtoClasses.forEach { clazz ->
             assertThat(clazz.isAnnotationPresent(RegisterForReflection::class.java))

@@ -24,6 +24,7 @@ dependencies {
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-agroal")
     implementation("io.quarkus:quarkus-flyway")
+    implementation("io.quarkus:quarkus-flyway-mysql")
     implementation("io.quarkus:quarkus-jdbc-h2")
     implementation("io.quarkus:quarkus-jdbc-mariadb")
     implementation("net.java.dev.jna:jna")
@@ -200,6 +201,10 @@ val lintJs by tasks.registering(JavaExec::class) {
             writeText("PASSED\n")
         }
     }
+}
+
+tasks.withType<Test> {
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
 tasks.named("check") {

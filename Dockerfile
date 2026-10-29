@@ -29,7 +29,7 @@ ENV LANGUAGE='en_US:en' \
     QUARKUS_HTTP_HOST=0.0.0.0 \
     QUARKUS_HTTP_PORT=8080 \
     QUARKUS_DATASOURCE_JDBC_URL="jdbc:h2:file:/data/shoe-tracker;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE" \
-    JAVA_TOOL_OPTIONS="-Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+    JAVA_TOOL_OPTIONS="--enable-native-access=ALL-UNNAMED -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 
 # Setup application directory and non-root user (UID 185) with permissions for /data
 RUN mkdir -p /deployments /data \
@@ -48,4 +48,4 @@ VOLUME /data
 EXPOSE 8080
 USER 185
 
-ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
+ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "/deployments/quarkus-run.jar"]
