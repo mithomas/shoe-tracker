@@ -23,7 +23,10 @@ class DevOpsAssetTest {
         assertThat(content)
             .contains("actions/checkout@v4")
             .contains("actions/setup-java@v4")
+            .contains("./gradlew spotlessCheck --no-daemon")
+            .contains("./gradlew lintJs --no-daemon")
             .contains("./gradlew check test --no-daemon")
+            .contains("docker build --build-arg GIT_COMMIT")
 
         // Check release job
         assertThat(content)

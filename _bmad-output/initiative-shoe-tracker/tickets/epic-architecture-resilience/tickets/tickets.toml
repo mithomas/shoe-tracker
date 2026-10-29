@@ -54,3 +54,14 @@ covers = ["R18", "R19", "R20", "R21"]
 after = [1, 2, 3, 4]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Add Spotless, Closure Compiler, and Container Checks to CI Workflow"
+description = "Adds explicit CI steps for Spotless formatting verification, Closure Compiler JavaScript linting, and PR container build validation to .github/workflows/ci.yml."
+verify = "GitHub Actions CI workflow includes spotlessCheck, lintJs, and container build steps, and is verified by DevOpsAssetTest and YAML validation."
+covers = ["R22"]
+after = [5]
+hitl = false
+risk = "low"

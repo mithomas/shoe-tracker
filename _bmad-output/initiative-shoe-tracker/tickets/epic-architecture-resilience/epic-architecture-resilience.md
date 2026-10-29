@@ -2,7 +2,7 @@
 type: epic
 title: "Architecture Hardening & Offline Resilience"
 parent: "initiative-shoe-tracker"
-covers: ["R18", "R19", "R20", "R21"]
+covers: ["R18", "R19", "R20", "R21", "R22"]
 sources: []
 companions: []
 after: ["epic-open-source-devops"]
@@ -26,6 +26,7 @@ Shoe Tracker is hardened against edge-case failures, unifies all server errors u
 - R19: `SightingRepository` eagerly initializes its dedicated JDBC connection and compiled prepared statements during `@PostConstruct` with fail-fast `SELECT 1` startup validation.
 - R20: `SQLiteExceptionMapper` translates `org.sqlite.SQLiteException` (such as `SQLITE_BUSY` lock contention) into RFC 7807 `503 Service Unavailable` with `Retry-After: 1` header.
 - R21: Quarkus SmallRye Health exposes `/q/health/live` and `/q/health/ready` endpoints verifying application liveness and SQLite database connectivity.
+- R22: Continuous Integration workflow executes dedicated Spotless formatting checks, Closure Compiler JavaScript linting, and container build verification on every pull request and push to main.
 
 ## Done when
 
@@ -33,6 +34,7 @@ Shoe Tracker is hardened against edge-case failures, unifies all server errors u
 - `SightingRepository` compiles prepared statements at bean initialization without `by lazy` delegates, failing fast if the database or queries are invalid.
 - Tapping API during forced write contention returns HTTP 503 with standard RFC 7807 problem payload and `Retry-After: 1`.
 - `/q/health/live` returns HTTP 200 UP and `/q/health/ready` validates SQLite connection health.
+- GitHub Actions workflow validates Spotless formatting, pure-JVM JavaScript static analysis, and local Docker container build.
 
 ## Boundaries
 

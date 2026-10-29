@@ -36,7 +36,7 @@ id = 5
 slug = "epic-architecture-resilience"
 title = "Architecture Hardening & Offline Resilience"
 description = "Hardens system resilience with global RFC 7807 500 error mappers with UUID correlation, eager @PostConstruct prepared statements and fail-fast startup, SQLite lock error translation to 503, and SmallRye health probes."
-covers = ["R18", "R19", "R20", "R21"]
+covers = ["R18", "R19", "R20", "R21", "R22"]
 after = [{ epic = "epic-open-source-devops", needs = "CI pipeline and licensing" }]
 
 [[epic]]

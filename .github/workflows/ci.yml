@@ -29,8 +29,17 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
 
+      - name: Verify Spotless code formatting
+        run: ./gradlew spotlessCheck --no-daemon
+
+      - name: Run Closure Compiler JavaScript linter
+        run: ./gradlew lintJs --no-daemon
+
       - name: Run checks and tests
         run: ./gradlew check test --no-daemon
+
+      - name: Verify Docker container build
+        run: docker build --build-arg GIT_COMMIT=${{ github.sha }} -t shoe-tracker:ci .
 
   release:
     name: Publish Multi-Platform Container to Docker Hub
