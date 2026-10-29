@@ -59,6 +59,12 @@
           this.renderList();
         }
       });
+
+      window.addEventListener('lang-changed', () => {
+        if (this.isLoaded) {
+          this.renderList();
+        }
+      });
     }
 
     async fetchSightings() {
@@ -122,7 +128,7 @@
     }
 
     buildCardElement(sighting) {
-      const { onboarding, formatLocation } = window.ShoeTracker;
+      const { onboarding, formatLocation, i18n } = window.ShoeTracker;
       const currentUserId = (onboarding && onboarding.getUserId()) ? onboarding.getUserId().trim().toLowerCase() : '';
       const sightingUserId = (sighting.user ? sighting.user.id : (sighting.user_id || '')).trim().toLowerCase();
       const isOwn = currentUserId && (currentUserId === sightingUserId);
@@ -141,13 +147,14 @@
       const ss = String(recDate.getSeconds()).padStart(2, '0');
       const formattedTimestamp = `${monthStr} ${dayStr}, ${hh}:${mm}:${ss}`;
       const displayUser = sighting.user ? sighting.user.id : (sighting.user_id || 'Unknown');
+      const mySightingBadge = i18n ? i18n.t('list.mySighting') : 'My Sighting';
 
       card.innerHTML = `
         <div class="sighting-card-header">
           <div class="card-author">
             <span class="user-avatar">👤</span>
             <span class="user-name">${this.escapeHtml(displayUser)}</span>
-            ${isOwn ? '<span class="badge-own">My Sighting</span>' : ''}
+            ${isOwn ? `<span class="badge-own">${mySightingBadge}</span>` : ''}
           </div>
           <span class="card-timestamp">${formattedTimestamp}</span>
         </div>

@@ -63,16 +63,17 @@
     handleSave() {
       const raw = this.inputEl.value || '';
       const trimmed = raw.trim();
+      const { i18n } = window.ShoeTracker;
 
       if (!trimmed) {
-        this.errorEl.textContent = 'Please enter your name.';
+        this.errorEl.textContent = i18n ? i18n.t('onboarding.errEmpty') : 'Please enter your name.';
         this.inputEl.classList.add('input-error');
         this.inputEl.focus();
         return;
       }
 
       if (trimmed.length > 64) {
-        this.errorEl.textContent = 'Name must be 64 characters or fewer.';
+        this.errorEl.textContent = i18n ? i18n.t('onboarding.errLong') : 'Name must be 64 characters or fewer.';
         this.inputEl.classList.add('input-error');
         this.inputEl.focus();
         return;

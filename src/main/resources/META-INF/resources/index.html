@@ -19,33 +19,34 @@
       </div>
       <div class="header-status">
         <button id="themeToggleBtn" class="header-pill-btn" type="button" aria-label="Switch theme" title="Switch theme">☀️</button>
+        <button id="langToggleBtn" class="header-pill-btn" type="button" aria-label="Switch language (DE)" title="Switch language (DE)">EN</button>
         <span id="userChip" class="user-chip" title="Click to view/change user name">👤 ...</span>
         <div id="gpsPill" class="gps-pill locating">
           <span class="dot"></span>
-          <span id="gpsPillLabel">Locating...</span>
+          <span id="gpsPillLabel" data-i18n="gps.locating">Locating...</span>
         </div>
       </div>
     </header>
 
     <!-- Top Alert Banners -->
     <div id="gpsWarningBanner" class="warning-banner">
-      <strong>⚠️ Location Access Required:</strong> Shoe Tracker requires GPS to record coordinate tags on the Autobahn. Please enable location permissions in your browser or device settings.
+      <strong data-i18n="banner.gpsTitle">⚠️ Location Access Required:</strong> <span data-i18n="banner.gpsBody">Shoe Tracker requires GPS to record coordinate tags on the Autobahn. Please enable location permissions in your browser or device settings.</span>
     </div>
     <div id="networkAlertBanner" class="warning-banner" style="background:rgba(239, 68, 68, 0.25); border-color:#EF4444;">
-      <strong>⚠️ Network Error:</strong> Could not reach server. Check connection.
+      <strong data-i18n="banner.networkTitle">⚠️ Network Error:</strong> <span data-i18n="banner.networkBody">Could not reach server. Check connection.</span>
     </div>
     <div id="offlineTileBanner" class="warning-banner">
-      <strong>📡 Offline Map Mode:</strong> Map tiles could not be loaded. GPS spotting remains active.
+      <strong data-i18n="banner.offlineTitle">📡 Offline Map Mode:</strong> <span data-i18n="banner.offlineBody">Map tiles could not be loaded. GPS spotting remains active.</span>
     </div>
 
     <!-- View Pane 1: Spot Screen (Default) -->
     <section id="viewSpot" class="view-pane active">
       <!-- Upper Area: Tactical HUD Mini-Map -->
       <div class="mini-map-container">
-        <span class="mini-map-hud-badge">HUD Radar</span>
+        <span class="mini-map-hud-badge" data-i18n="spot.hudBadge">HUD Radar</span>
         <div id="spotMiniMap"></div>
         <div id="miniMapDeniedOverlay" class="mini-map-overlay" style="display:none;">
-          <span>⚠️ Location Access Denied — Germany Overview</span>
+          <span data-i18n="spot.deniedOverlay">⚠️ Location Access Denied — Germany Overview</span>
         </div>
       </div>
 
@@ -54,7 +55,7 @@
         <div class="btn-spot-container">
           <button class="btn-spot-giant waiting-gps" id="btnSpotGiant" aria-label="Spot shoe and log location" disabled>
             <span class="icon">👟</span>
-            <span class="label" id="btnSpotLabel" aria-live="polite">Waiting for GPS...</span>
+            <span class="label" id="btnSpotLabel" aria-live="polite" data-i18n="spot.waiting">Waiting for GPS...</span>
           </button>
         </div>
       </div>
@@ -62,8 +63,8 @@
       <!-- Recent Sightings / Live Feed -->
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <span style="font-weight:bold; font-size:14px;">Recent Sightings</span>
-          <button class="btn-secondary" id="btnRefresh">Refresh</button>
+          <span style="font-weight:bold; font-size:14px;" data-i18n="spot.recent">Recent Sightings</span>
+          <button class="btn-secondary" id="btnRefresh" data-i18n="spot.refresh">Refresh</button>
         </div>
         <div id="output"><pre>Click Refresh to load sightings...</pre></div>
       </div>
@@ -81,18 +82,18 @@
       <div class="full-map-wrapper" id="fullMapContainer">
         <div class="filter-pill-container map-filter-float" role="group" aria-label="Filter shoes on map">
           <div class="filter-pill-bg"></div>
-          <button class="filter-pill-btn active" data-filter="all">All Shoes</button>
-          <button class="filter-pill-btn" data-filter="own">My Shoes</button>
+          <button class="filter-pill-btn active" data-filter="all" data-i18n="filter.all">All Shoes</button>
+          <button class="filter-pill-btn" data-filter="own" data-i18n="filter.own">My Shoes</button>
         </div>
         <div id="fullMap"></div>
         <div id="fullMapLoading" class="map-overlay-banner" style="display:none; top: 72px;">
-          <span>⏳ Loading highway sightings...</span>
+          <span data-i18n="map.loading">⏳ Loading highway sightings...</span>
         </div>
         <div id="fullMapEmpty" class="map-overlay-banner" style="display:none; top: 72px;">
-          <span>👟 No shoes spotted yet! Tap the Spot button to be the first.</span>
+          <span data-i18n="map.empty">👟 No shoes spotted yet! Tap the Spot button to be the first.</span>
         </div>
         <div id="fullMapEmptyOwn" class="map-overlay-banner" style="display:none; top: 72px;">
-          <span>👟 No shoes spotted by you yet — tap the Spot button to log your first!</span>
+          <span data-i18n="map.emptyOwn">👟 No shoes spotted by you yet — tap the Spot button to log your first!</span>
         </div>
       </div>
     </section>
@@ -102,27 +103,27 @@
       <div class="list-view-container" id="listViewContainer">
         <div class="filter-pill-container" role="group" aria-label="Filter sightings list">
           <div class="filter-pill-bg"></div>
-          <button class="filter-pill-btn active" data-filter="all">All Shoes</button>
-          <button class="filter-pill-btn" data-filter="own">My Shoes</button>
+          <button class="filter-pill-btn active" data-filter="all" data-i18n="filter.all">All Shoes</button>
+          <button class="filter-pill-btn" data-filter="own" data-i18n="filter.own">My Shoes</button>
         </div>
         <div class="list-header">
           <span class="list-count-badge" id="listCountBadge">0 sightings</span>
-          <button class="btn-secondary" id="btnListRefresh">Refresh</button>
+          <button class="btn-secondary" id="btnListRefresh" data-i18n="spot.refresh">Refresh</button>
         </div>
         <div id="listLoadingBanner" class="map-overlay-banner" style="position:static; transform:none; margin-bottom:12px; display:none; text-align:center;">
-          <span>⏳ Loading sightings history...</span>
+          <span data-i18n="list.loading">⏳ Loading sightings history...</span>
         </div>
         <div id="listErrorBanner" class="map-overlay-banner" style="position:static; transform:none; margin-bottom:12px; display:none; text-align:center; color:#EF4444; border-color:#EF4444;">
-          <span>⚠️ Could not load sightings. Check connection.</span>
+          <span data-i18n="list.error">⚠️ Could not load sightings. Check connection.</span>
         </div>
         <div id="listEmptyCard" class="empty-list-card" style="display:none;">
           <span class="empty-icon">👟</span>
-          <h3>No shoes spotted yet!</h3>
-          <p>No shoes spotted yet! Tap the Spot button to be the first.</p>
+          <h3 data-i18n="list.emptyTitle">No shoes spotted yet!</h3>
+          <p data-i18n="list.emptyBody">No shoes spotted yet! Tap the Spot button to be the first.</p>
         </div>
         <div id="listEmptyOwnCard" class="empty-list-card" style="display:none;">
           <span class="empty-icon">👟</span>
-          <p>No shoes spotted by you yet — tap the Spot button to log your first!</p>
+          <p data-i18n="list.emptyOwnBody">No shoes spotted by you yet — tap the Spot button to log your first!</p>
         </div>
         <div class="sightings-list" id="sightingsList"></div>
         <!-- App Version Footer -->
@@ -139,41 +140,41 @@
   <nav class="bottom-nav" id="bottomNav" aria-label="Main Navigation">
     <button class="nav-tab active" id="tabSpot" data-tab="spot" aria-label="Spot shoe">
       <span class="icon">👟</span>
-      <span class="label">Spot</span>
+      <span class="label" data-i18n="nav.spot">Spot</span>
     </button>
     <button class="nav-tab" id="tabMap" data-tab="map" aria-label="Explore map">
       <span class="icon">🗺️</span>
-      <span class="label">Map</span>
+      <span class="label" data-i18n="nav.map">Map</span>
     </button>
     <button class="nav-tab" id="tabList" data-tab="list" aria-label="View history">
       <span class="icon">📋</span>
-      <span class="label">List</span>
+      <span class="label" data-i18n="nav.list">List</span>
     </button>
   </nav>
 
   <!-- Sighting Confirmation Modal Sheet -->
   <div class="modal-backdrop" id="sightingModal">
     <div class="modal-sheet">
-      <h2 class="modal-title">👟 Shoe Spotted!</h2>
-      <p class="modal-subtitle">Your sighting has been logged to the highway registry.</p>
+      <h2 class="modal-title" data-i18n="modal.title">👟 Shoe Spotted!</h2>
+      <p class="modal-subtitle" data-i18n="modal.subtitle">Your sighting has been logged to the highway registry.</p>
       <div class="modal-detail-box">
         <div class="modal-detail-row">
-          <span class="label">Time:</span>
+          <span class="label" data-i18n="modal.time">Time:</span>
           <span class="val" id="sightingModalTime">--:--:--</span>
         </div>
         <div class="modal-detail-row">
-          <span class="label">Location:</span>
+          <span class="label" data-i18n="modal.location">Location:</span>
           <span class="val coords-val" id="sightingModalCoords">N 00° 00,000'<br>E 000° 00,000'</span>
         </div>
         <div class="modal-detail-row">
-          <span class="label">Spotted By:</span>
+          <span class="label" data-i18n="modal.spottedBy">Spotted By:</span>
           <span class="val" id="sightingModalUser">--</span>
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn-primary-action" id="btnSightingAwesome">Awesome!</button>
-        <button class="btn-modal-secondary" id="btnSightingViewMap">View on Map</button>
-        <button class="btn-modal-tertiary" id="btnSightingUndo">Undo</button>
+        <button class="btn-primary-action" id="btnSightingAwesome" data-i18n="modal.awesome">Awesome!</button>
+        <button class="btn-modal-secondary" id="btnSightingViewMap" data-i18n="modal.viewMap">View on Map</button>
+        <button class="btn-modal-tertiary" id="btnSightingUndo" data-i18n="modal.undo">Undo</button>
       </div>
     </div>
   </div>
@@ -181,19 +182,20 @@
   <!-- Onboarding Modal Bottom Sheet -->
   <div class="modal-backdrop" id="onboardingModal">
     <div class="modal-sheet">
-      <h2 class="modal-title">Welcome to Shoe Tracker! 👟</h2>
-      <p class="modal-subtitle">What's your name? We'll associate it with your shoe sightings on the Autobahn.</p>
+      <h2 class="modal-title" data-i18n="onboarding.title">Welcome to Shoe Tracker! 👟</h2>
+      <p class="modal-subtitle" data-i18n="onboarding.subtitle">What's your name? We'll associate it with your shoe sightings on the Autobahn.</p>
       <form id="onboardingForm">
-        <label for="onboardingInput">Your Name:</label>
-        <input type="text" id="onboardingInput" placeholder="e.g. Tom" maxlength="64" autocomplete="name" />
+        <label for="onboardingInput" data-i18n="onboarding.label">Your Name:</label>
+        <input type="text" id="onboardingInput" placeholder="e.g. Tom" data-i18n-placeholder="onboarding.placeholder" maxlength="64" autocomplete="name" />
         <div class="error-msg" id="onboardingError"></div>
-        <button type="submit" class="btn-spot" style="padding:12px;">Start Spotting</button>
+        <button type="submit" class="btn-spot" style="padding:12px;" data-i18n="onboarding.submit">Start Spotting</button>
       </form>
     </div>
   </div>
 
   <script src="/vendor/leaflet/leaflet.js"></script>
   <script src="/js/theme.js"></script>
+  <script src="/js/i18n.js"></script>
   <script src="/js/format.js"></script>
   <script src="/js/geo.js"></script>
   <script src="/js/onboarding.js"></script>
@@ -206,7 +208,7 @@
   <script src="/js/filter.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { themeManager, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, formatLocation } = window.ShoeTracker;
+      const { themeManager, i18n, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, formatLocation } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
@@ -214,8 +216,22 @@
       const btnRefresh = document.getElementById('btnRefresh');
       const output = document.getElementById('output');
 
+      let currentGpsStatus = 'locating';
+      function updateGpsPillText(status) {
+        if (!gpsPillLabel) return;
+        const t = i18n ? (k) => i18n.t(k) : (k) => k;
+        if (status === 'ready') {
+          gpsPillLabel.textContent = i18n ? t('gps.ready') : 'GPS Ready';
+        } else if (status === 'locating') {
+          gpsPillLabel.textContent = i18n ? t('gps.locating') : 'Locating...';
+        } else {
+          gpsPillLabel.textContent = i18n ? t('gps.denied') : 'GPS Denied';
+        }
+      }
+
       // Initialize Managers
       themeManager.init();
+      i18n.init();
       onboarding.init();
       modal.init();
       spotManager.init();
@@ -224,6 +240,10 @@
       filterManager.init();
       fullMap.init();
       listView.init();
+
+      window.addEventListener('lang-changed', () => {
+        updateGpsPillText(currentGpsStatus);
+      });
 
       // Fetch dynamic Git commit and version metadata
       fetch('/api/v1/version')
@@ -240,17 +260,14 @@
 
       // Geolocation state transitions
       geoWatcher.onStatusChange((status, message) => {
+        currentGpsStatus = status;
         gpsPill.className = `gps-pill ${status}`;
         spotManager.setGpsStatus(status);
+        updateGpsPillText(status);
 
-        if (status === 'ready') {
-          gpsPillLabel.textContent = 'GPS Ready';
-          gpsWarningBanner.classList.remove('visible');
-        } else if (status === 'locating') {
-          gpsPillLabel.textContent = 'Locating...';
+        if (status === 'ready' || status === 'locating') {
           gpsWarningBanner.classList.remove('visible');
         } else {
-          gpsPillLabel.textContent = 'GPS Denied';
           gpsWarningBanner.classList.add('visible');
         }
       });

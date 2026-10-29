@@ -25,6 +25,10 @@
           this.handleTap();
         });
       }
+
+      window.addEventListener('lang-changed', () => {
+        this.setGpsStatus(this.gpsStatus);
+      });
     }
 
     setGpsStatus(status) {
@@ -33,19 +37,20 @@
 
       if (!this.buttonEl || !this.labelEl) return;
 
+      const { i18n } = window.ShoeTracker;
       this.buttonEl.classList.remove('waiting-gps', 'no-gps');
 
       if (status === 'ready') {
         this.buttonEl.disabled = false;
-        this.labelEl.textContent = 'SHOE SPOTTED!';
+        this.labelEl.textContent = i18n ? i18n.t('spot.ready') : 'SHOE SPOTTED!';
       } else if (status === 'locating') {
         this.buttonEl.disabled = true;
         this.buttonEl.classList.add('waiting-gps');
-        this.labelEl.textContent = 'Waiting for GPS...';
+        this.labelEl.textContent = i18n ? i18n.t('spot.waiting') : 'Waiting for GPS...';
       } else {
         this.buttonEl.disabled = true;
         this.buttonEl.classList.add('no-gps');
-        this.labelEl.textContent = 'GPS Denied';
+        this.labelEl.textContent = i18n ? i18n.t('spot.denied') : 'GPS Denied';
       }
     }
 

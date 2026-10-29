@@ -50,6 +50,12 @@
           this.renderAllMarkers();
         }
       });
+
+      window.addEventListener('lang-changed', () => {
+        if (this.isInitialized) {
+          this.renderAllMarkers();
+        }
+      });
     }
 
     bootstrapMap() {
@@ -185,31 +191,39 @@
       });
 
       // Bind detail popup with UX formatted timestamp (e.g. Oct 28, 14:32)
+      const { i18n } = window.ShoeTracker;
       const locStr = formatLocation(sighting.location.latitude, sighting.location.longitude);
       const recDate = new Date(sighting.recorded_at);
       const datePart = recDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
       const timePart = recDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
       const formattedTimestamp = `${datePart}, ${timePart}`;
       const displayUser = sighting.user ? sighting.user.id : (sighting.user_id || 'Unknown');
-      const popupTitle = isOwn ? 'Your Sighting' : `${this.escapeHtml(displayUser)}'s Sighting`;
+      const yourSightingStr = i18n ? i18n.t('map.yourSighting') : 'Your Sighting';
+      const userSightingStr = i18n
+        ? i18n.t('map.userSighting', { user: this.escapeHtml(displayUser) })
+        : `${this.escapeHtml(displayUser)}'s Sighting`;
+      const popupTitle = isOwn ? yourSightingStr : userSightingStr;
+      const spottedByLabel = i18n ? i18n.t('map.spottedBy') : 'Spotted By:';
+      const timeLabel = i18n ? i18n.t('map.time') : 'Time:';
+      const locLabel = i18n ? i18n.t('map.location') : 'Location:';
 
       const popupHtml = `
         <div class="sighting-popup-card">
           <div class="popup-header">
             <span class="popup-title">👟 ${popupTitle}</span>
-            ${isOwn ? '<span class="badge-own">Your Sighting</span>' : ''}
+            ${isOwn ? `<span class="badge-own">${yourSightingStr}</span>` : ''}
           </div>
           <div class="popup-body">
             <div class="popup-row">
-              <span class="popup-label">Spotted By:</span>
+              <span class="popup-label">${spottedByLabel}</span>
               <span class="popup-val">${this.escapeHtml(displayUser)}</span>
             </div>
             <div class="popup-row">
-              <span class="popup-label">Time:</span>
+              <span class="popup-label">${timeLabel}</span>
               <span class="popup-val">${formattedTimestamp}</span>
             </div>
             <div class="popup-row">
-              <span class="popup-label">Location:</span>
+              <span class="popup-label">${locLabel}</span>
               <span class="popup-val coords">${locStr}</span>
             </div>
           </div>

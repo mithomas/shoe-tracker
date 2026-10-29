@@ -648,4 +648,50 @@ class FrontendAssetTest {
             .contains("data-theme")
             .contains("theme-changed")
     }
+
+    @Test
+    fun testMultiLanguageSupportEnglishAndGerman() {
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(html)
+            .contains("langToggleBtn")
+            .contains("/js/i18n.js")
+            .contains("i18n.init()")
+            .contains("data-i18n=\"spot.waiting\"")
+            .contains("data-i18n=\"spot.recent\"")
+            .contains("data-i18n=\"onboarding.subtitle\"")
+
+        val i18nJs =
+            given()
+                .`when`()
+                .get("/js/i18n.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(i18nJs)
+            .contains("class I18nManager")
+            .contains("navigator.language")
+            .contains("lang-changed")
+            .contains("SHOE SPOTTED!")
+            .contains("SCHUH!")
+            .contains("GPS Ready")
+            .contains("GPS Bereit")
+            .contains("Waiting for GPS...")
+            .contains("Warte auf GPS...")
+            .contains("GPS Denied")
+            .contains("GPS Verweigert")
+            .contains("Recent Sightings")
+            .contains("Letzte Sichtungen")
+            .contains("What's your name?")
+            .contains("Wie heißt du?")
+    }
 }
