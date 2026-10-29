@@ -2,7 +2,7 @@
 type: epic
 title: "Build Toolchain Modernization, CI/CD Upgrades & UI Polish"
 parent: "initiative-shoe-tracker"
-covers: ["R36", "R37", "R38", "R39", "R40", "R41"]
+covers: ["R36", "R37", "R38", "R39", "R40", "R41", "R42"]
 sources: ["_bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md"]
 companions: ["_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/architecture-shoe-tracker.md", "_bmad-output/initiative-shoe-tracker/ux-shoe-tracker/ux-shoe-tracker.md"]
 after: ["epic-database-modernization"]
@@ -28,14 +28,16 @@ Shoe Tracker builds and tests uniformly on JDK 25 across local development, CI, 
 - R39: Default container image in `docker-compose.yml` (`${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}`) and container deployment examples in `README.md` reference `mithomas/shoe-tracker` instead of placeholder `mitch/shoe-tracker`.
 - R40: HUD mini-map location-denied overlay (`#miniMapDeniedOverlay` in `index.html` and `spot.deniedOverlay` in `i18n.js`) displays concise `⚠️ Location Access Denied` (EN) and `⚠️ Standortzugriff verweigert` (DE) without the redundant ` — Germany Overview` / ` — Deutschland-Übersicht` suffix.
 - R41: Geolocation unavailable/denied state (`no-gps`), DOM/CSS/i18n identifiers (`#miniMapNoGpsOverlay`, `.gps-pill.no-gps`, `gps.noGps`, `spot.noGps`, `spot.noGpsOverlay`), and UI labels across the header GPS pill, giant Spot button, and HUD mini-map overlay use concise `No GPS` / `⚠️ No GPS` (EN) and `Kein GPS` / `⚠️ Kein GPS` (DE) instead of `GPS Denied` / `GPS Verweigert` / `Location Access Denied`.
+- R42: Quarkus Flyway runtime bundles `io.quarkus:quarkus-flyway-mysql` (`org.flywaydb:flyway-mysql`) so Flyway 12 supports MariaDB (including MariaDB 11.8) and MySQL alongside H2; JVM container and Gradle test runtimes pass `--enable-native-access=ALL-UNNAMED` to eliminate JDK 25 JNA restricted `System::load` warnings; and a `@JdbcDriver("other")` `AgroalConnectionConfigurer` bean (`MultiTargetAgroalConnectionConfigurer`) registers `MySQLExceptionSorter` so Agroal detects fatal connection exceptions and suppresses the `database kind: other` startup warning.
 
 ## Done when
 
-- `build.gradle.kts` sets `JavaVersion.VERSION_25`, `JavaLanguageVersion.of(25)`, and `JvmTarget.JVM_25` with zero `21` references.
+- `build.gradle.kts` sets `JavaVersion.VERSION_25`, `JavaLanguageVersion.of(25)`, and `JvmTarget.JVM_25` with zero `21` references, includes `io.quarkus:quarkus-flyway-mysql`, and passes `--enable-native-access=ALL-UNNAMED` to JVM test tasks.
+- `Dockerfile` passes `--enable-native-access=ALL-UNNAMED` in `JAVA_TOOL_OPTIONS` / `ENTRYPOINT`, and `MultiTargetAgroalConnectionConfigurer` configures `MySQLExceptionSorter` for `@JdbcDriver("other")`.
 - `.github/workflows/ci.yml` uses `actions/checkout@v5`, `actions/setup-java@v5` with `java-version: '25'`, `gradle/actions/wrapper-validation@v5`, `platforms: linux/amd64` only, and no `setup-qemu-action` or `@v4` references.
 - `docker-compose.yml` defaults to `${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}` and `README.md` documents `JDK 25` and `mithomas/shoe-tracker`.
 - `index.html`, `style.css`, `geo.js`, `minimap.js`, `spot.js`, and `i18n.js` use `no-gps` / `noGps` identifiers (`#miniMapNoGpsOverlay`, `.gps-pill.no-gps`, `gps.noGps`, `spot.noGps`, `spot.noGpsOverlay`), render `⚠️ No GPS` (EN) and `⚠️ Kein GPS` (DE) on the mini-map overlay without `Germany Overview` or `Deutschland-Übersicht`, and render `No GPS` (EN) / `Kein GPS` (DE) for the header pill and Spot button.
-- `DevOpsAssetTest.kt` and `FrontendAssetTest.kt` verify all updated versions, build targets, image names, and UI strings, and `./gradlew check test spotlessCheck lintJs` passes cleanly.
+- `DevOpsAssetTest.kt`, `MultiTargetJdbcDriverTest.kt`, and `FrontendAssetTest.kt` verify all updated versions, build targets, Flyway database plugins, Agroal configurer, image names, and UI strings, and `./gradlew check test spotlessCheck lintJs` passes cleanly.
 
 ## Boundaries
 

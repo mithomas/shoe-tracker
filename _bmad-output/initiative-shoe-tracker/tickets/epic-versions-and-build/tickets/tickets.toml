@@ -65,3 +65,14 @@ covers = ["R41"]
 after = [1, 2, 3, 4, 5]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Fix MariaDB 11.8 Flyway Support, JDK 25 JNA Native Access Warning, and Agroal Exception Sorter for MultiTargetJdbcDriver"
+description = "Adds io.quarkus:quarkus-flyway-mysql to build.gradle.kts so Flyway 12 registers MariaDBDatabaseType and MySQLDatabaseType alongside H2DatabaseType; adds --enable-native-access=ALL-UNNAMED to Dockerfile and Gradle Test tasks for JDK 25 JNA Unix socket loading; adds MultiTargetAgroalConnectionConfigurer (@JdbcDriver(\"other\")) to configure MySQLExceptionSorter and eliminate the Agroal 'database kind: other' startup warning; and adds regression tests in MultiTargetJdbcDriverTest.kt and DevOpsAssetTest.kt."
+verify = "Flyway DatabaseTypeRegister resolves MariaDB 11.8, MySQL 8.4, and H2 2.4; MultiTargetAgroalConnectionConfigurer is registered for @JdbcDriver('other') and installs MySQLExceptionSorter; Dockerfile and build.gradle.kts configure --enable-native-access=ALL-UNNAMED and io.quarkus:quarkus-flyway-mysql; and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R42"]
+after = [1, 2, 3, 4, 5, 6]
+hitl = false
+risk = "low"
