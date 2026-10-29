@@ -8,6 +8,7 @@ companions: []
 after: ["epic-views-and-map"]
 refined: true
 risk: low
+status: "done"
 ---
 
 # Open Source Licensing & CI/CD Publication
