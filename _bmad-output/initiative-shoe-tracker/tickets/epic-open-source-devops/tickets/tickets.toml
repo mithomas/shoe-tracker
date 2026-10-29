@@ -1,0 +1,56 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "GNU AGPL-3.0 Copyleft Licensing & Attribution"
+description = "Adds root LICENSE file (AGPLv3), updates README.md with copyleft terms, and ensures source code attribution and availability links in the footer."
+verify = "LICENSE file matches AGPL-3.0 and web footer contains source code availability link."
+covers = ["R10"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Git Commit Hash Capture & Version Display"
+description = "Captures Git short hash during Gradle and Docker builds, exposes it via /api/v1/version, and renders it in the web UI footer."
+verify = "Footer badge and /api/v1/version output exact 7-character commit hash."
+covers = ["R13"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "GitHub Actions CI/CD & Docker Hub Release Publication"
+description = "Configures .github/workflows/ci.yml running test suites on PRs/main, and building/pushing multi-platform Docker images on release tags. Adds production docker-compose.yml."
+verify = "GitHub Actions workflow syntax validates and docker compose config parses cleanly."
+covers = ["R11", "R12"]
+after = [2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Automated Dependency Updates (Dependabot)"
+description = "Adds .github/dependabot.yml monitoring Gradle, Docker, and GitHub Actions ecosystems on a weekly schedule."
+verify = ".github/dependabot.yml validates with weekly schedules for all three ecosystems."
+covers = ["R14"]
+after = [3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "DevOps Refactor Sweep"
+description = "Audits workflow syntax, verifies local container build with Git hash stamping, and runs full test suite."
+verify = "All Gradle check suites and container build verification pass cleanly."
+covers = ["R10", "R11", "R12", "R13", "R14"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

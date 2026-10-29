@@ -8,6 +8,7 @@ companions: []
 after: ["epic-core-capture"]
 refined: true
 risk: low
+status: "done"
 ---
 
 # Sighting Exploration (Map & List Views)

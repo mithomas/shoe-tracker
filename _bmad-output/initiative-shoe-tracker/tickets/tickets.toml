@@ -29,7 +29,7 @@ slug = "epic-open-source-devops"
 title = "Open Source Licensing & CI/CD Publication"
 description = "Adopts GNU AGPL-3.0 copyleft license, establishes GitHub Actions workflow for automated test verification, and publishes multi-stage container images to Docker Hub."
 covers = []
-after = [{ epic = "epic-spotting-polish", needs = "Polished UI and localization" }]
+after = [{ epic = "epic-views-and-map", needs = "Sightings views and verified test suite" }]
 
 [[epic]]
 id = 5
