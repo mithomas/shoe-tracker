@@ -13,11 +13,15 @@ risk: medium
 
 ## Description
 
-Configures Quarkus native image compilation via in-container Mandrel tooling and authors src/main/docker/Dockerfile.native based on ubi9-minimal.
+Configures Quarkus GraalVM native image compilation using in-container Mandrel tooling (`-Dquarkus.native.enabled=true -Dquarkus.native.container-build=true`), authoring a minimal `src/main/docker/Dockerfile.native` based on `registry.access.redhat.com/ubi9/ubi-minimal`. Validates that the standalone binary starts in under 50 milliseconds and reduces container memory footprint below 35MB.
 
 ## Requirements
 
-Verify: Quarkus native binary compiles successfully and container starts in under 50 milliseconds.
+- Configure Gradle native build task supporting containerized compilation: `./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true`.
+- Create `src/main/docker/Dockerfile.native` packaging the compiled native executable with non-root user (UID 185) and write permissions on `/data`.
+- Verify native binary startup time is under 50ms.
+- Verify `/api/v1/version`, `/q/health/live`, `/q/health/ready`, and all REST CRUD operations execute identically in native binary mode.
+- Verify: Quarkus native binary compiles successfully and container starts in under 50 milliseconds.
 
 ## References
 
