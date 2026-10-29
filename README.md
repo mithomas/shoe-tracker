@@ -21,7 +21,7 @@ Traveling at 150 km/h leaves only seconds to spot and record roadside curiositie
 
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
-| **Backend** | Kotlin + Quarkus 3.40 | JVM or GraalVM Native mode, Java 21/25, Gradle Kotlin DSL |
+| **Backend** | Kotlin + Quarkus 3.40 | JVM or GraalVM Native mode, Java 25, Gradle Kotlin DSL |
 | **API** | Quarkus REST (RESTEasy Reactive) | Versioned REST API at `/api/v1/sightings`, RFC 7807 error format |
 | **Database** | H2 (`MODE=MySQL`) / MariaDB / MySQL | Direct JDBC via Agroal pool with statement caching, Flyway migrations |
 | **Frontend** | Vanilla HTML5 / CSS / ES6 JS | Leaflet.js, OpenStreetMap, served via Quarkus root classpath (`META-INF/resources`) |
@@ -32,7 +32,7 @@ Traveling at 150 km/h leaves only seconds to spot and record roadside curiositie
 ## Quickstart
 
 ### Prerequisites
-- **JDK 21+** installed (`java -version`)
+- **JDK 25** installed (`java -version`)
 - Standard build tools (Git, curl)
 
 ### Run Locally (Development Mode)
@@ -63,9 +63,13 @@ java -Dquarkus.http.port=8085 -jar build/quarkus-app/quarkus-run.jar
 
 ### Run with Docker Compose
 
-Deploy the container locally with persistent data storage:
+Deploy the published `mithomas/shoe-tracker` container image (`mithomas/shoe-tracker:latest` or `mithomas/shoe-tracker:dev`) locally with persistent data storage:
 ```bash
+# Start with the default mithomas/shoe-tracker:latest image
 docker compose up -d
+
+# Or run the latest main branch build (mithomas/shoe-tracker:dev)
+DOCKERHUB_IMAGE=mithomas/shoe-tracker:dev docker compose up -d
 ```
 The application will be accessible at [http://localhost:8080](http://localhost:8080) with the embedded H2 database persisted to `./data/shoe-tracker.mv.db`.
 

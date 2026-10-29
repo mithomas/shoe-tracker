@@ -30,26 +30,35 @@ class DevOpsAssetTest {
 
         // Check test job
         assertThat(content)
-            .contains("actions/checkout@v4")
-            .contains("actions/setup-java@v4")
+            .contains("actions/checkout@v5")
+            .contains("Set up JDK 25")
+            .contains("actions/setup-java@v5")
+            .contains("java-version: '25'")
+            .contains("gradle/actions/wrapper-validation@v5")
             .contains("./gradlew spotlessCheck --no-daemon")
             .contains("./gradlew lintJs --no-daemon")
             .contains("./gradlew check test --no-daemon")
             .contains("docker build --build-arg GIT_COMMIT")
+            .doesNotContain("@v4")
+            .doesNotContain("Set up JDK 21")
+            .doesNotContain("java-version: '21'")
 
         // Check release job
         assertThat(content)
+            .contains("Publish Container to Docker Hub")
             .contains("refs/heads/main")
             .contains("startsWith(github.ref, 'refs/tags/v')")
-            .contains("docker/setup-qemu-action@v3")
             .contains("docker/setup-buildx-action@v3")
             .contains("docker/login-action@v3")
             .contains("docker/metadata-action@v5")
             .contains("type=raw,value=dev")
             .contains("docker/build-push-action@v6")
-            .contains("linux/amd64,linux/arm64")
+            .contains("platforms: linux/amd64")
             .contains("GIT_COMMIT")
             .contains("env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''")
+            .doesNotContain("setup-qemu-action")
+            .doesNotContain("linux/arm64")
+            .doesNotContain("Publish Multi-Platform Container to Docker Hub")
     }
 
     @Test
@@ -61,11 +70,13 @@ class DevOpsAssetTest {
         assertThat(content)
             .contains("services:")
             .contains("shoe-tracker:")
+            .contains("\${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}")
             .contains("./data:/data")
             .contains("\"8080:8080\"")
             .contains("restart: unless-stopped")
             .contains("jdbc:h2:file:/data/shoe-tracker;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE")
             .contains("jdbc:mariadb://")
+            .doesNotContain("mitch/shoe-tracker")
             .doesNotContain("jdbc:sqlite:")
 
         val dockerfile = File("Dockerfile")
@@ -75,9 +86,16 @@ class DevOpsAssetTest {
 
         val readme = File("README.md")
         assertThat(readme.readText())
+            .contains("Java 25")
+            .contains("JDK 25")
+            .contains("mithomas/shoe-tracker")
+            .contains("mithomas/shoe-tracker:latest")
+            .contains("mithomas/shoe-tracker:dev")
             .contains("QUARKUS_DATASOURCE_JDBC_URL")
             .contains("jdbc:h2:file:")
             .contains("jdbc:mariadb://")
+            .doesNotContain("Java 21/25")
+            .doesNotContain("JDK 21+")
             .doesNotContain("jdbc:sqlite:")
     }
 
@@ -151,6 +169,11 @@ class DevOpsAssetTest {
         val content = buildFile.readText()
 
         assertThat(content)
+            .contains("JavaLanguageVersion.of(25)")
+            .contains("JavaVersion.VERSION_25")
+            .contains("JvmTarget.JVM_25")
+            .doesNotContain("VERSION_21")
+            .doesNotContain("JVM_21")
             .contains("id(\"com.diffplug.spotless\")")
             .contains("spotless {")
             .contains("ktlint()")

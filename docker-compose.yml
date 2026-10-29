@@ -1,6 +1,6 @@
 services:
   shoe-tracker:
-    image: ${DOCKERHUB_IMAGE:-mitch/shoe-tracker:latest}
+    image: ${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}
     build:
       context: .
       dockerfile: Dockerfile
