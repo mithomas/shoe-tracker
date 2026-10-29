@@ -4,10 +4,14 @@ import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import jakarta.inject.Inject
-import org.hamcrest.CoreMatchers.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.shoetracker.api.dto.ProblemDetails
+import org.shoetracker.api.dto.SightingListResponse
+import org.shoetracker.api.dto.SightingResponse
 import org.shoetracker.repository.SightingRepository
+import java.time.Instant
 
 @QuarkusTest
 class SightingResourceTest {
@@ -33,19 +37,22 @@ class SightingResourceTest {
             }
         """.trimIndent()
 
-        given()
+        val response = given()
             .contentType(ContentType.JSON)
             .body(payload)
             .`when`()
             .post("/api/v1/sightings")
             .then()
             .statusCode(201)
-            .body("id", notNullValue())
-            .body("user.id", `is`("Tom"))
-            .body("location.latitude", `is`(50.1109f))
-            .body("location.longitude", `is`(8.6821f))
-            .body("recorded_at", `is`("2026-10-28T14:32:00Z"))
-            .body("created_at", notNullValue())
+            .extract()
+            .`as`(SightingResponse::class.java)
+
+        assertThat(response.id).isNotBlank()
+        assertThat(response.user.id).isEqualTo("Tom")
+        assertThat(response.location.latitude).isEqualTo(50.1109)
+        assertThat(response.location.longitude).isEqualTo(8.6821)
+        assertThat(response.recordedAt).isEqualTo(Instant.parse("2026-10-28T14:32:00Z"))
+        assertThat(response.createdAt).isNotNull()
     }
 
     @Test
@@ -70,18 +77,23 @@ class SightingResourceTest {
             .then()
             .statusCode(201)
 
-        given()
+        val listResponse = given()
             .`when`()
             .get("/api/v1/sightings?limit=10&offset=0")
             .then()
             .statusCode(200)
             .contentType(ContentType.JSON)
-            .body("items", notNullValue())
-            .body("items[0].user.id", `is`("Tom"))
-            .body("items[0].location.latitude", `is`(50.1109f))
-            .body("total", `is`(1))
-            .body("limit", `is`(10))
-            .body("offset", `is`(0))
+            .extract()
+            .`as`(SightingListResponse::class.java)
+
+        assertThat(listResponse.items).hasSize(1)
+        val item = listResponse.items[0]
+        assertThat(item.user.id).isEqualTo("Tom")
+        assertThat(item.location.latitude).isEqualTo(50.1109)
+        assertThat(item.location.longitude).isEqualTo(8.6821)
+        assertThat(listResponse.total).isEqualTo(1)
+        assertThat(listResponse.limit).isEqualTo(10)
+        assertThat(listResponse.offset).isEqualTo(0)
     }
 
     @Test
@@ -97,7 +109,7 @@ class SightingResourceTest {
             }
         """.trimIndent()
 
-        given()
+        val problem = given()
             .contentType(ContentType.JSON)
             .body(payload)
             .`when`()
@@ -105,9 +117,12 @@ class SightingResourceTest {
             .then()
             .statusCode(400)
             .contentType("application/problem+json")
-            .body("status", `is`(400))
-            .body("title", `is`("Bad Request"))
-            .body("detail", containsString("Latitude must be between -90 and 90"))
+            .extract()
+            .`as`(ProblemDetails::class.java)
+
+        assertThat(problem.status).isEqualTo(400)
+        assertThat(problem.title).isEqualTo("Bad Request")
+        assertThat(problem.detail).contains("Latitude must be between -90 and 90")
     }
 
     @Test
@@ -123,7 +138,7 @@ class SightingResourceTest {
             }
         """.trimIndent()
 
-        given()
+        val problem = given()
             .contentType(ContentType.JSON)
             .body(payload)
             .`when`()
@@ -131,9 +146,12 @@ class SightingResourceTest {
             .then()
             .statusCode(400)
             .contentType("application/problem+json")
-            .body("status", `is`(400))
-            .body("title", `is`("Bad Request"))
-            .body("detail", containsString("user_id must not be blank"))
+            .extract()
+            .`as`(ProblemDetails::class.java)
+
+        assertThat(problem.status).isEqualTo(400)
+        assertThat(problem.title).isEqualTo("Bad Request")
+        assertThat(problem.detail).contains("user_id must not be blank")
     }
 
     @Test
@@ -148,7 +166,7 @@ class SightingResourceTest {
             }
         """.trimIndent()
 
-        given()
+        val problem = given()
             .contentType(ContentType.JSON)
             .body(payload)
             .`when`()
@@ -156,20 +174,26 @@ class SightingResourceTest {
             .then()
             .statusCode(400)
             .contentType("application/problem+json")
-            .body("status", `is`(400))
-            .body("detail", containsString("recorded_at is required"))
+            .extract()
+            .`as`(ProblemDetails::class.java)
+
+        assertThat(problem.status).isEqualTo(400)
+        assertThat(problem.detail).contains("recorded_at is required")
     }
 
     @Test
     fun testGetSightingsInvalidLimit() {
-        given()
+        val problem = given()
             .`when`()
             .get("/api/v1/sightings?limit=-5")
             .then()
             .statusCode(400)
             .contentType("application/problem+json")
-            .body("status", `is`(400))
-            .body("detail", containsString("limit must be between 1 and 500"))
+            .extract()
+            .`as`(ProblemDetails::class.java)
+
+        assertThat(problem.status).isEqualTo(400)
+        assertThat(problem.detail).contains("limit must be between 1 and 500")
     }
 
     @Test
@@ -194,6 +218,8 @@ class SightingResourceTest {
             .statusCode(201)
             .extract()
             .path<String>("id")
+
+        assertThat(id).isNotBlank()
 
         given()
             .`when`()
