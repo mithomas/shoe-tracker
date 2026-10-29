@@ -667,6 +667,9 @@ class FrontendAssetTest {
             .contains("data-i18n=\"spot.waiting\"")
             .contains("data-i18n=\"spot.recent\"")
             .contains("data-i18n=\"onboarding.subtitle\"")
+            .contains("data-i18n=\"spot.deniedOverlay\">⚠️ Location Access Denied</span>")
+            .doesNotContain("Germany Overview")
+            .doesNotContain("Deutschland-Übersicht")
 
         val i18nJs =
             given()
@@ -684,6 +687,10 @@ class FrontendAssetTest {
             .contains("SHOE SPOTTED!")
             .contains("'spot.ready': 'Schuh!'")
             .doesNotContain("'spot.ready': 'SCHUH!'")
+            .contains("'spot.deniedOverlay': '⚠️ Location Access Denied'")
+            .contains("'spot.deniedOverlay': '⚠️ Standortzugriff verweigert'")
+            .doesNotContain("Germany Overview")
+            .doesNotContain("Deutschland-Übersicht")
             .contains("GPS Ready")
             .contains("GPS Bereit")
             .contains("Waiting for GPS...")

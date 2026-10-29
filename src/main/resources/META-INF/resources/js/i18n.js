@@ -20,7 +20,7 @@
       'spot.recent': 'Recent Sightings',
       'spot.refresh': 'Refresh',
       'spot.hudBadge': 'HUD Radar',
-      'spot.deniedOverlay': '⚠️ Location Access Denied — Germany Overview',
+      'spot.deniedOverlay': '⚠️ Location Access Denied',
       'banner.gpsTitle': '⚠️ Location Access Required:',
       'banner.gpsBody':
         'Shoe Tracker requires GPS to record coordinate tags on the Autobahn. Please enable location permissions in your browser or device settings.',
@@ -81,7 +81,7 @@
       'spot.recent': 'Letzte Sichtungen',
       'spot.refresh': 'Aktualisieren',
       'spot.hudBadge': 'HUD-Radar',
-      'spot.deniedOverlay': '⚠️ Standortzugriff verweigert — Deutschland-Übersicht',
+      'spot.deniedOverlay': '⚠️ Standortzugriff verweigert',
       'banner.gpsTitle': '⚠️ Standortzugriff erforderlich:',
       'banner.gpsBody':
         'Shoe Tracker benötigt GPS, um Koordinaten auf der Autobahn zu erfassen. Bitte aktiviere die Standortfreigabe in deinem Browser oder Gerät.',
