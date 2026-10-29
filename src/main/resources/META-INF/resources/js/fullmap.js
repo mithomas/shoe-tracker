@@ -61,10 +61,21 @@
       }).setView(this.defaultCenter, this.defaultZoom);
 
       // OpenStreetMap Tiles
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      if (L.Icon && L.Icon.Default) {
+        L.Icon.Default.imagePath = '/vendor/leaflet/images/';
+      }
+      const tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         crossOrigin: true
       }).addTo(this.map);
+
+      const offlineBanner = document.getElementById('offlineTileBanner');
+      tileLayer.on('tileerror', () => {
+        if (offlineBanner) offlineBanner.classList.add('visible');
+      });
+      tileLayer.on('tileload', () => {
+        if (offlineBanner) offlineBanner.classList.remove('visible');
+      });
 
       this.markersLayer = L.layerGroup().addTo(this.map);
       this.isInitialized = true;

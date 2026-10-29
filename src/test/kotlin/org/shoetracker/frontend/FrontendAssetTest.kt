@@ -57,6 +57,84 @@ class FrontendAssetTest {
             .contains("data-filter=\"all\"")
             .contains("data-filter=\"own\"")
             .contains("/vendor/leaflet/leaflet.css")
+            .contains("/favicon.svg")
+            .contains("/favicon.ico")
+            .contains("offlineTileBanner")
+    }
+
+    @Test
+    fun testFaviconRetinaAndMvnpmLeafletAssetsServed() {
+        val buildGradle = File("build.gradle.kts").readText()
+        assertThat(buildGradle)
+            .contains("org.mvnpm:leaflet:1.9.4")
+            .contains("extractLeafletAssets")
+
+        // Raw manually vendored directory must not exist in source tree
+        assertThat(File("src/main/resources/META-INF/resources/vendor/leaflet")).doesNotExist()
+
+        val faviconSvg =
+            given()
+                .`when`()
+                .get("/favicon.svg")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+        assertThat(faviconSvg).contains("<svg").contains("#F97316")
+
+        val faviconIcoBytes =
+            given()
+                .`when`()
+                .get("/favicon.ico")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asByteArray()
+        assertThat(faviconIcoBytes).isNotEmpty()
+
+        val markerRetinaBytes =
+            given()
+                .`when`()
+                .get("/vendor/leaflet/images/marker-icon-2x.png")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asByteArray()
+        assertThat(markerRetinaBytes).isNotEmpty()
+
+        val markerIconBytes =
+            given()
+                .`when`()
+                .get("/vendor/leaflet/images/marker-icon.png")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asByteArray()
+        assertThat(markerIconBytes).isNotEmpty()
+
+        val miniMapJs =
+            given()
+                .`when`()
+                .get("/js/minimap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+        assertThat(miniMapJs)
+            .contains("tileerror")
+            .contains("offlineTileBanner")
+
+        val fullMapJs =
+            given()
+                .`when`()
+                .get("/js/fullmap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+        assertThat(fullMapJs)
+            .contains("tileerror")
+            .contains("offlineTileBanner")
     }
 
     @Test

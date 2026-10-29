@@ -1,3 +1,5 @@
+import java.util.zip.ZipFile
+
 plugins {
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.allopen") version "2.4.10"
@@ -27,6 +29,7 @@ dependencies {
     implementation("com.fasterxml.uuid:java-uuid-generator:5.2.0")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-smallrye-health")
+    implementation("org.mvnpm:leaflet:1.9.4")
 
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
@@ -89,12 +92,55 @@ val generateVersionProperties by tasks.registering {
     }
 }
 
+val extractLeafletAssets by tasks.registering {
+    val runtimeClasspath = configurations.named("runtimeClasspath")
+    inputs.files(runtimeClasspath)
+    val outputDir = layout.buildDirectory.dir("generated/resources/leaflet")
+    outputs.dir(outputDir)
+    doLast {
+        val leafletJar =
+            runtimeClasspath
+                .get()
+                .files
+                .firstOrNull { it.name.startsWith("leaflet-") && it.name.endsWith(".jar") }
+                ?: throw GradleException("org.mvnpm:leaflet JAR not found on runtimeClasspath")
+        val targetVendorDir = outputDir.get().dir("META-INF/resources/vendor/leaflet").asFile
+        targetVendorDir.deleteRecursively()
+        targetVendorDir.mkdirs()
+        ZipFile(leafletJar).use { zip ->
+            val distPrefix =
+                zip
+                    .entries()
+                    .asSequence()
+                    .map { it.name }
+                    .firstOrNull {
+                        it.startsWith("META-INF/resources/_static/leaflet/") && it.contains("/dist/")
+                    }?.substringBefore("/dist/")
+                    ?.plus("/dist/")
+                    ?: throw GradleException("Could not find dist/ folder inside ${leafletJar.name}")
+            zip.entries().asSequence().forEach { entry ->
+                if (!entry.isDirectory && entry.name.startsWith(distPrefix)) {
+                    val relPath = entry.name.removePrefix(distPrefix)
+                    if (relPath.isNotEmpty()) {
+                        val outFile = File(targetVendorDir, relPath)
+                        outFile.parentFile.mkdirs()
+                        zip.getInputStream(entry).use { input ->
+                            outFile.outputStream().use { output -> input.copyTo(output) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 sourceSets.main {
     resources.srcDir(generateVersionProperties)
+    resources.srcDir(extractLeafletAssets)
 }
 
 tasks.named("processResources") {
-    dependsOn(generateVersionProperties)
+    dependsOn(generateVersionProperties, extractLeafletAssets)
 }
 
 spotless {
