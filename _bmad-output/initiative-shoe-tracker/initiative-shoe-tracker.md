@@ -15,7 +15,7 @@ A mobile-friendly web application allowing travelers on the autobahn to log spot
 
 ## Outcome
 
-A smartphone user traveling on the autobahn can record a shoe sighting with a single tap without GPS lag, protected by a cooldown against duplicate taps, and view all recorded shoes indefinitely with their own shoes visually distinguished on an interactive map and list view served from a single Quarkus container.
+A smartphone user traveling on the autobahn can record a shoe sighting with a single tap without GPS lag, protected against accidental entries by an immediate confirmation modal with Undo, and view all recorded shoes indefinitely with their own shoes visually distinguished on an interactive map and list view served from a single Quarkus container.
 
 ## Requirements
 
@@ -37,6 +37,14 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - R25: `DatabaseHealthCheck` dynamically reports the connected database product name (`connection.metaData.databaseProductName`) in `/q/health/ready`.
 - R26: Unified single-JDBC-URL datasource configuration bundles both H2 and MariaDB/MySQL drivers internally and switches automatically at startup based on the driver prefix in `QUARKUS_DATASOURCE_JDBC_URL` (`jdbc:h2:file:...` vs `jdbc:mariadb://...`).
 - R27: Quarkus GraalVM native image compilation builds a standalone Linux binary using in-container Mandrel tooling with `src/main/docker/Dockerfile.native` achieving sub-50ms cold starts.
+- R28: Spot button removes the 3-second countdown cooldown ring in favor of the immediate Sighting Confirmation Modal barrier and in-flight request lock, returning the Spot button to its ready state immediately upon modal dismissal.
+- R29: Top header bar provides a Light and Dark Mode Theme Switcher (`#themeToggleBtn`) that auto-detects OS preference via `window.matchMedia('(prefers-color-scheme: dark)')`, persists manual selection in `localStorage.theme` (`'light'` or `'dark'`), applies `data-theme` on the document root with light-mode CSS tokens, and renders natural non-inverted map tiles in light mode.
+- R30: Multi-language localization (`i18n.js`) supports runtime switching between English (`en`) and German (`de`) from the top bar (`#langToggleBtn`), auto-detects browser language (`navigator.language`), persists selection in `localStorage.lang`, and localizes UI strings including authentic Autobahn terminology (`"SHOE SPOTTED!"` -> `"SCHUH!"` on the Spot button and confirmation modal).
+- R31: Live tracking HUD mini-map (`#spotMiniMap`) fetches and renders nearby recorded shoe sightings as compact dot markers (Signal Blue `#3B82F6` for the active user's shoes, Slate `#94A3B8` for others) alongside the live GPS dot, updating reactively on sighting creation, deletion, and user change events.
+- R32: Full interactive map (`#fullMap`) dynamically clusters nearby sighting markers at lower zoom levels (`zoom < 15`) into circular count badges (styled in Signal Blue `#3B82F6` when the cluster includes at least one of the active user's sightings, or Slate `#475569` otherwise), zooms/expands clusters on click, renders individual pins at street/highway zoom (`zoom >= 15`), and recalculates clusters when the `"My Shoes"` filter toggles or sightings change.
+- R33: Sighting entries in the List view (`#sightingsList`) include a `"View on Map"` action button that switches to the `[Map]` tab, automatically switches the filter to `"All Shoes"` if `"My Shoes"` is active and the target sighting belongs to another user, smoothly centers and zooms the map (`zoom 16`) on the sighting's coordinates, and opens its marker popup.
+- R34: Interface displays reactive Total and Personal sighting counters (e.g., `"12 Total | 4 Mine"` in English / `"12 Gesamt | 4 Meine"` in German) across views, recalculating immediately on sighting creation, undo/deletion, and username changes without requiring a page reload.
+- R35: Static web assets consume Leaflet via the `org.mvnpm:leaflet:1.9.4` Maven dependency in `build.gradle.kts` (tracked by Dependabot) with local high-DPI retina marker assets (`marker-icon-2x.png`) and an offline tile fallback indicator when map tiles fail to load, and serve a dedicated sneaker favicon (`/favicon.svg` and `/favicon.ico`) declared in `index.html`.
 
 ## Constraints
 

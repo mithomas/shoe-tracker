@@ -19,8 +19,8 @@ after = [{ epic = "epic-core-capture", needs = "Sightings query API and shared s
 id = 3
 slug = "epic-spotting-polish"
 title = "Spotting UX Polish & German Localization"
-description = "Streamlines the road-trip spotting flow with light/dark theme toggle, German localization ('SCHUH!'), nearby shoes rendered on the mini-map, and removing the 3s cooldown in favor of the confirmation modal."
-covers = []
+description = "Streamlines the road-trip spotting and exploration flow with light/dark theme toggle, German localization ('SCHUH!'), nearby shoes rendered on the mini-map, zoom-based map marker clustering with count badges, jump-to-map action from list entries, reactive global and personal sighting counters, and removing the 3s cooldown in favor of the confirmation modal."
+covers = ["R28", "R29", "R30", "R31", "R32", "R33", "R34", "R35"]
 after = [{ epic = "epic-views-and-map", needs = "Mini-map and exploration views" }]
 
 [[epic]]

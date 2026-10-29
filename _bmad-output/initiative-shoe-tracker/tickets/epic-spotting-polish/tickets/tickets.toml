@@ -1,0 +1,89 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Sneaker Favicon, Leaflet mvnpm Dependency, Retina Assets & Offline Tile Notice"
+description = "Adds org.mvnpm:leaflet:1.9.4 to build.gradle.kts for Dependabot tracking, configures a Gradle build task wired into processResources to extract META-INF/resources/_static/leaflet/*/dist/** into generated META-INF/resources/vendor/leaflet/** and deletes committed src/main/resources/META-INF/resources/vendor/leaflet/** from git so index.html keeps version-agnostic /vendor/leaflet/* paths, serves high-DPI retina marker assets (/vendor/leaflet/images/marker-icon-2x.png), adds an offline tile fallback banner on map tileerror, and serves /favicon.svg and /favicon.ico declared in index.html."
+verify = "Committed src/main/resources/META-INF/resources/vendor/leaflet is removed, /vendor/leaflet/leaflet.css, /vendor/leaflet/leaflet.js, and /vendor/leaflet/images/marker-icon-2x.png return HTTP 200 OK from the mvnpm artifact, /favicon.svg and /favicon.ico return 200 OK, offline tile notice triggers on tileerror, and ./gradlew check test passes."
+covers = ["R35"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Remove Spot Button Cooldown in Favor of Confirmation Modal"
+description = "Removes the 3-second countdown timer and SVG cooldown ring (cooldown-ring, cooldownRingProgress, startCooldown, releaseCooldown, isCooldown, cooldownSeconds) from index.html, style.css, and spot.js while keeping the Sighting Confirmation Modal (#sightingModal), using an in-flight submission lock while POST /api/v1/sightings is pending and restoring #btnSpotGiant to its ready state immediately upon response and modal dismissal."
+verify = "Tapping the Spot Button opens the Sighting Confirmation Modal (#sightingModal) without a 3-second countdown ring, duplicate rapid taps during in-flight submission are blocked, and dismissing the modal leaves the button immediately ready for the next sighting."
+covers = ["R28"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Light and Dark Mode Theme Switcher"
+description = "Adds theme.js and a compact top-bar theme toggle button (#themeToggleBtn, padding 5px 8px, font-size 12px) inside a flex-wrap .app-header that fits 360px mobile screens, auto-detects OS color scheme via window.matchMedia('(prefers-color-scheme: dark)'), persists manual selection in localStorage.theme ('light' or 'dark'), applies data-theme on document.documentElement with light-mode CSS tokens, resets #spotMiniMap .leaflet-tile and #fullMap .leaflet-tile to filter: none in light mode, and makes .map-overlay-banner, .mini-map-hud-badge, and .mini-map-overlay use theme-aware surface variables."
+verify = "Top bar theme toggle switches instantly between light and dark modes, persists in localStorage.theme, applies light CSS custom properties and natural non-inverted map tiles in light mode without 360px header overflow, and passes automated frontend tests."
+covers = ["R29"]
+after = [1, 2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Multi-Language Support (English and German)"
+description = "Adds i18n.js and a compact top-bar language toggle button (#langToggleBtn, padding 5px 8px, font-size 12px) alongside #themeToggleBtn in .header-status, auto-detects navigator.language, persists selection in localStorage.lang ('en' or 'de'), dispatches lang-changed events, and localizes UI strings across views and modals including 'SHOE SPOTTED!' -> 'SCHUH!', 'GPS Ready' -> 'GPS Bereit', 'Waiting for GPS...' -> 'Warte auf GPS...', 'GPS Denied' -> 'GPS Verweigert', 'Recent Sightings' -> 'Letzte Sichtungen', and 'What's your name?' -> 'Wie heißt du?'."
+verify = "Switching between EN and DE updates the Spot button ('SCHUH!'), confirmation modal, GPS status pill, onboarding modal, tabs, filters, and banners immediately and persists in localStorage.lang."
+covers = ["R30"]
+after = [1, 2, 3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Display Total and Personal Sighting Counters and Render Nearby Shoes on Mini-Map"
+description = "Fetches /api/v1/sightings?limit=500 on initial startup so sighting data is warm on boot, replaces the legacy raw JSON <pre> debug card (#output / #btnRefresh) on #viewSpot with a reactive Sighting Counter Card ('12 Total | 4 Mine' in EN / '12 Gesamt | 4 Meine' in DE) and displays the same Total | Mine counter in #listCountBadge updating on sighting-added, sighting-deleted, user-changed, and lang-changed events, and updates #spotMiniMap (minimap.js) to render compact dot markers (Signal Blue #3B82F6 for own shoes, Slate #94A3B8 for others) alongside the live GPS dot."
+verify = "Sightings load on boot, legacy raw JSON <pre> debug box on #viewSpot is replaced by the live Total | Mine counter card, #listCountBadge shows Total | Mine, counters update reactively on spot, undo, user change, and language switch, and #spotMiniMap renders compact Signal Blue and Slate dot markers."
+covers = ["R31", "R34"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Cluster Nearby Map Sightings by Zoom Level with Count Badges"
+description = "Enhances fullmap.js (#fullMap) with zoom-adaptive spatial clustering that collapses nearby sightings at lower zoom levels (zoom < 15) into circular count badges (Signal Blue #3B82F6 if any sighting in the cluster belongs to the active user, Slate #475569 otherwise), expands clusters on click via fitBounds(clusterBounds, { padding: [40, 40], maxZoom: 15 }) or direct zoom to Math.max(currentZoom + 2, 15) when tightly co-located points span < 0.0005 degrees so clicking always reaches zoom >= 15, renders individual shoe pins at zoom >= 15, and recalculates clusters on zoomend, sighting-added, sighting-deleted, user-changed, and filter-changed."
+verify = "Overlapping sightings at low zoom group into circular count badges with own-shoe Signal Blue highlighting, clicking a cluster (including co-located points) zooms to >= 15 to reveal individual pins, and toggling 'My Shoes' recalculates clusters."
+covers = ["R32"]
+after = [1, 2, 3, 4, 5]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Jump to Map View from Sighting Entry"
+description = "Adds a 'View on Map' action button on each sighting card in listview.js (and wires 'View on Map' in modal.js) that invokes fullMap.focusSighting(id) to deterministically switch to the Map tab (bootstrapping #fullMap if not yet initialized and flushing invalidateSize(true)), automatically switch the filter to 'All Shoes' (all) if 'My Shoes' (own) is active when targeting another user's sighting, set the map view to zoom 16 at [lat, lon] so unclustered markers materialize in markersById, and open markersById[id].openPopup()."
+verify = "Clicking 'View on Map' on any list sighting card or confirmation modal switches to the Map tab, bootstraps #fullMap if needed, resets the 'My Shoes' filter when targeting another user's shoe, centers and zooms #fullMap to zoom 16, and opens the target marker popup."
+covers = ["R33"]
+after = [1, 2, 3, 4, 5, 6]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Spotting Polish Refactor Sweep and End-to-End Verification"
+description = "Audits all Epic 3 UI components, English/German i18n coverage across counters, clusters, and jump-to-map actions, light/dark theme styling, Closure Compiler JS static analysis (lintJs), Spotless formatting (spotlessCheck), and full Quarkus integration test suite."
+verify = "All Gradle checks, Spotless formatting, Closure Compiler lintJs, and FrontendAssetTest assertions pass cleanly with zero regressions."
+covers = ["R28", "R29", "R30", "R31", "R32", "R33", "R34", "R35"]
+after = [1, 2, 3, 4, 5, 6, 7]
+hitl = false
+risk = "low"
