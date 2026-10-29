@@ -5,7 +5,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.shoetracker.api.dto.CreateSightingRequest
 import org.shoetracker.api.dto.SightingListResponse
-import org.shoetracker.domain.SightingService
+import org.shoetracker.service.SightingService
 
 @Path("/api/v1/sightings")
 @Produces(MediaType.APPLICATION_JSON)

@@ -1,7 +1,14 @@
-package org.shoetracker.domain
+package org.shoetracker.service
 
 import jakarta.enterprise.context.ApplicationScoped
-import org.shoetracker.api.dto.*
+import org.shoetracker.api.dto.CreateSightingRequest
+import org.shoetracker.api.dto.GeoLocationDto
+import org.shoetracker.api.dto.SightingListResponse
+import org.shoetracker.api.dto.SightingResponse
+import org.shoetracker.api.dto.UserDto
+import org.shoetracker.domain.GeoLocation
+import org.shoetracker.domain.Sighting
+import org.shoetracker.domain.UUIDv7
 import org.shoetracker.repository.SightingRepository
 
 @ApplicationScoped

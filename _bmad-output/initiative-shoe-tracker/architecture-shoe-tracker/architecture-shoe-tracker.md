@@ -17,14 +17,17 @@ sources: ["_bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md"]
 ## Design Paradigm
 
 Layered Two-Tier Modular architecture hosted in a unified OCI container:
-- **Presentation Layer (Frontend):** Modern Vanilla TypeScript SPA bundled with Vite, interacting with browser Geolocation API and Leaflet.js map renderer.
-- **API & Domain Layer (Quarkus Backend):** Quarkus REST endpoints exposing JSON contracts, routing requests to domain services in Kotlin.
-- **Persistence Layer (Data Access):** Kotlin DAO / Repository executing parameterized SQL queries over SQLite via Agroal connection pooling.
+- **Presentation Layer (Frontend):** Modern Vanilla ES6+ SPA interacting with browser Geolocation API and Leaflet.js map renderer, served directly from `src/main/resources/META-INF/resources/` per Quarkus static web resource conventions.
+- **API Layer (REST Resources):** Quarkus REST endpoints in `org.shoetracker.api` exposing JSON contracts and RFC 7807 problem details.
+- **Application Services Layer:** `org.shoetracker.service.SightingService` orchestrating business workflows, input validation, and mapping between DTOs and domain entities.
+- **Pure Domain Core:** `org.shoetracker.domain` containing pure domain entities (`Sighting`), value objects (`GeoLocation`), and domain utilities (`UUIDv7`) with zero outward dependencies on repository or DTO layers.
+- **Persistence Layer (Data Access):** `org.shoetracker.repository.SightingRepository` executing parameterized SQL queries over SQLite via Agroal connection pooling.
 
 ```mermaid
 graph TD
-    UI[Mobile Web Client - Vanilla TS + Leaflet] -->|HTTP REST JSON| API[Quarkus REST Resources]
-    API --> SVC[Domain Services]
+    UI[Mobile Web Client - Vanilla JS + Leaflet] -->|HTTP REST JSON| API[Quarkus REST Resources]
+    API --> SVC[Application Services - SightingService]
+    SVC --> DOMAIN[Pure Domain - Sighting, GeoLocation, UUIDv7]
     SVC --> REPO[Sighting Repository - Kotlin]
     REPO -->|JDBC / Agroal| DB[(SQLite Database - File Volume)]
 ```
@@ -44,11 +47,11 @@ graph LR
 - **Prevents:** Database driver friction, schema drift, unsupported dialect anomalies between Quarkus ORM and SQLite, and SQLITE_BUSY write lock contention.
 - **Rule:** Persistence must use `org.xerial:sqlite-jdbc` with Quarkus Agroal connection pooling. Schema migrations must be managed via Flyway SQL scripts located in `src/main/resources/db/migration/` containing pure DDL without transaction-unsafe PRAGMA statements. Database writes must be serialized via an in-process lock in the repository to prevent write concurrency lock errors while keeping read queries fully parallel and unlocked. Hibernate/JPA ORM dialects for SQLite are forbidden.
 
-### AD-2 - Single-Container Packaging with Vite Frontend Bundling [ADOPTED]
+### AD-2 - Single-Container Packaging with Quarkus Classpath Web Resources [ADOPTED]
 
 - **Binds:** `C1`, `C4`, `C5`
 - **Prevents:** Desynchronized frontend/backend deployments, CORS configuration complexity, and multi-container hosting overhead.
-- **Rule:** The web UI must be implemented in TypeScript/HTML5 with Vite and built into `src/main/resources/META-INF/resources/`. Quarkus must serve these static assets at the root path (`/`). A multi-stage Dockerfile must compile frontend assets in Node, compile the Quarkus JAR with Gradle, and output a single runnable container image.
+- **Rule:** The web UI is implemented in vanilla HTML5, CSS, and modern JavaScript located in `src/main/resources/META-INF/resources/`. Per Jakarta/Servlet 3.0+ and Quarkus specifications, resources in `META-INF/resources/` are automatically served directly at the root HTTP path (`/`) without requiring build copy tasks, proxying, or Node.js runtime overhead, while supporting instantaneous hot-reload in Quarkus dev mode. A multi-stage Dockerfile compiles the Quarkus fast-jar with Gradle on JDK 25 and outputs a minimal runnable JRE 25 container image.
 
 ### AD-3 - Gradle Build Tool and JVM Runtime Mode [ADOPTED]
 
@@ -80,6 +83,12 @@ graph LR
 - **Prevents:** Mobile main-thread rendering freezes, excessive GeoJSON serialization overhead, and API memory exhaustion when large numbers of sightings exist.
 - **Rule:** For the MVP, the client map view queries the most recent sightings up to the API pagination maximum (`limit=500`, default 100) ordered chronologically descending (`recorded_at DESC`). Server-side spatial viewport bounding-box culling (`bbox=minLon,minLat,maxLon,maxLat`) and marker clustering libraries are deferred to the backlog until sighting density requires viewport pruning.
 
+### AD-8 - Layered Package Boundaries & Pure Domain Core [ADOPTED]
+
+- **Binds:** `R1`, `R6`, `C3`
+- **Prevents:** Leaking infrastructure/DTO concerns into the domain core, circular dependencies, and tight coupling.
+- **Rule:** The `org.shoetracker.domain` package must remain pure domain with zero outward dependencies on `repository` or `api.dto`. Application orchestration, validation, and DTO mapping reside in `org.shoetracker.service`. REST controllers reside in `org.shoetracker.api`. Persistence resides in `org.shoetracker.repository`. Static web assets reside in `src/main/resources/META-INF/resources/` per Quarkus root classpath resource convention.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -106,7 +115,8 @@ graph LR
 
 ```text
 shoe-tracker/
-  Dockerfile                            # Multi-stage build (Vite -> Gradle -> JRE)
+  Dockerfile                            # Multi-stage JDK 25 build -> minimal JRE 25 image
+  docker-compose.yml                    # Local and production compose configuration
   build.gradle.kts                      # Quarkus Kotlin build configuration
   settings.gradle.kts
   src/
@@ -114,28 +124,37 @@ shoe-tracker/
       kotlin/org/shoetracker/
         api/
           SightingResource.kt           # Quarkus REST endpoints
-          dto/                          # Request and response DTOs
+          VersionResource.kt            # Version and Git commit metadata endpoint
+          ExceptionMappers.kt           # Global RFC 7807 problem details mappers
+          dto/                          # Request, response, and problem DTOs
+        service/
+          SightingService.kt            # Application business logic & DTO mapping
         domain/
-          Sighting.kt                   # Domain entity models
-          SightingService.kt            # Core business logic & validations
+          Sighting.kt                   # Domain entity models & GeoLocation value object
+          UUIDv7.kt                     # RFC 9562 UUIDv7 generator
         repository/
           SightingRepository.kt         # Direct JDBC SQL data access
       resources/
         application.properties          # Quarkus & Agroal configuration
         db/migration/
           V1__init_sightings.sql        # Initial SQLite DDL
-        META-INF/resources/             # Output directory for Vite UI bundle
-  frontend/
-    package.json                        # Frontend dependencies (Leaflet, Vite)
-    vite.config.ts                      # Configured to build into META-INF/resources
-    index.html
-    src/
-      main.ts                           # App entry point & view switcher
-      geo.ts                            # Background watchPosition manager
-      api.ts                            # REST client for backend API
-      map.ts                            # Leaflet map setup and marker management
-      list.ts                           # Historical list view component
-      style.css                         # Mobile-first CSS styling
+        META-INF/resources/             # Quarkus root static web assets (served at /)
+          index.html                    # Mobile-first HTML5 single page app
+          css/
+            style.css                   # Mobile-first CSS styling & dark mode palette
+          js/
+            geo.js                      # Background watchPosition manager
+            spot.js                     # High-velocity spot button controller
+            minimap.js                  # HUD live tracking mini-map controller
+            fullmap.js                  # Interactive full Leaflet map controller
+            listview.js                 # Chronological historical list controller
+            filter.js                   # Unified segmented filter manager
+            tabs.js                     # Tab navigation lifecycle manager
+            onboarding.js               # Name prompt & user onboarding manager
+            modal.js                    # Confirmation & error modals
+            format.js                   # Navigation coordinate formatter
+          vendor/
+            leaflet/                    # Localized Leaflet maps assets
 ```
 
 ### Deployment Topology

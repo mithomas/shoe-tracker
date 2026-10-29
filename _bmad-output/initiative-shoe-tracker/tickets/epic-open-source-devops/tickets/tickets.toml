@@ -56,13 +56,24 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 8
+type = "story"
+title = "Architecture Package Realignment (Service Layer Separation)"
+description = "Moves SightingService out of org.shoetracker.domain into dedicated org.shoetracker.service package, restoring pure DDD boundaries, and documents the Quarkus META-INF/resources static asset convention."
+verify = "Domain package contains zero outward dependencies, SightingService is cleanly positioned in org.shoetracker.service, and all tests pass."
+covers = ["R17"]
+after = [6]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 7
 type = "story"
 title = "Zero-Node Pure-JVM Linting and Formatting Suite"
 description = "Adds Spotless Gradle plugin with ktlint for Kotlin source and *.gradle.kts, pure-JVM web formatting for HTML/CSS/JS, and pure-JVM JavaScript static analysis via Google Closure Compiler into ./gradlew check."
 verify = "./gradlew check, ./gradlew spotlessCheck, and lint tasks pass cleanly with zero Node.js dependencies."
 covers = ["R16"]
-after = [6]
+after = [8]
 hitl = false
 risk = "low"
 
@@ -72,7 +83,7 @@ type = "story"
 title = "DevOps Refactor Sweep"
 description = "Audits workflow syntax, verifies local container build with Git hash stamping, runs Spotless/linter checks, and verifies full test suite."
 verify = "All Gradle check suites, Spotless formatting, and container build verification pass cleanly."
-covers = ["R10", "R11", "R12", "R13", "R14", "R15", "R16"]
-after = [1, 2, 3, 4, 6, 7]
+covers = ["R10", "R11", "R12", "R13", "R14", "R15", "R16", "R17"]
+after = [1, 2, 3, 4, 6, 8, 7]
 hitl = false
 risk = "low"

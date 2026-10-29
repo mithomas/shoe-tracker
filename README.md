@@ -24,7 +24,7 @@ Traveling at 150 km/h leaves only seconds to spot and record roadside curiositie
 | **Backend** | Kotlin + Quarkus 3.40 | JVM mode, Java 21/25, Gradle Kotlin DSL |
 | **API** | Quarkus REST (RESTEasy Reactive) | Versioned REST API at `/api/v1/sightings`, RFC 7807 error format |
 | **Database** | SQLite 3 | Direct JDBC via Agroal pool, WAL mode, Flyway migrations |
-| **Frontend** | Vanilla TypeScript + Vite | Leaflet.js, OpenStreetMap, mobile-first responsive dark theme |
+| **Frontend** | Vanilla HTML5 / CSS / ES6 JS | Leaflet.js, OpenStreetMap, served via Quarkus root classpath (`META-INF/resources`) |
 | **Packaging** | OCI Container / Docker | Multi-stage build serving frontend static assets and backend API |
 
 ---
