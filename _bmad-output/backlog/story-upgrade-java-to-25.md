@@ -1,38 +1,41 @@
 ---
 type: story
-title: "Upgrade Toolchain and Bytecode Target to Java 25"
+title: "Fully Move to JDK 25 for Local Development, Build Toolchain, and CI"
 parent: ""
 covers: []
 sources: []
 companions: []
 after: []
 risk: low
-refined: false
+hitl: false
+refined: true
 ---
 
-# Upgrade Toolchain and Bytecode Target to Java 25
+# Fully Move to JDK 25 for Local Development, Build Toolchain, and CI
 
 ## Description
 
-Upgrades the project's build toolchain, Kotlin JVM target, and bytecode compilation configuration from Java 21 to Java 25. Aligns the local Gradle build with the container runtime (`eclipse-temurin:25`) and enables language and runtime features introduced in Java 22 through 25.
+Upgrades the project's Gradle Java toolchain, source/target compatibility, Kotlin JVM bytecode target, CI workflow JDK setup, and developer documentation from Java 21 fallback to JDK 25 across local development and CI, matching the production container runtime (`eclipse-temurin:25`).
 
-## Background & Rationale
+## Requirements
 
-Shoe Tracker's production `Dockerfile` already builds and runs on Eclipse Temurin 25. However, `build.gradle.kts` was temporarily pinned to `JavaVersion.VERSION_21` and `JvmTarget.JVM_21` for local developer machine fallback. With Debian 13 (Trixie) offering official `openjdk-25-jdk` packages and modern toolchains readily available, upgrading the Gradle build directly targets Java 25.
+1. **Local Development & Gradle Build Toolchain on JDK 25**
+   **Given** `build.gradle.kts` configures Java and Kotlin compilation for local development (`./gradlew quarkusDev`, `./gradlew check test`, `./gradlew build`)
+   **When** the build is evaluated and compiled
+   **Then** `java.sourceCompatibility` and `java.targetCompatibility` are set to `JavaVersion.VERSION_25`, the Gradle Java toolchain requests `JavaLanguageVersion.of(25)`, and `kotlin.compilerOptions.jvmTarget` targets `JvmTarget.JVM_25`
+   **And** no Java 21 fallback remains in `build.gradle.kts`
 
-## Acceptance Criteria
+2. **GitHub Actions CI Workflow on JDK 25**
+   **Given** `.github/workflows/ci.yml` sets up Java for the `test` job
+   **When** `actions/setup-java@v4` runs in CI
+   **Then** `java-version` is set to `'25'` (`temurin` distribution) so CI compiles, lints, and tests with JDK 25
 
-- Update `build.gradle.kts`:
-  - `sourceCompatibility = JavaVersion.VERSION_25`
-  - `targetCompatibility = JavaVersion.VERSION_25`
-  - `kotlin { compilerOptions { jvmTarget = JvmTarget.JVM_25 } }`
-  - Configure Gradle Java toolchain to target Java 25:
-    ```kotlin
-    java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(25))
-        }
-    }
-    ```
-- All automated unit, integration, and frontend asset tests pass cleanly under Java 25 (`./gradlew check test`).
-- Multi-stage Docker container build compiles and runs on Java 25 with zero warnings.
+3. **Developer Documentation & Asset Verification**
+   **Given** `README.md` documents the tech stack and local development prerequisites
+   **When** a developer reviews the prerequisites and tech stack table
+   **Then** `README.md` specifies **JDK 25** (replacing `Java 21/25` and `JDK 21+`)
+   **And** `./gradlew check test` passes cleanly under JDK 25
+
+## Boundaries
+
+- Must not change: Production `Dockerfile` base images (`eclipse-temurin:25-jdk-alpine` / `eclipse-temurin:25-jre-alpine`), which already run on JDK 25.
