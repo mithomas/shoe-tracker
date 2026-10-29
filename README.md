@@ -13,7 +13,7 @@ Traveling at 150 km/h leaves only seconds to spot and record roadside curiositie
 - **Giant Spot Button:** Oversized, glanceable 210px touch target with a 3-second cooldown ring and confirmation modal to prevent accidental double-taps.
 - **Navigational Precision:** Coordinates rendered in standard highway GPS notation (`N XX° MM,MMM'` / `E XXX° MM,MMM'`).
 - **Interactive Map & Timeline:** Displays all recorded shoes on an OpenStreetMap / Leaflet map, distinctly highlighting your own shoes with an instant toggle to filter out other users.
-- **Single-Container Deployment:** Quarkus backend and modern frontend packaged together in a single container with local SQLite persistence.
+- **Single-Container Deployment:** Quarkus backend and modern frontend packaged together in a single container with embedded H2 (`MODE=MySQL`) file persistence or external MariaDB/MySQL support.
 
 ---
 
@@ -21,11 +21,11 @@ Traveling at 150 km/h leaves only seconds to spot and record roadside curiositie
 
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
-| **Backend** | Kotlin + Quarkus 3.40 | JVM mode, Java 21/25, Gradle Kotlin DSL |
+| **Backend** | Kotlin + Quarkus 3.40 | JVM or GraalVM Native mode, Java 21/25, Gradle Kotlin DSL |
 | **API** | Quarkus REST (RESTEasy Reactive) | Versioned REST API at `/api/v1/sightings`, RFC 7807 error format |
-| **Database** | SQLite 3 | Direct JDBC via Agroal pool, WAL mode, Flyway migrations |
+| **Database** | H2 (`MODE=MySQL`) / MariaDB / MySQL | Direct JDBC via Agroal pool with statement caching, Flyway migrations |
 | **Frontend** | Vanilla HTML5 / CSS / ES6 JS | Leaflet.js, OpenStreetMap, served via Quarkus root classpath (`META-INF/resources`) |
-| **Packaging** | OCI Container / Docker | Multi-stage build serving frontend static assets and backend API |
+| **Packaging** | OCI Container / Docker | Multi-stage JVM fast-jar and GraalVM native container builds |
 
 ---
 
@@ -67,7 +67,23 @@ Deploy the container locally with persistent data storage:
 ```bash
 docker compose up -d
 ```
-The application will be accessible at [http://localhost:8080](http://localhost:8080) with SQLite database persisted to `./data/shoe-tracker.db`.
+The application will be accessible at [http://localhost:8080](http://localhost:8080) with the embedded H2 database persisted to `./data/shoe-tracker.mv.db`.
+
+### Database Configuration (H2 vs MariaDB/MySQL)
+
+Shoe Tracker bundles both the pure-Java H2 driver (`io.quarkus:quarkus-jdbc-h2`) and the MariaDB/MySQL driver (`io.quarkus:quarkus-jdbc-mariadb`), routing connections automatically at startup based on the single `QUARKUS_DATASOURCE_JDBC_URL` environment variable:
+
+- **Default (Embedded H2 File in MySQL Compatibility Mode):**
+  ```bash
+  QUARKUS_DATASOURCE_JDBC_URL="jdbc:h2:file:/data/shoe-tracker;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE"
+  ```
+- **External MariaDB or MySQL Server:**
+  ```bash
+  QUARKUS_DATASOURCE_JDBC_URL="jdbc:mariadb://mariadb:3306/shoetracker"
+  # (or jdbc:mysql://mysql:3306/shoetracker)
+  QUARKUS_DATASOURCE_USERNAME="shoetracker"
+  QUARKUS_DATASOURCE_PASSWORD="secret"
+  ```
 
 ### Run Automated Tests
 ```bash

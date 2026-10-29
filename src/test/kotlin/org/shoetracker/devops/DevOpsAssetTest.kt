@@ -55,6 +55,21 @@ class DevOpsAssetTest {
             .contains("./data:/data")
             .contains("\"8080:8080\"")
             .contains("restart: unless-stopped")
+            .contains("jdbc:h2:file:/data/shoe-tracker;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE")
+            .contains("jdbc:mariadb://")
+            .doesNotContain("jdbc:sqlite:")
+
+        val dockerfile = File("Dockerfile")
+        assertThat(dockerfile.readText())
+            .contains("jdbc:h2:file:/data/shoe-tracker;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE")
+            .doesNotContain("jdbc:sqlite:")
+
+        val readme = File("README.md")
+        assertThat(readme.readText())
+            .contains("QUARKUS_DATASOURCE_JDBC_URL")
+            .contains("jdbc:h2:file:")
+            .contains("jdbc:mariadb://")
+            .doesNotContain("jdbc:sqlite:")
     }
 
     @Test
