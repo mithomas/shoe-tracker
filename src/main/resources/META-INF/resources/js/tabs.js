@@ -30,6 +30,18 @@
           btn.addEventListener('click', () => this.switchTab(tabKey));
         }
       });
+
+      // Window resize and orientation listeners to prevent grey unrendered map tiles
+      let resizeDebounce = null;
+      const handleResize = () => {
+        clearTimeout(resizeDebounce);
+        resizeDebounce = setTimeout(() => {
+          this.invalidateActiveMap();
+        }, 100);
+      };
+
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', handleResize);
     }
 
     switchTab(tabKey) {
@@ -65,11 +77,12 @@
         detail: { tab: tabKey, previousTab }
       });
       window.dispatchEvent(event);
+    }
 
-      // Trigger map resize invalidation
-      if (tabKey === 'spot' && window.ShoeTracker.miniMap) {
+    invalidateActiveMap() {
+      if (this.activeTab === 'spot' && window.ShoeTracker.miniMap) {
         window.ShoeTracker.miniMap.invalidateSize();
-      } else if (tabKey === 'map' && window.ShoeTracker.fullMap) {
+      } else if (this.activeTab === 'map' && window.ShoeTracker.fullMap) {
         window.ShoeTracker.fullMap.invalidateSize();
       }
     }

@@ -26,7 +26,7 @@
           if (!this.isInitialized) {
             this.bootstrapMap();
           } else {
-            this.invalidateSize();
+            this.invalidateSize(true);
           }
         }
       });
@@ -232,11 +232,17 @@
       }
     }
 
-    invalidateSize() {
+    invalidateSize(immediate = false) {
       if (this.map) {
-        setTimeout(() => {
+        if (immediate) {
           this.map.invalidateSize();
+        }
+        setTimeout(() => {
+          if (this.map) this.map.invalidateSize();
         }, 50);
+        setTimeout(() => {
+          if (this.map) this.map.invalidateSize();
+        }, 200);
       }
     }
 

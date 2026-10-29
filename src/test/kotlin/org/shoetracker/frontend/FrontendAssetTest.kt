@@ -98,6 +98,8 @@ class FrontendAssetTest {
             .statusCode(200)
             .body(containsString("tabManager"))
             .body(containsString("switchTab"))
+            .body(containsString("invalidateActiveMap"))
+            .body(containsString("orientationchange"))
 
         given()
             .`when`()
@@ -318,5 +320,38 @@ class FrontendAssetTest {
         assertEquals(1, switchedUser.size)
         assertEquals("2", switchedUser.first().id)
         assertEquals("1 of 4 sightings", computeListCounter(switchedUser.size, sightings.size, ownOnly = true))
+    }
+
+    @Test
+    fun testMapLifecycleAndResizeResilience() {
+        given()
+            .`when`()
+            .get("/js/tabs.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("resize"))
+            .body(containsString("orientationchange"))
+            .body(containsString("invalidateActiveMap"))
+            .body(containsString("resizeDebounce"))
+
+        given()
+            .`when`()
+            .get("/js/minimap.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("invalidateSize(true)"))
+            .body(containsString("invalidateSize(immediate"))
+            .body(containsString("200"))
+            .body(containsString("tab-switched"))
+
+        given()
+            .`when`()
+            .get("/js/fullmap.js")
+            .then()
+            .statusCode(200)
+            .body(containsString("invalidateSize(true)"))
+            .body(containsString("invalidateSize(immediate"))
+            .body(containsString("200"))
+            .body(containsString("tab-switched"))
     }
 }

@@ -54,7 +54,7 @@
       window.addEventListener('tab-switched', (e) => {
         if (e.detail.tab === 'spot') {
           this.isPaused = false;
-          this.invalidateSize();
+          this.invalidateSize(true);
           this.syncCurrentPosition();
         } else {
           this.isPaused = true;
@@ -84,6 +84,9 @@
           }
         });
       }
+
+      // Cold boot size invalidation after initial layout settles
+      this.invalidateSize();
     }
 
     updatePosition(lat, lon) {
@@ -110,11 +113,17 @@
       }
     }
 
-    invalidateSize() {
+    invalidateSize(immediate = false) {
       if (this.map) {
-        setTimeout(() => {
+        if (immediate) {
           this.map.invalidateSize();
+        }
+        setTimeout(() => {
+          if (this.map) this.map.invalidateSize();
         }, 50);
+        setTimeout(() => {
+          if (this.map) this.map.invalidateSize();
+        }, 200);
       }
     }
   }
