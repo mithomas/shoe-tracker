@@ -5,11 +5,11 @@ import java.time.Instant
 
 data class GeoLocationDto(
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
 )
 
 data class UserDto(
-    val id: String
+    val id: String,
 )
 
 data class CreateSightingRequest(
@@ -17,7 +17,7 @@ data class CreateSightingRequest(
     val userId: String?,
     val location: GeoLocationDto?,
     @JsonProperty("recorded_at")
-    val recordedAt: Instant?
+    val recordedAt: Instant?,
 )
 
 data class SightingResponse(
@@ -27,14 +27,14 @@ data class SightingResponse(
     @JsonProperty("recorded_at")
     val recordedAt: Instant,
     @JsonProperty("created_at")
-    val createdAt: Instant
+    val createdAt: Instant,
 )
 
 data class SightingListResponse(
     val items: List<SightingResponse>,
     val total: Long,
     val limit: Int,
-    val offset: Int
+    val offset: Int,
 )
 
 data class ProblemDetails(
@@ -42,5 +42,5 @@ data class ProblemDetails(
     val title: String,
     val status: Int,
     val detail: String,
-    val instance: String? = null
+    val instance: String? = null,
 )

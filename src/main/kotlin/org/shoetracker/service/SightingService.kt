@@ -12,8 +12,9 @@ import org.shoetracker.domain.UUIDv7
 import org.shoetracker.repository.SightingRepository
 
 @ApplicationScoped
-class SightingService(private val repository: SightingRepository) {
-
+class SightingService(
+    private val repository: SightingRepository,
+) {
     fun recordSighting(request: CreateSightingRequest?): SightingResponse {
         requireNotNull(request) { "Request body must not be null." }
         requireNotNull(request.userId) { "user_id is required." }
@@ -22,25 +23,31 @@ class SightingService(private val repository: SightingRepository) {
         require(trimmedUserId.length <= 64) { "user_id must not exceed 64 characters." }
 
         requireNotNull(request.location) { "location is required." }
-        val location = GeoLocation(
-            latitude = request.location.latitude,
-            longitude = request.location.longitude
-        )
+        val location =
+            GeoLocation(
+                latitude = request.location.latitude,
+                longitude = request.location.longitude,
+            )
 
         requireNotNull(request.recordedAt) { "recorded_at is required." }
 
-        val sighting = Sighting(
-            id = UUIDv7.generate().toString(),
-            userId = trimmedUserId,
-            location = location,
-            recordedAt = request.recordedAt
-        )
+        val sighting =
+            Sighting(
+                id = UUIDv7.generate().toString(),
+                userId = trimmedUserId,
+                location = location,
+                recordedAt = request.recordedAt,
+            )
 
         val saved = repository.insert(sighting)
         return saved.toResponse()
     }
 
-    fun listSightings(userId: String?, limit: Int, offset: Int): SightingListResponse {
+    fun listSightings(
+        userId: String?,
+        limit: Int,
+        offset: Int,
+    ): SightingListResponse {
         require(limit in 1..500) { "limit must be between 1 and 500." }
         require(offset >= 0) { "offset must be non-negative." }
 
@@ -52,7 +59,7 @@ class SightingService(private val repository: SightingRepository) {
             items = items,
             total = total,
             limit = limit,
-            offset = offset
+            offset = offset,
         )
     }
 
@@ -61,16 +68,15 @@ class SightingService(private val repository: SightingRepository) {
         return repository.deleteById(id.trim())
     }
 
-    private fun Sighting.toResponse(): SightingResponse {
-        return SightingResponse(
-            id = id,
-            user = UserDto(id = userId),
-            location = GeoLocationDto(
-                latitude = location.latitude,
-                longitude = location.longitude
-            ),
-            recordedAt = recordedAt,
-            createdAt = createdAt
-        )
-    }
+    private fun Sighting.toResponse(): SightingResponse = SightingResponse(
+        id = id,
+        user = UserDto(id = userId),
+        location =
+        GeoLocationDto(
+            latitude = location.latitude,
+            longitude = location.longitude,
+        ),
+        recordedAt = recordedAt,
+        createdAt = createdAt,
+    )
 }

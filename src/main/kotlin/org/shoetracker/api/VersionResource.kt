@@ -9,14 +9,13 @@ import java.util.Properties
 
 data class VersionResponse(
     val version: String,
-    val commit: String
+    val commit: String,
 )
 
 @Path("/api/v1/version")
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 class VersionResource {
-
     private val versionInfo: VersionResponse by lazy {
         val props = Properties()
         val stream = javaClass.classLoader.getResourceAsStream("version.properties")
@@ -27,7 +26,7 @@ class VersionResource {
         val com = props.getProperty("commit")?.trim()?.takeIf { it.isNotEmpty() } ?: "unknown"
         VersionResponse(
             version = ver,
-            commit = com
+            commit = com,
         )
     }
 

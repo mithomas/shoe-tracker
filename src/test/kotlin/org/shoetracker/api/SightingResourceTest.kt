@@ -15,7 +15,6 @@ import java.time.Instant
 
 @QuarkusTest
 class SightingResourceTest {
-
     @Inject
     lateinit var repository: SightingRepository
 
@@ -26,7 +25,8 @@ class SightingResourceTest {
 
     @Test
     fun testRecordSightingSuccess() {
-        val payload = """
+        val payload =
+            """
             {
               "user_id": "Tom",
               "location": {
@@ -35,17 +35,18 @@ class SightingResourceTest {
               },
               "recorded_at": "2026-10-28T14:32:00Z"
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val response = given()
-            .contentType(ContentType.JSON)
-            .body(payload)
-            .`when`()
-            .post("/api/v1/sightings")
-            .then()
-            .statusCode(201)
-            .extract()
-            .`as`(SightingResponse::class.java)
+        val response =
+            given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+                .`when`()
+                .post("/api/v1/sightings")
+                .then()
+                .statusCode(201)
+                .extract()
+                .`as`(SightingResponse::class.java)
 
         assertThat(response.id).isNotBlank()
         assertThat(response.user.id).isEqualTo("Tom")
@@ -58,7 +59,8 @@ class SightingResourceTest {
     @Test
     fun testGetSightingsWrappedCollection() {
         // Record a sighting first to verify item content
-        val payload = """
+        val payload =
+            """
             {
               "user_id": "Tom",
               "location": {
@@ -67,7 +69,7 @@ class SightingResourceTest {
               },
               "recorded_at": "2026-10-28T14:32:00Z"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         given()
             .contentType(ContentType.JSON)
@@ -77,14 +79,15 @@ class SightingResourceTest {
             .then()
             .statusCode(201)
 
-        val listResponse = given()
-            .`when`()
-            .get("/api/v1/sightings?limit=10&offset=0")
-            .then()
-            .statusCode(200)
-            .contentType(ContentType.JSON)
-            .extract()
-            .`as`(SightingListResponse::class.java)
+        val listResponse =
+            given()
+                .`when`()
+                .get("/api/v1/sightings?limit=10&offset=0")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .extract()
+                .`as`(SightingListResponse::class.java)
 
         assertThat(listResponse.items).hasSize(1)
         val item = listResponse.items[0]
@@ -98,7 +101,8 @@ class SightingResourceTest {
 
     @Test
     fun testRecordSightingInvalidCoordinates() {
-        val payload = """
+        val payload =
+            """
             {
               "user_id": "Tom",
               "location": {
@@ -107,18 +111,19 @@ class SightingResourceTest {
               },
               "recorded_at": "2026-10-28T14:32:00Z"
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val problem = given()
-            .contentType(ContentType.JSON)
-            .body(payload)
-            .`when`()
-            .post("/api/v1/sightings")
-            .then()
-            .statusCode(400)
-            .contentType("application/problem+json")
-            .extract()
-            .`as`(ProblemDetails::class.java)
+        val problem =
+            given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+                .`when`()
+                .post("/api/v1/sightings")
+                .then()
+                .statusCode(400)
+                .contentType("application/problem+json")
+                .extract()
+                .`as`(ProblemDetails::class.java)
 
         assertThat(problem.status).isEqualTo(400)
         assertThat(problem.title).isEqualTo("Bad Request")
@@ -127,7 +132,8 @@ class SightingResourceTest {
 
     @Test
     fun testRecordSightingBlankUserId() {
-        val payload = """
+        val payload =
+            """
             {
               "user_id": "   ",
               "location": {
@@ -136,18 +142,19 @@ class SightingResourceTest {
               },
               "recorded_at": "2026-10-28T14:32:00Z"
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val problem = given()
-            .contentType(ContentType.JSON)
-            .body(payload)
-            .`when`()
-            .post("/api/v1/sightings")
-            .then()
-            .statusCode(400)
-            .contentType("application/problem+json")
-            .extract()
-            .`as`(ProblemDetails::class.java)
+        val problem =
+            given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+                .`when`()
+                .post("/api/v1/sightings")
+                .then()
+                .statusCode(400)
+                .contentType("application/problem+json")
+                .extract()
+                .`as`(ProblemDetails::class.java)
 
         assertThat(problem.status).isEqualTo(400)
         assertThat(problem.title).isEqualTo("Bad Request")
@@ -156,7 +163,8 @@ class SightingResourceTest {
 
     @Test
     fun testRecordSightingMissingRecordedAt() {
-        val payload = """
+        val payload =
+            """
             {
               "user_id": "Tom",
               "location": {
@@ -164,18 +172,19 @@ class SightingResourceTest {
                 "longitude": 8.6821
               }
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val problem = given()
-            .contentType(ContentType.JSON)
-            .body(payload)
-            .`when`()
-            .post("/api/v1/sightings")
-            .then()
-            .statusCode(400)
-            .contentType("application/problem+json")
-            .extract()
-            .`as`(ProblemDetails::class.java)
+        val problem =
+            given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+                .`when`()
+                .post("/api/v1/sightings")
+                .then()
+                .statusCode(400)
+                .contentType("application/problem+json")
+                .extract()
+                .`as`(ProblemDetails::class.java)
 
         assertThat(problem.status).isEqualTo(400)
         assertThat(problem.detail).contains("recorded_at is required")
@@ -183,14 +192,15 @@ class SightingResourceTest {
 
     @Test
     fun testGetSightingsInvalidLimit() {
-        val problem = given()
-            .`when`()
-            .get("/api/v1/sightings?limit=-5")
-            .then()
-            .statusCode(400)
-            .contentType("application/problem+json")
-            .extract()
-            .`as`(ProblemDetails::class.java)
+        val problem =
+            given()
+                .`when`()
+                .get("/api/v1/sightings?limit=-5")
+                .then()
+                .statusCode(400)
+                .contentType("application/problem+json")
+                .extract()
+                .`as`(ProblemDetails::class.java)
 
         assertThat(problem.status).isEqualTo(400)
         assertThat(problem.detail).contains("limit must be between 1 and 500")
@@ -198,7 +208,8 @@ class SightingResourceTest {
 
     @Test
     fun testDeleteSighting() {
-        val payload = """
+        val payload =
+            """
             {
               "user_id": "Tom",
               "location": {
@@ -207,17 +218,18 @@ class SightingResourceTest {
               },
               "recorded_at": "2026-10-28T14:32:00Z"
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val id = given()
-            .contentType(ContentType.JSON)
-            .body(payload)
-            .`when`()
-            .post("/api/v1/sightings")
-            .then()
-            .statusCode(201)
-            .extract()
-            .path<String>("id")
+        val id =
+            given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+                .`when`()
+                .post("/api/v1/sightings")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path<String>("id")
 
         assertThat(id).isNotBlank()
 

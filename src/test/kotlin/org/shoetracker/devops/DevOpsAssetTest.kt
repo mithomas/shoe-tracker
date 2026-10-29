@@ -7,7 +7,6 @@ import java.io.File
 
 @QuarkusTest
 class DevOpsAssetTest {
-
     @Test
     fun testGitHubActionsWorkflowConfiguration() {
         val workflowFile = File(".github/workflows/ci.yml")
@@ -95,5 +94,28 @@ class DevOpsAssetTest {
             .contains("interval: \"weekly\"")
             .contains("prefix: \"chore(ci)\"")
             .contains("actions:")
+    }
+
+    @Test
+    fun testSpotlessAndLintConfiguration() {
+        val editorConfig = File(".editorconfig")
+        assertThat(editorConfig).exists().isFile()
+        assertThat(editorConfig.readText()).contains("max_line_length = 120")
+
+        val buildFile = File("build.gradle.kts")
+        assertThat(buildFile).exists().isFile()
+        val content = buildFile.readText()
+
+        assertThat(content)
+            .contains("id(\"com.diffplug.spotless\")")
+            .contains("spotless {")
+            .contains("ktlint()")
+            .contains("\"max_line_length\" to \"120\"")
+            .contains("format(\"web\")")
+            .contains("leadingTabsToSpaces(2)")
+            .contains("endWithNewline()")
+            .contains("val lintJs by tasks.registering")
+            .contains("com.google.javascript:closure-compiler")
+            .contains("tasks.named(\"check\")")
     }
 }

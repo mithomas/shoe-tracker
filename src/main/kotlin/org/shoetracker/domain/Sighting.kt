@@ -4,7 +4,7 @@ import java.time.Instant
 
 data class GeoLocation(
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
 ) {
     init {
         require(!latitude.isNaN() && !latitude.isInfinite() && latitude in -90.0..90.0) {
@@ -21,7 +21,7 @@ data class Sighting(
     val userId: String,
     val location: GeoLocation,
     val recordedAt: Instant,
-    val createdAt: Instant = Instant.now()
+    val createdAt: Instant = Instant.now(),
 ) {
     init {
         require(userId.isNotBlank()) {

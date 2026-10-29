@@ -11,16 +11,16 @@ import kotlin.math.floor
 
 @QuarkusTest
 class FrontendAssetTest {
-
     @Test
     fun testIndexHtmlServedWithAllComponents() {
-        val html = given()
-            .`when`()
-            .get("/")
-            .then()
-            .statusCode(200)
-            .extract()
-            .asString()
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
 
         assertThat(html)
             .contains("Shoe Tracker")
@@ -61,13 +61,34 @@ class FrontendAssetTest {
 
     @Test
     fun testStaticAssetsServed() {
-        val leafletJs = given().`when`().get("/vendor/leaflet/leaflet.js").then().statusCode(200).extract().asString()
+        val leafletJs =
+            given()
+                .`when`()
+                .get("/vendor/leaflet/leaflet.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(leafletJs).contains("Leaflet")
 
-        val leafletCss = given().`when`().get("/vendor/leaflet/leaflet.css").then().statusCode(200).extract().asString()
+        val leafletCss =
+            given()
+                .`when`()
+                .get("/vendor/leaflet/leaflet.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(leafletCss).contains("leaflet")
 
-        val css = given().`when`().get("/css/style.css").then().statusCode(200).extract().asString()
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(css)
             .contains("--surface-base")
             .contains("btn-spot-giant")
@@ -85,59 +106,129 @@ class FrontendAssetTest {
             .contains("sighting-card-other")
             .contains("filter-pill-container")
 
-        val tabsJs = given().`when`().get("/js/tabs.js").then().statusCode(200).extract().asString()
+        val tabsJs =
+            given()
+                .`when`()
+                .get("/js/tabs.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(tabsJs)
             .contains("tabManager")
             .contains("switchTab")
             .contains("invalidateActiveMap")
             .contains("orientationchange")
 
-        val miniMapJs = given().`when`().get("/js/minimap.js").then().statusCode(200).extract().asString()
+        val miniMapJs =
+            given()
+                .`when`()
+                .get("/js/minimap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(miniMapJs)
             .contains("spotMiniMap")
             .contains("live-gps-dot")
             .contains("dragging: false")
 
-        val fullMapJs = given().`when`().get("/js/fullmap.js").then().statusCode(200).extract().asString()
+        val fullMapJs =
+            given()
+                .`when`()
+                .get("/js/fullmap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(fullMapJs)
             .contains("fullMap")
             .contains("shoe-pin-own")
             .contains("sighting-added")
             .contains("sighting-deleted")
 
-        val listViewJs = given().`when`().get("/js/listview.js").then().statusCode(200).extract().asString()
+        val listViewJs =
+            given()
+                .`when`()
+                .get("/js/listview.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(listViewJs)
             .contains("listView")
             .contains("sighting-card-own")
             .contains("sighting-added")
             .contains("sighting-deleted")
 
-        val filterJs = given().`when`().get("/js/filter.js").then().statusCode(200).extract().asString()
+        val filterJs =
+            given()
+                .`when`()
+                .get("/js/filter.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(filterJs)
             .contains("filterManager")
             .contains("filter-changed")
             .contains("localStorage")
 
-        val formatJs = given().`when`().get("/js/format.js").then().statusCode(200).extract().asString()
+        val formatJs =
+            given()
+                .`when`()
+                .get("/js/format.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(formatJs)
             .contains("formatCoordinate")
             .contains("formatLocationMultiline")
             .contains("60.000")
 
-        val geoJs = given().`when`().get("/js/geo.js").then().statusCode(200).extract().asString()
+        val geoJs =
+            given()
+                .`when`()
+                .get("/js/geo.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(geoJs)
             .contains("watchPosition")
             .contains("5000")
 
-        val onboardingJs = given().`when`().get("/js/onboarding.js").then().statusCode(200).extract().asString()
+        val onboardingJs =
+            given()
+                .`when`()
+                .get("/js/onboarding.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(onboardingJs).contains("localStorage")
 
-        val modalJs = given().`when`().get("/js/modal.js").then().statusCode(200).extract().asString()
+        val modalJs =
+            given()
+                .`when`()
+                .get("/js/modal.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(modalJs)
             .contains("showSighting")
             .contains("handleUndo")
 
-        val spotJs = given().`when`().get("/js/spot.js").then().statusCode(200).extract().asString()
+        val spotJs =
+            given()
+                .`when`()
+                .get("/js/spot.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(spotJs)
             .contains("startCooldown")
             .contains("cooldownSeconds")
@@ -146,12 +237,16 @@ class FrontendAssetTest {
 
     @Test
     fun testCoordinateFormattingParity() {
-        fun formatCoordinate(coord: Double, isLat: Boolean): String {
-            val dir = if (isLat) {
-                if (coord >= 0) "N" else "S"
-            } else {
-                if (coord >= 0) "E" else "W"
-            }
+        fun formatCoordinate(
+            coord: Double,
+            isLat: Boolean,
+        ): String {
+            val dir =
+                if (isLat) {
+                    if (coord >= 0) "N" else "S"
+                } else {
+                    if (coord >= 0) "E" else "W"
+                }
             val absVal = abs(coord)
             var degrees = floor(absVal).toInt()
             val minutes = (absVal - degrees) * 60.0
@@ -183,13 +278,14 @@ class FrontendAssetTest {
 
     @Test
     fun testUnifiedFilterAssetsAndMarkup() {
-        val html = given()
-            .`when`()
-            .get("/")
-            .then()
-            .statusCode(200)
-            .extract()
-            .asString()
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
 
         assertThat(html)
             .contains("/js/filter.js")
@@ -201,13 +297,14 @@ class FrontendAssetTest {
             .contains("listEmptyOwnCard")
             .contains("No shoes spotted by you yet — tap the Spot button to log your first!")
 
-        val css = given()
-            .`when`()
-            .get("/css/style.css")
-            .then()
-            .statusCode(200)
-            .extract()
-            .asString()
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
 
         assertThat(css)
             .contains(".filter-pill-container")
@@ -215,13 +312,14 @@ class FrontendAssetTest {
             .contains(".filter-pill-btn")
             .contains(".map-filter-float")
 
-        val filterJs = given()
-            .`when`()
-            .get("/js/filter.js")
-            .then()
-            .statusCode(200)
-            .extract()
-            .asString()
+        val filterJs =
+            given()
+                .`when`()
+                .get("/js/filter.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
 
         assertThat(filterJs)
             .contains("class FilterManager")
@@ -229,25 +327,27 @@ class FrontendAssetTest {
             .contains("filter-changed")
             .contains("user-changed")
 
-        val fullMapJs = given()
-            .`when`()
-            .get("/js/fullmap.js")
-            .then()
-            .statusCode(200)
-            .extract()
-            .asString()
+        val fullMapJs =
+            given()
+                .`when`()
+                .get("/js/fullmap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
 
         assertThat(fullMapJs)
             .contains("filter-changed")
             .contains("fullMapEmptyOwn")
 
-        val listViewJs = given()
-            .`when`()
-            .get("/js/listview.js")
-            .then()
-            .statusCode(200)
-            .extract()
-            .asString()
+        val listViewJs =
+            given()
+                .`when`()
+                .get("/js/listview.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
 
         assertThat(listViewJs)
             .contains("filter-changed")
@@ -258,30 +358,43 @@ class FrontendAssetTest {
 
     @Test
     fun testUnifiedFilterLogicMatrixParity() {
-        data class TestSighting(val id: String, val userId: String)
+        data class TestSighting(
+            val id: String,
+            val userId: String,
+        )
 
-        fun filterSightings(sightings: List<TestSighting>, ownOnly: Boolean, currentUserId: String): List<TestSighting> {
+        fun filterSightings(
+            sightings: List<TestSighting>,
+            ownOnly: Boolean,
+            currentUserId: String,
+        ): List<TestSighting> {
             val trimmedUser = currentUserId.trim().lowercase()
             return sightings.filter { s ->
-                if (!ownOnly) true
-                else trimmedUser.isNotEmpty() && s.userId.trim().lowercase() == trimmedUser
+                if (!ownOnly) {
+                    true
+                } else {
+                    trimmedUser.isNotEmpty() && s.userId.trim().lowercase() == trimmedUser
+                }
             }
         }
 
-        fun computeListCounter(filteredCount: Int, totalCount: Int, ownOnly: Boolean): String {
-            return if (ownOnly) {
-                "$filteredCount of $totalCount sightings"
-            } else {
-                "$totalCount ${if (totalCount == 1) "sighting" else "sightings"}"
-            }
+        fun computeListCounter(
+            filteredCount: Int,
+            totalCount: Int,
+            ownOnly: Boolean,
+        ): String = if (ownOnly) {
+            "$filteredCount of $totalCount sightings"
+        } else {
+            "$totalCount ${if (totalCount == 1) "sighting" else "sightings"}"
         }
 
-        val sightings = listOf(
-            TestSighting("1", "Tom"),
-            TestSighting("2", "Alice"),
-            TestSighting("3", "tom "),
-            TestSighting("4", "Bob")
-        )
+        val sightings =
+            listOf(
+                TestSighting("1", "Tom"),
+                TestSighting("2", "Alice"),
+                TestSighting("3", "tom "),
+                TestSighting("4", "Bob"),
+            )
 
         // Matrix Row 1: Toggle "My Shoes" on Map - shows only user's markers
         val mapFiltered = filterSightings(sightings, ownOnly = true, currentUserId = "TOM")
@@ -307,21 +420,42 @@ class FrontendAssetTest {
 
     @Test
     fun testMapLifecycleAndResizeResilience() {
-        val tabsJs = given().`when`().get("/js/tabs.js").then().statusCode(200).extract().asString()
+        val tabsJs =
+            given()
+                .`when`()
+                .get("/js/tabs.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(tabsJs)
             .contains("resize")
             .contains("orientationchange")
             .contains("invalidateActiveMap")
             .contains("resizeDebounce")
 
-        val miniMapJs = given().`when`().get("/js/minimap.js").then().statusCode(200).extract().asString()
+        val miniMapJs =
+            given()
+                .`when`()
+                .get("/js/minimap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(miniMapJs)
             .contains("invalidateSize(true)")
             .contains("invalidateSize(immediate")
             .contains("200")
             .contains("tab-switched")
 
-        val fullMapJs = given().`when`().get("/js/fullmap.js").then().statusCode(200).extract().asString()
+        val fullMapJs =
+            given()
+                .`when`()
+                .get("/js/fullmap.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(fullMapJs)
             .contains("invalidateSize(true)")
             .contains("invalidateSize(immediate")
@@ -343,18 +477,35 @@ class FrontendAssetTest {
         val readmeContent = readmeFile.readText()
         assertThat(readmeContent).contains("GNU Affero General Public License v3.0 (AGPL-3.0)")
 
-        val html = given().`when`().get("/").then().statusCode(200).extract().asString()
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(html)
             .contains("footer-license-link")
             .contains("AGPL-3.0 Source")
 
-        val css = given().`when`().get("/css/style.css").then().statusCode(200).extract().asString()
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
         assertThat(css).contains(".footer-license-link")
     }
 
     @Test
     fun testFrontendVersionFormattingLogic() {
-        fun formatFooterVersion(version: String?, commit: String?): String {
+        fun formatFooterVersion(
+            version: String?,
+            commit: String?,
+        ): String {
             if (commit.isNullOrBlank() || commit == "unknown") {
                 return "Shoe Tracker v1.0.0"
             }

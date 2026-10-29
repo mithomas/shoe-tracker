@@ -7,16 +7,16 @@ import org.junit.jupiter.api.Test
 
 @QuarkusTest
 class VersionResourceTest {
-
     @Test
     fun testGetVersionEndpoint() {
-        val response = given()
-            .`when`()
-            .get("/api/v1/version")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(VersionResponse::class.java)
+        val response =
+            given()
+                .`when`()
+                .get("/api/v1/version")
+                .then()
+                .statusCode(200)
+                .extract()
+                .`as`(VersionResponse::class.java)
 
         assertThat(response.version).isNotBlank()
         assertThat(response.commit).matches("^[0-9a-f]{7}$")

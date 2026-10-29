@@ -15,8 +15,9 @@ import javax.sql.DataSource
 import kotlin.concurrent.withLock
 
 @ApplicationScoped
-class SightingRepository(private val dataSource: DataSource) : AutoCloseable {
-
+class SightingRepository(
+    private val dataSource: DataSource,
+) : AutoCloseable {
     private val writeLock = ReentrantLock()
     private val readLock = ReentrantLock()
 
@@ -30,19 +31,19 @@ class SightingRepository(private val dataSource: DataSource) : AutoCloseable {
 
     private val insertStmt: PreparedStatement by lazy {
         connection.prepareStatement(
-            "INSERT INTO sightings (id, user_id, latitude, longitude, recorded_at, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+            "INSERT INTO sightings (id, user_id, latitude, longitude, recorded_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
         )
     }
 
     private val findWithUserStmt: PreparedStatement by lazy {
         connection.prepareStatement(
-            "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC LIMIT ? OFFSET ?"
+            "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
         )
     }
 
     private val findAllStmt: PreparedStatement by lazy {
         connection.prepareStatement(
-            "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings ORDER BY recorded_at DESC LIMIT ? OFFSET ?"
+            "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
         )
     }
 
@@ -72,20 +73,25 @@ class SightingRepository(private val dataSource: DataSource) : AutoCloseable {
         return sighting
     }
 
-    fun findSightings(userId: String?, limit: Int, offset: Int): List<Sighting> {
+    fun findSightings(
+        userId: String?,
+        limit: Int,
+        offset: Int,
+    ): List<Sighting> {
         readLock.withLock {
-            val stmt = if (userId != null) {
-                findWithUserStmt.clearParameters()
-                findWithUserStmt.setString(1, userId)
-                findWithUserStmt.setInt(2, limit)
-                findWithUserStmt.setInt(3, offset)
-                findWithUserStmt
-            } else {
-                findAllStmt.clearParameters()
-                findAllStmt.setInt(1, limit)
-                findAllStmt.setInt(2, offset)
-                findAllStmt
-            }
+            val stmt =
+                if (userId != null) {
+                    findWithUserStmt.clearParameters()
+                    findWithUserStmt.setString(1, userId)
+                    findWithUserStmt.setInt(2, limit)
+                    findWithUserStmt.setInt(3, offset)
+                    findWithUserStmt
+                } else {
+                    findAllStmt.clearParameters()
+                    findAllStmt.setInt(1, limit)
+                    findAllStmt.setInt(2, offset)
+                    findAllStmt
+                }
 
             stmt.executeQuery().use { rs ->
                 val list = mutableListOf<Sighting>()
@@ -99,14 +105,15 @@ class SightingRepository(private val dataSource: DataSource) : AutoCloseable {
 
     fun countSightings(userId: String?): Long {
         readLock.withLock {
-            val stmt = if (userId != null) {
-                countWithUserStmt.clearParameters()
-                countWithUserStmt.setString(1, userId)
-                countWithUserStmt
-            } else {
-                countAllStmt.clearParameters()
-                countAllStmt
-            }
+            val stmt =
+                if (userId != null) {
+                    countWithUserStmt.clearParameters()
+                    countWithUserStmt.setString(1, userId)
+                    countWithUserStmt
+                } else {
+                    countAllStmt.clearParameters()
+                    countAllStmt
+                }
 
             stmt.executeQuery().use { rs ->
                 return if (rs.next()) rs.getLong(1) else 0L
@@ -141,16 +148,15 @@ class SightingRepository(private val dataSource: DataSource) : AutoCloseable {
         runCatching { connection.close() }
     }
 
-    private fun mapRow(rs: ResultSet): Sighting {
-        return Sighting(
-            id = rs.getString("id"),
-            userId = rs.getString("user_id"),
-            location = GeoLocation(
-                latitude = rs.getDouble("latitude"),
-                longitude = rs.getDouble("longitude")
-            ),
-            recordedAt = Instant.parse(rs.getString("recorded_at")),
-            createdAt = Instant.parse(rs.getString("created_at"))
-        )
-    }
+    private fun mapRow(rs: ResultSet): Sighting = Sighting(
+        id = rs.getString("id"),
+        userId = rs.getString("user_id"),
+        location =
+        GeoLocation(
+            latitude = rs.getDouble("latitude"),
+            longitude = rs.getDouble("longitude"),
+        ),
+        recordedAt = Instant.parse(rs.getString("recorded_at")),
+        createdAt = Instant.parse(rs.getString("created_at")),
+    )
 }
