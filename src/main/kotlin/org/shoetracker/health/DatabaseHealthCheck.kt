@@ -12,14 +12,16 @@ class DatabaseHealthCheck(
     private val dataSource: DataSource,
 ) : HealthCheck {
     override fun call(): HealthCheckResponse {
-        val builder = HealthCheckResponse.named("SQLite database health check")
+        val builder = HealthCheckResponse.named("Database connection health check")
         return try {
-            dataSource.connection.use { conn ->
-                conn.createStatement().use { stmt ->
-                    stmt.executeQuery("SELECT 1").close()
+            val productName =
+                dataSource.connection.use { conn ->
+                    conn.createStatement().use { stmt ->
+                        stmt.executeQuery("SELECT 1").close()
+                    }
+                    conn.metaData?.databaseProductName ?: "Unknown"
                 }
-            }
-            builder.up().withData("database", "sqlite").build()
+            builder.up().withData("database", productName).build()
         } catch (e: Exception) {
             builder.down().withData("error", e.message ?: "unknown").build()
         }

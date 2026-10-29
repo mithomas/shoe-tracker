@@ -350,10 +350,29 @@ class SightingResourceTest {
         val busyProblem = busyResp.entity as ProblemDetails
         assertThat(busyProblem.title).isEqualTo("Service Unavailable")
 
-        // Test H2 deadlock / lock error code (90039)
+        // Test H2 deadlock / lock error code (90039, 90072)
         val lockedEx = java.sql.SQLException("table locked", "HY000", 90039)
         val lockedResp = mapper.toResponse(lockedEx)
         assertThat(lockedResp.status).isEqualTo(503)
+        assertThat(mapper.toResponse(java.sql.SQLException("lock timeout", "HY000", 90072)).status).isEqualTo(503)
+
+        // Test ANSI SQLState contention codes (40P01, 57P01, HYT00)
+        assertThat(mapper.toResponse(java.sql.SQLException("deadlock", "40P01", 0)).status).isEqualTo(503)
+        assertThat(mapper.toResponse(java.sql.SQLException("admin shutdown", "57P01", 0)).status).isEqualTo(503)
+        assertThat(mapper.toResponse(java.sql.SQLException("timeout expired", "HYT00", 0)).status).isEqualTo(503)
+
+        // Test MariaDB/MySQL lock wait timeout (1205) and deadlock (1213)
+        assertThat(mapper.toResponse(java.sql.SQLException("Lock wait timeout exceeded", "HY000", 1205)).status).isEqualTo(503)
+        assertThat(mapper.toResponse(java.sql.SQLException("Deadlock found", "40001", 1213)).status).isEqualTo(503)
+
+        // Test wrapped causal chain via initCause and setNextException
+        val wrapperWithCause = java.sql.SQLException("Pool wrapper error", "HY000", 0)
+        wrapperWithCause.initCause(java.sql.SQLException("Inner MariaDB lock timeout", "HY000", 1205))
+        assertThat(mapper.toResponse(wrapperWithCause).status).isEqualTo(503)
+
+        val wrapperWithNext = java.sql.SQLException("Batch execution failed", "HY000", 0)
+        wrapperWithNext.setNextException(java.sql.SQLException("Inner H2 lock", "40001", 50200))
+        assertThat(mapper.toResponse(wrapperWithNext).status).isEqualTo(503)
 
         // Test non-busy error (e.g. HY000 corrupt file)
         val corruptEx = java.sql.SQLException("corrupt file", "HY000", 90030)

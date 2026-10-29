@@ -88,12 +88,12 @@ class DatabaseContentionExceptionMapper : ExceptionMapper<SQLException> {
 
     override fun toResponse(exception: SQLException): Response {
         val errorId = java.util.UUID.randomUUID().toString()
-        val isBusyOrLocked = isBusyOrLocked(exception)
+        val contentionEx = findContentionException(exception)
 
-        if (isBusyOrLocked) {
+        if (contentionEx != null) {
             logger.warn(
-                "Database lock contention [error_id=$errorId, sqlState=${exception.sqlState}, " +
-                    "code=${exception.errorCode}]: ${exception.message}",
+                "Database lock contention [error_id=$errorId, sqlState=${contentionEx.sqlState}, " +
+                    "code=${contentionEx.errorCode}]: ${contentionEx.message}",
             )
             val problem =
                 ProblemDetails(
@@ -131,12 +131,27 @@ class DatabaseContentionExceptionMapper : ExceptionMapper<SQLException> {
         }
     }
 
+    private fun findContentionException(root: SQLException): SQLException? {
+        var current: Throwable? = root
+        var depth = 0
+        while (current != null && depth++ < 16) {
+            if (current is SQLException && isBusyOrLocked(current)) return current
+            current =
+                if (current is SQLException && current.nextException != null && current.nextException !== current.cause) {
+                    current.nextException
+                } else {
+                    current.cause
+                }
+        }
+        return null
+    }
+
     private fun isBusyOrLocked(exception: SQLException): Boolean = exception.sqlState in CONTENTION_SQL_STATES ||
         exception.errorCode in CONTENTION_ERROR_CODES
 
     companion object {
         private val CONTENTION_SQL_STATES = setOf("40001", "40P01", "57P01", "HYT00")
-        private val CONTENTION_ERROR_CODES = setOf(50200, 90039, 90072)
+        private val CONTENTION_ERROR_CODES = setOf(50200, 90039, 90072, 1205, 1213)
     }
 }
 
