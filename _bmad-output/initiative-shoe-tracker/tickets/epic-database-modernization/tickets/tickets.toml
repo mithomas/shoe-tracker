@@ -1,0 +1,56 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Replace SQLite with Embedded H2 Database and Native Timestamps"
+description = "Replaces sqlite-jdbc with quarkus-jdbc-h2 (MODE=MySQL), migrates Flyway DDL to ANSI/MySQL with native TIMESTAMP(3) columns, and removes ReentrantLock thread serialization from SightingRepository."
+verify = "Quarkus boots cleanly with H2, Flyway executes V1 DDL with TIMESTAMP(3), SightingRepository performs concurrent CRUD operations without in-memory locks, and all tests pass."
+covers = ["R23"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Unified SQLState Contention ExceptionMapper and Dynamic Health Reporting"
+description = "Replaces SQLiteExceptionMapper with DatabaseContentionExceptionMapper translating SQLState 40001/57P01 to RFC 7807 503, and updates DatabaseHealthCheck to report live databaseProductName."
+verify = "Simulated lock contention returns HTTP 503 with Retry-After: 1 header, and /q/health/ready dynamically reports databaseProductName."
+covers = ["R24", "R25"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Configurable Multi-Target Datasource (MySQL, H2 File, or H2 In-Memory)"
+description = "Adds quarkus-jdbc-mariadb driver and enables runtime environment variable selection between external MySQL/MariaDB, H2 file persistence (/data), or H2 in-memory."
+verify = "Application boots cleanly against default H2 file, H2 in-memory, and simulated external MySQL/MariaDB datasource configurations."
+covers = ["R26"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "GraalVM Native Image Compilation with Dockerfile.native"
+description = "Configures Quarkus native image compilation via in-container Mandrel tooling and authors src/main/docker/Dockerfile.native based on ubi9-minimal."
+verify = "Quarkus native binary compiles successfully and container starts in under 50 milliseconds."
+covers = ["R27"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Database Modernization Refactor Sweep and Multi-Target Verification"
+description = "Audits database drivers, tests in-memory and file persistence, validates health probes and Spotless linter, and verifies multi-stage container and native builds."
+verify = "All Gradle checks, Spotless formatting, health probes, container fast-jar, and native binary builds pass cleanly."
+covers = ["R23", "R24", "R25", "R26", "R27"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"
