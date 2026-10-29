@@ -148,7 +148,7 @@ All endpoints are versioned under `/api/v1`:
 
 ## Roadmap & Backlog
 
-- [ ] **AGPL-3.0 License:** Add root licensing files and copyleft notices.
+- [x] **AGPL-3.0 License:** Add root licensing files and copyleft notices.
 - [ ] **CI/CD:** GitHub Actions workflow building and publishing multi-stage container to Docker Hub.
 - [ ] **Real-Time Live Map:** Stream newly spotted shoes via Server-Sent Events (SSE).
 - [ ] **Dedicated Accounts:** User profile management and optional LDAP/OAuth integration.
@@ -159,4 +159,6 @@ All endpoints are versioned under `/api/v1`:
 
 ## License
 
-This project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.html).
+This project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE) - see the [LICENSE](LICENSE) file for details.
+
+As network server software, users interacting with Shoe Tracker remotely through a computer network are entitled to access the corresponding source code under Section 13 of the AGPL-3.0. Complete source code is available in the [Shoe Tracker GitHub Repository](https://github.com/mitch/shoe-tracker) or via the in-app footer link.

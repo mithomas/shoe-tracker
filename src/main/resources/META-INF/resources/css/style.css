@@ -517,6 +517,25 @@ pre {
   font-size: 11px;
   color: var(--ink-muted);
   letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.footer-divider {
+  color: var(--border-subtle);
+}
+
+.footer-license-link {
+  color: var(--ink-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-license-link:hover {
+  color: var(--accent-blue);
+  text-decoration: underline;
 }
 
 .modal-actions {

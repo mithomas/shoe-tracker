@@ -6,6 +6,7 @@ import org.hamcrest.CoreMatchers.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.floor
@@ -353,5 +354,34 @@ class FrontendAssetTest {
             .body(containsString("invalidateSize(immediate"))
             .body(containsString("200"))
             .body(containsString("tab-switched"))
+    }
+
+    @Test
+    fun testAgplLicensingAndAttribution() {
+        val licenseFile = File("LICENSE")
+        assertTrue(licenseFile.exists(), "Root LICENSE file must exist")
+        val licenseContent = licenseFile.readText()
+        assertTrue(licenseContent.contains("GNU AFFERO GENERAL PUBLIC LICENSE"), "LICENSE must be AGPL")
+        assertTrue(licenseContent.contains("Version 3, 19 November 2007"), "LICENSE must be Version 3")
+
+        val readmeFile = File("README.md")
+        assertTrue(readmeFile.exists(), "README.md must exist")
+        val readmeContent = readmeFile.readText()
+        assertTrue(readmeContent.contains("GNU Affero General Public License v3.0 (AGPL-3.0)"), "README must document AGPL-3.0")
+
+        given()
+            .`when`()
+            .get("/")
+            .then()
+            .statusCode(200)
+            .body(containsString("footer-license-link"))
+            .body(containsString("AGPL-3.0 Source"))
+
+        given()
+            .`when`()
+            .get("/css/style.css")
+            .then()
+            .statusCode(200)
+            .body(containsString(".footer-license-link"))
     }
 }
