@@ -202,4 +202,31 @@ class DevOpsAssetTest {
             .contains("build/*")
             .contains("!build/*-runner")
     }
+
+    @Test
+    fun testZeroSqliteRemnantsAcrossProjectAssets() {
+        val forbiddenTokens = listOf("sqlite-jdbc", "org.sqlite", "jdbc:sqlite:")
+        val filesToInspect =
+            buildList {
+                add(File("build.gradle.kts"))
+                add(File("Dockerfile"))
+                add(File("docker-compose.yml"))
+                add(File(".github/workflows/ci.yml"))
+                add(File("README.md"))
+                File("src/main").walkTopDown().filter { it.isFile }.forEach { add(it) }
+            }
+
+        filesToInspect.forEach { file ->
+            assertThat(file).exists()
+            val lines = file.readLines()
+            lines.forEachIndexed { index, line ->
+                val lower = line.lowercase()
+                forbiddenTokens.forEach { token ->
+                    assertThat(lower)
+                        .withFailMessage("Found forbidden SQLite remnant '$token' in ${file.path}:${index + 1}: $line")
+                        .doesNotContain(token)
+                }
+            }
+        }
+    }
 }

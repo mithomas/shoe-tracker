@@ -122,6 +122,35 @@ class HealthResourceTest {
         val unknownResult = DatabaseHealthCheck(nullMetaDataSource).call()
         assertThat(unknownResult.status).isEqualTo(HealthCheckResponse.Status.UP)
         assertThat(unknownResult.data.orElse(emptyMap())["database"]).isEqualTo("Unknown")
+
+        // Verify dynamic product name reporting when connected to MariaDB
+        val mariaDbMetaData =
+            Proxy.newProxyInstance(
+                java.sql.DatabaseMetaData::class.java.classLoader,
+                arrayOf(java.sql.DatabaseMetaData::class.java),
+            ) { _, method, _ ->
+                if (method.name == "getDatabaseProductName") "MariaDB" else null
+            } as java.sql.DatabaseMetaData
+        val mariaDbConnection =
+            Proxy.newProxyInstance(
+                Connection::class.java.classLoader,
+                arrayOf(Connection::class.java),
+            ) { _, method, _ ->
+                when (method.name) {
+                    "createStatement" -> dummyStatement
+                    "getMetaData" -> mariaDbMetaData
+                    else -> null
+                }
+            } as Connection
+        val mariaDbDataSource =
+            object : DataSource by failingDataSource {
+                override fun getConnection(): Connection = mariaDbConnection
+            }
+
+        val mariaDbResult = DatabaseHealthCheck(mariaDbDataSource).call()
+        assertThat(mariaDbResult.name).isEqualTo("Database connection health check")
+        assertThat(mariaDbResult.status).isEqualTo(HealthCheckResponse.Status.UP)
+        assertThat(mariaDbResult.data.orElse(emptyMap())["database"]).isEqualTo("MariaDB")
     }
 
     @Test
