@@ -61,6 +61,14 @@ java -jar build/quarkus-app/quarkus-run.jar
 java -Dquarkus.http.port=8085 -jar build/quarkus-app/quarkus-run.jar
 ```
 
+### Run with Docker Compose
+
+Deploy the container locally with persistent data storage:
+```bash
+docker compose up -d
+```
+The application will be accessible at [http://localhost:8080](http://localhost:8080) with SQLite database persisted to `./data/shoe-tracker.db`.
+
 ### Run Automated Tests
 ```bash
 ./gradlew test
@@ -149,7 +157,7 @@ All endpoints are versioned under `/api/v1`:
 ## Roadmap & Backlog
 
 - [x] **AGPL-3.0 License:** Add root licensing files and copyleft notices.
-- [ ] **CI/CD:** GitHub Actions workflow building and publishing multi-stage container to Docker Hub.
+- [x] **CI/CD:** GitHub Actions workflow building and publishing multi-stage container to Docker Hub.
 - [ ] **Real-Time Live Map:** Stream newly spotted shoes via Server-Sent Events (SSE).
 - [ ] **Dedicated Accounts:** User profile management and optional LDAP/OAuth integration.
 - [ ] **Shoe Classification:** Metadata tagging for shoe types (sneakers, boots) and colors.
