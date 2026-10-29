@@ -1,5 +1,7 @@
 package org.shoetracker.repository
 
+import io.quarkus.runtime.Startup
+import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 import org.shoetracker.domain.GeoLocation
@@ -14,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock
 import javax.sql.DataSource
 import kotlin.concurrent.withLock
 
+@Startup
 @ApplicationScoped
 class SightingRepository(
     private val dataSource: DataSource,
@@ -24,39 +27,40 @@ class SightingRepository(
     // Formatter ensuring fixed-length 3-digit milliseconds for strict lexicographical sorting in SQLite TEXT columns
     private val isoFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSX").withZone(ZoneOffset.UTC)
 
-    // Dedicated connection holding prepared statements compiled once on initialization
-    private val connection: Connection by lazy {
-        dataSource.connection
-    }
+    private lateinit var connection: Connection
+    private lateinit var insertStmt: PreparedStatement
+    private lateinit var findWithUserStmt: PreparedStatement
+    private lateinit var findAllStmt: PreparedStatement
+    private lateinit var countWithUserStmt: PreparedStatement
+    private lateinit var countAllStmt: PreparedStatement
+    private lateinit var deleteAllStmt: PreparedStatement
+    private lateinit var deleteByIdStmt: PreparedStatement
 
-    private val insertStmt: PreparedStatement by lazy {
-        connection.prepareStatement(
-            "INSERT INTO sightings (id, user_id, latitude, longitude, recorded_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        )
-    }
+    @PostConstruct
+    fun init() {
+        val conn = dataSource.connection
+        // Fail-fast connectivity check
+        conn.createStatement().use { stmt ->
+            stmt.executeQuery("SELECT 1").close()
+        }
 
-    private val findWithUserStmt: PreparedStatement by lazy {
-        connection.prepareStatement(
-            "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
-        )
-    }
-
-    private val findAllStmt: PreparedStatement by lazy {
-        connection.prepareStatement(
-            "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
-        )
-    }
-
-    private val countWithUserStmt: PreparedStatement by lazy {
-        connection.prepareStatement("SELECT COUNT(*) FROM sightings WHERE user_id = ?")
-    }
-
-    private val countAllStmt: PreparedStatement by lazy {
-        connection.prepareStatement("SELECT COUNT(*) FROM sightings")
-    }
-
-    private val deleteAllStmt: PreparedStatement by lazy {
-        connection.prepareStatement("DELETE FROM sightings")
+        connection = conn
+        insertStmt =
+            conn.prepareStatement(
+                "INSERT INTO sightings (id, user_id, latitude, longitude, recorded_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            )
+        findWithUserStmt =
+            conn.prepareStatement(
+                "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings WHERE user_id = ? ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
+            )
+        findAllStmt =
+            conn.prepareStatement(
+                "SELECT id, user_id, latitude, longitude, recorded_at, created_at FROM sightings ORDER BY recorded_at DESC LIMIT ? OFFSET ?",
+            )
+        countWithUserStmt = conn.prepareStatement("SELECT COUNT(*) FROM sightings WHERE user_id = ?")
+        countAllStmt = conn.prepareStatement("SELECT COUNT(*) FROM sightings")
+        deleteAllStmt = conn.prepareStatement("DELETE FROM sightings")
+        deleteByIdStmt = conn.prepareStatement("DELETE FROM sightings WHERE id = ?")
     }
 
     fun insert(sighting: Sighting): Sighting {
@@ -127,25 +131,22 @@ class SightingRepository(
         }
     }
 
-    fun deleteById(id: String): Boolean {
-        val sql = "DELETE FROM sightings WHERE id = ?"
-        return writeLock.withLock {
-            connection.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, id)
-                stmt.executeUpdate() > 0
-            }
-        }
+    fun deleteById(id: String): Boolean = writeLock.withLock {
+        deleteByIdStmt.clearParameters()
+        deleteByIdStmt.setString(1, id)
+        deleteByIdStmt.executeUpdate() > 0
     }
 
     @PreDestroy
     override fun close() {
-        runCatching { insertStmt.close() }
-        runCatching { findWithUserStmt.close() }
-        runCatching { findAllStmt.close() }
-        runCatching { countWithUserStmt.close() }
-        runCatching { countAllStmt.close() }
-        runCatching { deleteAllStmt.close() }
-        runCatching { connection.close() }
+        if (::insertStmt.isInitialized) runCatching { insertStmt.close() }
+        if (::findWithUserStmt.isInitialized) runCatching { findWithUserStmt.close() }
+        if (::findAllStmt.isInitialized) runCatching { findAllStmt.close() }
+        if (::countWithUserStmt.isInitialized) runCatching { countWithUserStmt.close() }
+        if (::countAllStmt.isInitialized) runCatching { countAllStmt.close() }
+        if (::deleteAllStmt.isInitialized) runCatching { deleteAllStmt.close() }
+        if (::deleteByIdStmt.isInitialized) runCatching { deleteByIdStmt.close() }
+        if (::connection.isInitialized) runCatching { connection.close() }
     }
 
     private fun mapRow(rs: ResultSet): Sighting = Sighting(
