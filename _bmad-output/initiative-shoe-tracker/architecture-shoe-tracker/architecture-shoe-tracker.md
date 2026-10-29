@@ -53,11 +53,11 @@ graph LR
 - **Prevents:** Desynchronized frontend/backend deployments, CORS configuration complexity, and multi-container hosting overhead.
 - **Rule:** The web UI is implemented in vanilla HTML5, CSS, and modern JavaScript located in `src/main/resources/META-INF/resources/`. Per Jakarta/Servlet 3.0+ and Quarkus specifications, resources in `META-INF/resources/` are automatically served directly at the root HTTP path (`/`) without requiring build copy tasks, proxying, or Node.js runtime overhead, while supporting instantaneous hot-reload in Quarkus dev mode. A multi-stage Dockerfile compiles the Quarkus fast-jar with Gradle on JDK 25 and outputs a minimal runnable JRE 25 container image.
 
-### AD-3 - Gradle Build Tool and JVM Runtime Mode [ADOPTED]
+### AD-3 - Gradle Build Tool and JVM / GraalVM Native Runtime Modes [ADOPTED]
 
-- **Binds:** `C2`
-- **Prevents:** Build script maintenance fragmentation across Kotlin projects, and JNI library loading failures associated with SQLite native C-bindings under GraalVM native images.
-- **Rule:** The backend must use Gradle with Kotlin DSL (`build.gradle.kts`) targeting Java 25 in Quarkus JVM mode. GraalVM native image compilation is prohibited for SQLite compatibility.
+- **Binds:** `C2`, `R27`
+- **Prevents:** Build script maintenance fragmentation across Kotlin projects, and slow container startup times in serverless or auto-scaled environments.
+- **Rule:** The backend must use Gradle with Kotlin DSL (`build.gradle.kts`) targeting Java 25 in Quarkus JVM mode by default, and supports standalone GraalVM native image compilation via in-container Mandrel tooling (`-Dquarkus.native.container-build=true`) with `src/main/docker/Dockerfile.native` for sub-50ms cold starts.
 
 ### AD-4 - Versioned REST API with Nested Location and Wrapped Collection [ADOPTED]
 
@@ -89,14 +89,20 @@ graph LR
 - **Prevents:** Leaking infrastructure/DTO concerns into the domain core, circular dependencies, and tight coupling.
 - **Rule:** The `org.shoetracker.domain` package must remain pure domain with zero outward dependencies on `repository` or `api.dto`. Application orchestration, validation, and DTO mapping reside in `org.shoetracker.service`. REST controllers reside in `org.shoetracker.api`. Persistence resides in `org.shoetracker.repository`. Static web assets reside in `src/main/resources/META-INF/resources/` per Quarkus root classpath resource convention.
 
+### AD-9 - Embedded H2 Database with Native Timestamps & Multi-Target Runtime Datasource [ADOPTED]
+
+- **Binds:** `R23`, `R24`, `R25`, `R26`, `R27`, `C3`
+- **Prevents:** SQLite JNI native binary dependencies, in-process file write serialization locks, inability to compile GraalVM native images, and vendor lock-in preventing external enterprise database usage.
+- **Rule:** Persistence defaults to a pure-Java embedded H2 database (`io.quarkus:quarkus-jdbc-h2`) operating in `MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE` with MVCC row-level locking. File persistence resides at `/data/shoe-tracker` (`.mv.db`). In-memory persistence (`jdbc:h2:mem:shoetracker;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE`) is supported for ephemeral testing. The `sightings` table schema uses ANSI/MySQL DDL with `VARCHAR(36) PRIMARY KEY` and native `TIMESTAMP(3)` columns defaulting to `CURRENT_TIMESTAMP(3)`. Timestamps are bound and extracted in UTC via `Calendar.getInstance(TimeZone.getTimeZone("UTC"))`. `SightingRepository` relies on thread-safe connection checkouts (`dataSource.connection.use`) backed by Agroal statement caching (`quarkus.datasource.jdbc.enable-stm-cache=true`), eliminating in-process `ReentrantLock` write serialization. Standard Quarkus environment variables (`QUARKUS_DATASOURCE_*`) allow runtime switching to external production MariaDB/MySQL instances without code modification.
+
 ## Consistency Conventions
 
 | Concern | Convention |
 | --- | --- |
 | Naming | Endpoints use kebab-case with version prefix (`/api/v1/sightings`); wire JSON fields use snake_case (`user_id`, `recorded_at`, `created_at`); DB columns use snake_case; Kotlin classes use PascalCase. |
-| Data & formats | Identifiers: UUIDv7 string. Coordinates: WGS84 decimal degrees (REAL). Timestamps: ISO-8601 UTC string (`YYYY-MM-DDTHH:mm:ss.sssZ`). Collections: `{ "items": [...], "total": ..., "limit": ..., "offset": ... }`. |
-| State & cross-cutting | Client identity: Local storage (`user_id` stores the user's entered name for MVP). Database concurrency: SQLite WAL mode with 5000ms busy timeout. |
-| Error responses | RFC 7807 problem details JSON: `{ "type": "about:blank", "title": "...", "status": 400, "detail": "..." }`. |
+| Data & formats | Identifiers: UUIDv7 string. Coordinates: WGS84 decimal degrees (`DOUBLE`). Timestamps: Native `TIMESTAMP(3)` UTC (`YYYY-MM-DDTHH:mm:ss.sssZ`). Collections: `{ "items": [...], "total": ..., "limit": ..., "offset": ... }`. |
+| State & cross-cutting | Client identity: Local storage (`user_id` stores the user's entered name for MVP). Database concurrency: H2 MVCC row-level locking (`MODE=MySQL`) / Agroal connection pooling. |
+| Error responses | RFC 7807 problem details JSON: `{ "type": "about:blank", "title": "...", "status": 400|500|503, "detail": "...", "error_id": "..." }`. |
 
 ## Stack
 
@@ -105,7 +111,8 @@ graph LR
 | Java | 25 |
 | Kotlin | 2.1.10 |
 | Quarkus | 3.40.1.1 |
-| sqlite-jdbc | 3.53.4.0 |
+| quarkus-jdbc-h2 | 3.40.1.1 |
+| quarkus-jdbc-mariadb | 3.40.1.1 |
 | Flyway | 10.21.0 |
 | Vite | 6.2.0 |
 | TypeScript | 5.7.3 |
