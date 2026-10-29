@@ -268,29 +268,11 @@ body {
 
 .btn-spot-container {
   position: relative;
-  width: 230px;
-  height: 230px;
+  width: 210px;
+  height: 210px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.cooldown-ring {
-  position: absolute;
-  inset: 0;
-  width: 230px;
-  height: 230px;
-  transform: rotate(-90deg);
-  pointer-events: none;
-}
-
-.cooldown-ring circle.bg {
-  stroke: rgba(51, 65, 85, 0.4);
-}
-
-.cooldown-ring circle.progress {
-  stroke: var(--action-primary);
-  stroke-linecap: round;
 }
 
 .btn-spot-giant {
@@ -330,13 +312,6 @@ body {
   text-transform: uppercase;
 }
 
-.btn-spot-giant.cooldown {
-  background: var(--action-cooldown);
-  box-shadow: none;
-  cursor: not-allowed;
-  transform: scale(0.98);
-}
-
 .btn-spot-giant.waiting-gps {
   background: var(--surface-overlay);
   box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
@@ -349,7 +324,6 @@ body {
   cursor: not-allowed;
 }
 
-.btn-spot-giant.cooldown .label,
 .btn-spot-giant.waiting-gps .label,
 .btn-spot-giant.no-gps .label {
   font-size: 15px;

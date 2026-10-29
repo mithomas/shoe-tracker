@@ -29,7 +29,7 @@ class FrontendAssetTest {
             .contains("gpsWarningBanner")
             .contains("btnSpotGiant")
             .contains("sightingModal")
-            .contains("cooldownRingProgress")
+            .doesNotContain("cooldownRingProgress")
             .contains("btnSightingUndo")
             .contains("networkAlertBanner")
             .contains("coords-val")
@@ -170,7 +170,7 @@ class FrontendAssetTest {
         assertThat(css)
             .contains("--surface-base")
             .contains("btn-spot-giant")
-            .contains("cooldown-ring")
+            .doesNotContain("cooldown-ring")
             .contains("btn-modal-tertiary")
             .contains("coords-val")
             .contains("app-footer")
@@ -308,9 +308,10 @@ class FrontendAssetTest {
                 .extract()
                 .asString()
         assertThat(spotJs)
-            .contains("startCooldown")
-            .contains("cooldownSeconds")
+            .contains("isSubmitting")
             .contains("setGpsStatus")
+            .doesNotContain("startCooldown")
+            .doesNotContain("cooldownSeconds")
     }
 
     @Test

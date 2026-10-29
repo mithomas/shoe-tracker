@@ -1,6 +1,6 @@
 /**
  * High-Velocity Spot Button Controller for Shoe Tracker.
- * Manages the 210px button, 3-second mandatory cooldown, and tap submission.
+ * Manages the 210px button, in-flight submission lock, and tap submission.
  */
 (function() {
   window.ShoeTracker = window.ShoeTracker || {};
@@ -9,25 +9,15 @@
     constructor() {
       this.buttonEl = null;
       this.labelEl = null;
-      this.cooldownRingEl = null;
       this.networkAlertEl = null;
-      this.isCooldown = false;
+      this.isSubmitting = false;
       this.gpsStatus = 'locating';
-      this.cooldownSeconds = 3;
-      this.cooldownTimer = null;
-      this.circumference = 2 * Math.PI * 105; // radius = 105px for 210px button
     }
 
     init() {
       this.buttonEl = document.getElementById('btnSpotGiant');
       this.labelEl = document.getElementById('btnSpotLabel');
-      this.cooldownRingEl = document.getElementById('cooldownRingProgress');
       this.networkAlertEl = document.getElementById('networkAlertBanner');
-
-      if (this.cooldownRingEl) {
-        this.cooldownRingEl.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
-        this.cooldownRingEl.style.strokeDashoffset = '0';
-      }
 
       if (this.buttonEl) {
         this.buttonEl.addEventListener('click', (e) => {
@@ -39,7 +29,7 @@
 
     setGpsStatus(status) {
       this.gpsStatus = status;
-      if (this.isCooldown) return;
+      if (this.isSubmitting) return;
 
       if (!this.buttonEl || !this.labelEl) return;
 
@@ -60,8 +50,8 @@
     }
 
     async handleTap() {
-      // 1. Mandatory Cooldown Lock: Strictly ignore repeated taps
-      if (this.isCooldown || this.gpsStatus !== 'ready') {
+      // 1. In-Flight Submission Lock: Strictly ignore duplicate taps while POST is pending
+      if (this.isSubmitting || this.gpsStatus !== 'ready') {
         return;
       }
 
@@ -84,8 +74,11 @@
         return;
       }
 
-      // 4. Start 3-Second Mandatory Cooldown immediately
-      this.startCooldown();
+      // 4. Engage in-flight lock during network submission
+      this.isSubmitting = true;
+      if (this.buttonEl) {
+        this.buttonEl.disabled = true;
+      }
 
       // 5. Trigger Haptic Feedback
       if ('vibrate' in navigator) {
@@ -127,6 +120,9 @@
         if (outputEl) {
           outputEl.innerHTML = `<pre style="color:#EF4444;">Could not reach server. Check connection.</pre>`;
         }
+      } finally {
+        this.isSubmitting = false;
+        this.setGpsStatus(this.gpsStatus);
       }
     }
 
@@ -136,53 +132,6 @@
         setTimeout(() => {
           this.networkAlertEl.classList.remove('visible');
         }, 4000);
-      }
-    }
-
-    startCooldown() {
-      this.isCooldown = true;
-      let remaining = this.cooldownSeconds;
-
-      if (this.buttonEl) {
-        this.buttonEl.classList.add('cooldown');
-        this.buttonEl.disabled = true;
-      }
-      if (this.labelEl) {
-        this.labelEl.textContent = `Logged! ${remaining}s`;
-      }
-      if (this.cooldownRingEl) {
-        this.cooldownRingEl.style.transition = 'none';
-        this.cooldownRingEl.style.strokeDashoffset = '0';
-        void this.cooldownRingEl.offsetWidth;
-        this.cooldownRingEl.style.transition = `stroke-dashoffset ${this.cooldownSeconds}s linear`;
-        this.cooldownRingEl.style.strokeDashoffset = `${this.circumference}`;
-      }
-
-      this.cooldownTimer = setInterval(() => {
-        remaining -= 1;
-        if (remaining > 0) {
-          if (this.labelEl) this.labelEl.textContent = `Logged! ${remaining}s`;
-        } else {
-          this.releaseCooldown();
-        }
-      }, 1000);
-    }
-
-    releaseCooldown() {
-      if (this.cooldownTimer !== null) {
-        clearInterval(this.cooldownTimer);
-        this.cooldownTimer = null;
-      }
-      this.isCooldown = false;
-
-      if (this.buttonEl) {
-        this.buttonEl.classList.remove('cooldown');
-      }
-      this.setGpsStatus(this.gpsStatus);
-
-      if (this.cooldownRingEl) {
-        this.cooldownRingEl.style.transition = 'none';
-        this.cooldownRingEl.style.strokeDashoffset = '0';
       }
     }
   }
