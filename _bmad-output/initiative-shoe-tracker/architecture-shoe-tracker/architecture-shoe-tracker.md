@@ -114,8 +114,6 @@ graph LR
 | quarkus-jdbc-h2 | 3.40.1.1 |
 | quarkus-jdbc-mariadb | 3.40.1.1 |
 | Flyway | 10.21.0 |
-| Vite | 6.2.0 |
-| TypeScript | 5.7.3 |
 | Leaflet | 1.9.4 |
 
 ## Structural Seed
