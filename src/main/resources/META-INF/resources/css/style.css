@@ -508,7 +508,7 @@ pre {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 0 14px 0;
+  margin: 24px 0 28px 0;
 }
 
 .modal-autoclose-ring {

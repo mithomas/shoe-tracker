@@ -979,6 +979,7 @@ class FrontendAssetTest {
             .contains(".modal-backdrop.modal-backdrop-centered")
             .contains(".modal-sheet.modal-card-centered")
             .contains(".modal-accept-area")
+            .contains("margin: 24px 0 28px 0;")
             .contains(".modal-actions.modal-actions-stacked")
     }
 
