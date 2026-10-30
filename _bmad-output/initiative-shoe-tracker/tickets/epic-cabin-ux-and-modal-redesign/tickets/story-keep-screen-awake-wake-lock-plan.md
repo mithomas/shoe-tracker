@@ -1,9 +1,17 @@
 ---
-source_ticket: "_bmad-output/initiative-shoe-tracker/tickets/epic-cabin-ux-and-modal-redesign/tickets/story-keep-screen-awake-wake-lock.md"
-title: "Keep Smartphone Screen Awake via Screen Wake Lock API"
-route: "oneshot"
-status: "built"
+title: 'Keep Smartphone Screen Awake via Screen Wake Lock API'
+type: 'feature'
+ticket: '4'
+created: '2026-10-30'
+status: 'built'
+route: 'oneshot'
+route_source: 'auto'
+risk: 'low'
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
 review_loop_iteration: 1
+context: []
 ---
 
 # Implementation Plan - Keep Smartphone Screen Awake via Screen Wake Lock API (Story 8.4)

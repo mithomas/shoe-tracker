@@ -112,12 +112,8 @@
 
     async fetchSightings() {
       const loadingEl = document.getElementById('fullMapLoading');
-      const emptyEl = document.getElementById('fullMapEmpty');
-      const emptyOwnEl = document.getElementById('fullMapEmptyOwn');
 
       if (loadingEl) loadingEl.style.display = 'block';
-      if (emptyEl) emptyEl.style.display = 'none';
-      if (emptyOwnEl) emptyOwnEl.style.display = 'none';
 
       this.isFetching = true;
       try {
@@ -156,25 +152,11 @@
       const ownOnly = filterManager ? filterManager.isOwnOnly() : (this.ownOnly || false);
       const currentUserId = (onboarding && onboarding.getUserId()) ? onboarding.getUserId().trim().toLowerCase() : '';
 
-      const emptyEl = document.getElementById('fullMapEmpty');
-      const emptyOwnEl = document.getElementById('fullMapEmptyOwn');
-
       const filtered = this.sightings.filter(s => {
         if (!ownOnly) return true;
         const sUserId = (s.user ? s.user.id : (s.user_id || '')).trim().toLowerCase();
         return currentUserId && sUserId === currentUserId;
       });
-
-      if (ownOnly && filtered.length === 0) {
-        if (emptyEl) emptyEl.style.display = 'none';
-        if (emptyOwnEl) emptyOwnEl.style.display = 'block';
-      } else if (this.sightings.length === 0) {
-        if (emptyEl) emptyEl.style.display = 'block';
-        if (emptyOwnEl) emptyOwnEl.style.display = 'none';
-      } else {
-        if (emptyEl) emptyEl.style.display = 'none';
-        if (emptyOwnEl) emptyOwnEl.style.display = 'none';
-      }
 
       const currentZoom = this.map ? this.map.getZoom() : this.defaultZoom;
       const clusters = this.clusterSightings(filtered, currentZoom, currentUserId);

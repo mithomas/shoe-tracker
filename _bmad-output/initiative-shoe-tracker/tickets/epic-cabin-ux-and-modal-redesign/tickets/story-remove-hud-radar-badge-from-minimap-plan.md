@@ -1,9 +1,17 @@
 ---
-source_ticket: "_bmad-output/initiative-shoe-tracker/tickets/epic-cabin-ux-and-modal-redesign/tickets/story-remove-hud-radar-badge-from-minimap.md"
 title: "Remove 'HUD Radar' Badge from HUD Mini-Map"
-route: "oneshot"
-status: "built"
+type: 'feature'
+ticket: '5'
+created: '2026-10-30'
+status: 'built'
+route: 'oneshot'
+route_source: 'auto'
+risk: 'low'
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
 review_loop_iteration: 1
+context: []
 ---
 
 # Implementation Plan - Remove 'HUD Radar' Badge from HUD Mini-Map (Story 8.5)
