@@ -161,12 +161,20 @@
     </button>
   </nav>
 
-  <!-- Sighting Confirmation Modal Sheet -->
-  <div class="modal-backdrop" id="sightingModal">
-    <div class="modal-sheet">
+  <!-- Sighting Confirmation Modal Card -->
+  <div class="modal-backdrop modal-backdrop-centered" id="sightingModal">
+    <div class="modal-sheet modal-card-centered">
       <h2 class="modal-title" data-i18n="modal.title">👟 Shoe Spotted!</h2>
       <p class="modal-subtitle" data-i18n="modal.subtitle">Your sighting has been logged to the highway registry.</p>
-      <div class="modal-detail-box">
+      <div class="modal-accept-area">
+        <div class="btn-spot-container">
+          <button class="btn-spot-giant btn-modal-accept-giant" id="btnSightingAwesome" type="button">
+            <span class="icon">👟</span>
+            <span class="label" id="btnSightingAwesomeLabel" data-i18n="modal.awesome">Awesome!</span>
+          </button>
+        </div>
+      </div>
+      <div class="modal-detail-box" id="sightingModalDetails">
         <div class="modal-detail-row">
           <span class="label" data-i18n="modal.time">Time:</span>
           <span class="val" id="sightingModalTime">--:--:--</span>
@@ -180,8 +188,7 @@
           <span class="val" id="sightingModalUser">--</span>
         </div>
       </div>
-      <div class="modal-actions">
-        <button class="btn-primary-action" id="btnSightingAwesome" data-i18n="modal.awesome">Awesome!</button>
+      <div class="modal-actions modal-actions-stacked">
         <button class="btn-modal-secondary" id="btnSightingViewMap" data-i18n="modal.viewMap">View on Map</button>
         <button class="btn-modal-tertiary" id="btnSightingUndo" data-i18n="modal.undo">Undo</button>
       </div>

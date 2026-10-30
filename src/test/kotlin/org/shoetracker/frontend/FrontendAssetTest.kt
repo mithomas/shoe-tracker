@@ -926,4 +926,50 @@ class FrontendAssetTest {
             .contains("white-space: nowrap;")
             .doesNotContain("color: #E2E8F0;")
     }
+
+    @Test
+    fun testSightingConfirmationModalCircularAcceptButtonLayout() {
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(html)
+            .contains("modal-backdrop-centered")
+            .contains("modal-card-centered")
+            .contains("modal-accept-area")
+            .contains("btn-modal-accept-giant")
+            .contains("id=\"btnSightingAwesomeLabel\"")
+            .contains("id=\"sightingModalDetails\"")
+            .contains("modal-actions-stacked")
+
+        val awesomeIdx = html.indexOf("id=\"btnSightingAwesome\"")
+        val detailsIdx = html.indexOf("id=\"sightingModalDetails\"")
+        val viewMapIdx = html.indexOf("id=\"btnSightingViewMap\"")
+        val undoIdx = html.indexOf("id=\"btnSightingUndo\"")
+
+        assertThat(awesomeIdx).isGreaterThan(0)
+        assertThat(detailsIdx).isGreaterThan(awesomeIdx)
+        assertThat(viewMapIdx).isGreaterThan(detailsIdx)
+        assertThat(undoIdx).isGreaterThan(viewMapIdx)
+
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains(".modal-backdrop.modal-backdrop-centered")
+            .contains(".modal-sheet.modal-card-centered")
+            .contains(".modal-accept-area")
+            .contains(".modal-actions.modal-actions-stacked")
+    }
 }

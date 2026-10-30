@@ -477,6 +477,56 @@ pre {
   transform: translateY(0);
 }
 
+.modal-backdrop.modal-backdrop-centered {
+  align-items: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-sheet.modal-card-centered {
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  padding: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  transform: scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+
+.modal-backdrop.active .modal-sheet.modal-card-centered {
+  transform: scale(1);
+}
+
+.modal-card-centered .modal-subtitle {
+  margin: 0 0 12px 0;
+}
+
+.modal-accept-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 14px 0;
+}
+
+.modal-card-centered .modal-detail-box {
+  text-align: left;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.modal-actions.modal-actions-stacked {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-actions.modal-actions-stacked .btn-modal-secondary,
+.modal-actions.modal-actions-stacked .btn-modal-tertiary {
+  width: 100%;
+  flex: none;
+  padding: 10px 14px;
+}
+
 .modal-title {
   font-size: 20px;
   font-weight: 700;
