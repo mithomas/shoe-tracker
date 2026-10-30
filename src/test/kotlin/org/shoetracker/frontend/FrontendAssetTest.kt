@@ -572,7 +572,10 @@ class FrontendAssetTest {
         val readmeFile = File("README.md")
         assertThat(readmeFile).exists().isFile()
         val readmeContent = readmeFile.readText()
-        assertThat(readmeContent).contains("GNU Affero General Public License v3.0 (AGPL-3.0)")
+        assertThat(readmeContent)
+            .contains("GNU Affero General Public License v3.0 (AGPL-3.0)")
+            .contains("https://github.com/mithomas/shoe-tracker")
+            .doesNotContain("mitch/shoe-tracker")
 
         val html =
             given()
@@ -584,7 +587,9 @@ class FrontendAssetTest {
                 .asString()
         assertThat(html)
             .contains("footer-license-link")
+            .contains("https://github.com/mithomas/shoe-tracker")
             .contains("AGPL-3.0 Source")
+            .doesNotContain("mitch/shoe-tracker")
 
         val css =
             given()

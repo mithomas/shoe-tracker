@@ -26,7 +26,7 @@ Shoe Tracker builds and tests uniformly on JDK 25 across local development, CI, 
 - R36: Local development, Gradle Java toolchain (`JavaLanguageVersion.of(25)`), `sourceCompatibility`/`targetCompatibility` (`JavaVersion.VERSION_25`), Kotlin `JvmTarget.JVM_25`, GitHub Actions CI (`java-version: '25'`), and `README.md` prerequisites target JDK 25 with zero Java 21 fallbacks.
 - R37: GitHub Actions CI workflow (`.github/workflows/ci.yml`) runs on `actions/checkout@v5`, `actions/setup-java@v5`, and `gradle/actions/wrapper-validation@v5` targeting Node.js 24 natively with zero `@v4` references.
 - R38: Docker Hub CI release job builds and publishes only the `linux/amd64` container platform without `linux/arm64` cross-compilation or `docker/setup-qemu-action` emulation overhead.
-- R39: Default container image in `docker-compose.yml` (`${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}`) and container deployment examples in `README.md` reference `mithomas/shoe-tracker` instead of placeholder `mitch/shoe-tracker`.
+- R39: Default container image in `docker-compose.yml` (`${DOCKERHUB_IMAGE:-mithomas/shoe-tracker:latest}`), container deployment examples in `README.md`, and GitHub source repository links (`https://github.com/mithomas/shoe-tracker`) in `README.md` and `index.html` reference `mithomas/shoe-tracker` instead of placeholder `mitch/shoe-tracker`.
 - R40: HUD mini-map location-denied overlay (`#miniMapDeniedOverlay` in `index.html` and `spot.deniedOverlay` in `i18n.js`) displays concise `⚠️ Location Access Denied` (EN) and `⚠️ Standortzugriff verweigert` (DE) without the redundant ` — Germany Overview` / ` — Deutschland-Übersicht` suffix.
 - R41: Geolocation unavailable/denied state (`no-gps`), DOM/CSS/i18n identifiers (`#miniMapNoGpsOverlay`, `.gps-pill.no-gps`, `gps.noGps`, `spot.noGps`, `spot.noGpsOverlay`), and UI labels across the header GPS pill, giant Spot button, and HUD mini-map overlay use concise `No GPS` / `⚠️ No GPS` (EN) and `Kein GPS` / `⚠️ Kein GPS` (DE) instead of `GPS Denied` / `GPS Verweigert` / `Location Access Denied`.
 - R42: Quarkus Flyway runtime bundles `io.quarkus:quarkus-flyway-mysql` (`org.flywaydb:flyway-mysql`) so Flyway 12 supports MariaDB (including MariaDB 11.8) and MySQL alongside H2; JVM container and Gradle test runtimes pass `--enable-native-access=ALL-UNNAMED` to eliminate JDK 25 JNA restricted `System::load` warnings; and a `@JdbcDriver("other")` `AgroalConnectionConfigurer` bean (`MultiTargetAgroalConnectionConfigurer`) registers `MySQLExceptionSorter` so Agroal detects fatal connection exceptions and suppresses the `database kind: other` startup warning.
@@ -42,7 +42,7 @@ Shoe Tracker builds and tests uniformly on JDK 25 across local development, CI, 
 
 ## Boundaries
 
-- Must not change: GitHub repository URL (`https://github.com/mitch/shoe-tracker` in `README.md` and `index.html`) or `.github/workflows/ci.yml` secret interpolation (`${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker`).
+- Must not change: `.github/workflows/ci.yml` secret interpolation (`${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker`).
 - Must not change: HUD mini-map fallback center coordinates (`[50.8, 9.7]`, zoom `6` in `minimap.js`).
 
 ## References

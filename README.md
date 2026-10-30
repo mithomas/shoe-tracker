@@ -210,4 +210,4 @@ All endpoints are versioned under `/api/v1`:
 
 This project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE) - see the [LICENSE](LICENSE) file for details.
 
-As network server software, users interacting with Shoe Tracker remotely through a computer network are entitled to access the corresponding source code under Section 13 of the AGPL-3.0. Complete source code is available in the [Shoe Tracker GitHub Repository](https://github.com/mitch/shoe-tracker) or via the in-app footer link.
+As network server software, users interacting with Shoe Tracker remotely through a computer network are entitled to access the corresponding source code under Section 13 of the AGPL-3.0. Complete source code is available in the [Shoe Tracker GitHub Repository](https://github.com/mithomas/shoe-tracker) or via the in-app footer link.

@@ -87,3 +87,14 @@ covers = ["R38", "R39"]
 after = [1, 2, 3, 4]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 9
+type = "bug"
+title = "Fix GitHub Source Repository Link URL to Point to mithomas/shoe-tracker"
+description = "Updates the AGPL-3.0 source repository links in index.html (both Spot and List footers) and README.md from https://github.com/mitch/shoe-tracker to https://github.com/mithomas/shoe-tracker, and asserts the URL and absence of mitch/shoe-tracker in FrontendAssetTest.kt and DevOpsAssetTest.kt."
+verify = "index.html and README.md point to https://github.com/mithomas/shoe-tracker with zero mitch/shoe-tracker references, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R39"]
+after = [4]
+hitl = false
+risk = "low"
