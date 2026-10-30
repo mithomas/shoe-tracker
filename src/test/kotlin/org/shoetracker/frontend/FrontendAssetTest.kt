@@ -943,9 +943,18 @@ class FrontendAssetTest {
             .contains("modal-card-centered")
             .contains("modal-accept-area")
             .contains("btn-modal-accept-giant")
+            .contains("<span class=\"icon\">😊</span>")
             .contains("id=\"btnSightingAwesomeLabel\"")
             .contains("id=\"sightingModalDetails\"")
             .contains("modal-actions-stacked")
+
+        val awesomeSection = html.substring(html.indexOf("id=\"btnSightingAwesome\""), html.indexOf("id=\"sightingModalDetails\""))
+        assertThat(awesomeSection)
+            .contains("<span class=\"icon\">😊</span>")
+            .doesNotContain("<span class=\"icon\">👟</span>")
+
+        val spotSection = html.substring(html.indexOf("id=\"btnSpotGiant\""), html.indexOf("id=\"spotCounterCard\""))
+        assertThat(spotSection).contains("<span class=\"icon\">👟</span>")
 
         val awesomeIdx = html.indexOf("id=\"btnSightingAwesome\"")
         val detailsIdx = html.indexOf("id=\"sightingModalDetails\"")
