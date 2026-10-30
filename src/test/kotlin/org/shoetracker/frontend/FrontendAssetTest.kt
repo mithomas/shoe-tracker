@@ -1139,4 +1139,59 @@ class FrontendAssetTest {
             .contains("removeGestureFallback")
             .contains("window.ShoeTracker.wakeLockManager = new WakeLockManager()")
     }
+
+    @Test
+    fun testMockGpsCustomCoordinatesAndDisableParameter() {
+        val geoJs =
+            given()
+                .`when`()
+                .get("/js/geo.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(geoJs)
+            .contains("const DEFAULT_MOCK_LAT = 50.110924;")
+            .contains("const DEFAULT_MOCK_LON = 8.682127;")
+            .contains("isValidCoordinatePair(lat, lon)")
+            .contains("Number.isFinite(lat)")
+            .contains("Number.isFinite(lon)")
+            .contains("lat >= -90")
+            .contains("lat <= 90")
+            .contains("lon >= -180")
+            .contains("lon <= 180")
+            .contains("parseMockCoordinates(raw)")
+            .contains("raw.split(',')")
+            .contains("if (normalizedParam === 'false')")
+            .contains("localStorage.removeItem('mockGps');")
+            .contains("const customCoords = this.parseMockCoordinates(mockParam);")
+            .contains("this.enableMockMode(customCoords.latitude, customCoords.longitude);")
+            .contains("enableMockMode(lat, lon)")
+            .contains("if (this.isValidCoordinatePair(lat, lon))")
+            .contains("this.isStationaryMock = true;")
+            .contains("this.isStationaryMock = false;")
+            .contains("if (!this.isStationaryMock)")
+
+        val enableMockBlock = geoJs.substringAfter("enableMockMode(lat, lon) {").substringBefore("disableMockMode()")
+        val stationaryBranch =
+            enableMockBlock
+                .substringAfter("if (this.isValidCoordinatePair(lat, lon)) {")
+                .substringBefore("} else {")
+        assertThat(stationaryBranch)
+            .contains("this.isStationaryMock = true;")
+            .contains("this.mockLat = lat;")
+            .contains("this.mockLon = lon;")
+            .doesNotContain("localStorage.setItem")
+
+        val defaultBranch =
+            enableMockBlock
+                .substringAfter("} else {")
+                .substringBefore("this.latestPosition = {")
+        assertThat(defaultBranch)
+            .contains("this.isStationaryMock = false;")
+            .contains("this.mockLat = DEFAULT_MOCK_LAT;")
+            .contains("this.mockLon = DEFAULT_MOCK_LON;")
+            .contains("localStorage.setItem('mockGps', 'true');")
+    }
 }

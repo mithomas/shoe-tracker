@@ -23,18 +23,19 @@ Extends the built-in simulated GPS mode so developers and testers can supply opt
 1. **Custom Static Coordinates via `?mockGps=<lat>,<lon>`**
    **Given** the user opens Shoe Tracker with compact custom coordinates in the URL query string (`?mockGps=<lat>,<lon>`)
    **When** the geolocation watcher starts
-   **Then** if `<lat>` (`-90` to `90`) and `<lon>` (`-180` to `180`) are valid finite numbers, mock GPS mode initializes at those exact coordinates, remains stationary (does not increment coordinates on subsequent ticks), and does not persist to `localStorage`
-   **And** if `?mockGps=true` is passed without coordinates (or with out-of-range/non-numeric values), mock mode uses the default moving Frankfurt A5 simulation (`50.110924, 8.682127` with simulated drift)
+   **Then** if `<lat>` (`-90` to `90`, including `0`) and `<lon>` (`-180` to `180`, including `0`) are valid non-empty finite numbers, mock GPS mode initializes at those exact coordinates, remains stationary (does not increment coordinates on subsequent 5-second ticks), and does not persist to `localStorage`
+   **And** if `?mockGps=true` is passed without coordinates (or with out-of-range, empty-part, or non-numeric values), mock mode resets to and uses the default moving Frankfurt A5 simulation (`50.110924, 8.682127` with simulated drift) and persists `mockGps=true` in `localStorage`
 
 2. **Disable Persisted Mock Mode via `?mockGps=false`**
    **Given** mock GPS mode (`?mockGps=true`) was previously persisted in `localStorage`
    **When** the user loads the page with `?mockGps=false`
-   **Then** `localStorage` mock GPS state is cleared and standard `navigator.geolocation.watchPosition` tracking starts
+   **Then** `localStorage` mock GPS state is cleared, mock flags/timers are reset, and standard `navigator.geolocation.watchPosition` tracking starts
 
 3. **Optional Static Coordinate Arguments on `enableMockMode(lat, lon)`**
    **Given** `window.ShoeTracker.geoWatcher.enableMockMode(lat, lon)` is called with custom coordinates
-   **When** valid numeric `lat` and `lon` arguments are provided
+   **When** valid finite numeric `lat` (`-90` to `90`) and `lon` (`-180` to `180`) arguments are provided
    **Then** the simulated GPS watcher locks onto those exact static coordinates without simulated movement and without writing to `localStorage`
+   **And** when `enableMockMode()` is called without valid coordinate arguments, it resets to the default Frankfurt A5 starting coordinates (`50.110924, 8.682127`) with simulated movement and persists `mockGps=true` in `localStorage`
 
 ## Boundaries
 

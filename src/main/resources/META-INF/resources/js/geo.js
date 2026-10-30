@@ -1,10 +1,13 @@
 /**
  * Continuous Geolocation Watcher for Shoe Tracker.
  * Maintains hot coordinates in background and emits telemetry updates every 5 seconds.
- * Supports ?mockGps=true or manual simulation toggle for development/testing environments.
+ * Supports ?mockGps=true, ?mockGps=<lat>,<lon>, ?mockGps=false, or manual simulation toggle for development/testing environments.
  */
 (function() {
   window.ShoeTracker = window.ShoeTracker || {};
+
+  const DEFAULT_MOCK_LAT = 50.110924;
+  const DEFAULT_MOCK_LON = 8.682127;
 
   class GeolocationWatcher {
     constructor() {
@@ -15,14 +18,64 @@
       this.telemetryListeners = [];
       this.intervalTimer = null;
       this.isMock = false;
-      this.mockLat = 50.110924;
-      this.mockLon = 8.682127;
+      this.isStationaryMock = false;
+      this.mockLat = DEFAULT_MOCK_LAT;
+      this.mockLon = DEFAULT_MOCK_LON;
     }
 
-    start() {
-      // Check for URL parameter ?mockGps=true or localStorage flag
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('mockGps') === 'true' || localStorage.getItem('mockGps') === 'true') {
+    isValidCoordinatePair(lat, lon) {
+      return (
+        typeof lat === 'number' &&
+        typeof lon === 'number' &&
+        Number.isFinite(lat) &&
+        Number.isFinite(lon) &&
+        lat >= -90 &&
+        lat <= 90 &&
+        lon >= -180 &&
+        lon <= 180
+      );
+    }
+
+    parseMockCoordinates(raw) {
+      if (typeof raw !== 'string') return null;
+      const parts = raw.split(',');
+      if (parts.length !== 2) return null;
+      const latStr = parts[0].trim();
+      const lonStr = parts[1].trim();
+      if (latStr === '' || lonStr === '') return null;
+      const lat = Number(latStr);
+      const lon = Number(lonStr);
+      if (!this.isValidCoordinatePair(lat, lon)) return null;
+      return { latitude: lat, longitude: lon };
+    }
+
+    start(skipUrlCheck = false) {
+      // Check for URL parameter ?mockGps=true, ?mockGps=<lat>,<lon>, ?mockGps=false, or localStorage flag
+      if (!skipUrlCheck) {
+        const params = new URLSearchParams(window.location.search);
+        const mockParam = params.get('mockGps');
+        if (mockParam !== null) {
+          const normalizedParam = mockParam.trim().toLowerCase();
+          if (normalizedParam === 'false') {
+            this.isMock = false;
+            this.isStationaryMock = false;
+            localStorage.removeItem('mockGps');
+            this.stop();
+            this.latestPosition = null;
+          } else {
+            const customCoords = this.parseMockCoordinates(mockParam);
+            if (customCoords) {
+              this.enableMockMode(customCoords.latitude, customCoords.longitude);
+            } else {
+              this.enableMockMode();
+            }
+            return;
+          }
+        } else if (localStorage.getItem('mockGps') === 'true') {
+          this.enableMockMode();
+          return;
+        }
+      } else if (localStorage.getItem('mockGps') === 'true') {
         this.enableMockMode();
         return;
       }
@@ -60,10 +113,20 @@
       }
     }
 
-    enableMockMode() {
-      this.isMock = true;
-      localStorage.setItem('mockGps', 'true');
+    enableMockMode(lat, lon) {
       this.stop();
+      this.isMock = true;
+
+      if (this.isValidCoordinatePair(lat, lon)) {
+        this.isStationaryMock = true;
+        this.mockLat = lat;
+        this.mockLon = lon;
+      } else {
+        this.isStationaryMock = false;
+        this.mockLat = DEFAULT_MOCK_LAT;
+        this.mockLon = DEFAULT_MOCK_LON;
+        localStorage.setItem('mockGps', 'true');
+      }
 
       this.latestPosition = {
         latitude: this.mockLat,
@@ -75,15 +138,17 @@
       this.setState('ready', 'Simulated GPS Active');
       this.emitTelemetry();
 
-      // Simulate highway movement every 5 seconds (moving south along A5)
+      // Emit telemetry every 5 seconds; move south along A5 only when not in stationary custom-coordinate mode
       this.intervalTimer = setInterval(() => {
-        // Move ~100m south each 5s tick
-        this.mockLat -= 0.0009;
-        this.mockLon += 0.0001;
+        if (!this.isStationaryMock) {
+          // Move ~100m south each 5s tick
+          this.mockLat -= 0.0009;
+          this.mockLon += 0.0001;
+        }
         this.latestPosition = {
           latitude: this.mockLat,
           longitude: this.mockLon,
-          accuracy: 4.2,
+          accuracy: this.isStationaryMock ? 4.5 : 4.2,
           timestamp: new Date().toISOString()
         };
         this.emitTelemetry();
@@ -92,10 +157,11 @@
 
     disableMockMode() {
       this.isMock = false;
+      this.isStationaryMock = false;
       localStorage.removeItem('mockGps');
       this.stop();
       this.latestPosition = null;
-      this.start();
+      this.start(true);
     }
 
     stop() {
