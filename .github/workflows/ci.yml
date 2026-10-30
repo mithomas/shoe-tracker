@@ -89,3 +89,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Sync README.md to Docker Hub overview
+        if: env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker
+          short-description: Road-trip highway shoe-spotting tracker in a single Quarkus + H2/MariaDB container
+          readme-filepath: ./README.md
+          enable-url-completion: true

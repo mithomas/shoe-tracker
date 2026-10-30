@@ -199,7 +199,6 @@ All endpoints are versioned under `/api/v1`:
 
 ## Roadmap & Backlog
 
-- **Docker Hub README Sync:** Automatically synchronize `README.md` to the Docker Hub repository overview during CI/CD container publishing.
 - **HUD & Map Navigation Controls:** Compact `+`/`-` zoom buttons inside the HUD mini-map and optional manual and automatic GPS bearing map rotation across both maps.
 - **Real-Time Live Map:** Stream newly spotted shoes to connected clients via Server-Sent Events (SSE).
 - **Dedicated Accounts:** User profile management, changeable display names, and optional LDAP/OAuth authentication.

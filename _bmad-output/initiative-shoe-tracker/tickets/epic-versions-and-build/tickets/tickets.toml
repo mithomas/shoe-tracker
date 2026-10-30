@@ -76,3 +76,14 @@ covers = ["R42"]
 after = [1, 2, 3, 4, 5, 6]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Sync Repository README.md to Docker Hub Repository Overview in CI/CD"
+description = "Adds a 'Sync README.md to Docker Hub overview' step using peter-evans/dockerhub-description@v5 to the release job in .github/workflows/ci.yml guarded by DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets, and asserts the configuration in DevOpsAssetTest.kt."
+verify = ".github/workflows/ci.yml includes peter-evans/dockerhub-description@v5 syncing ./README.md to ${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker with enable-url-completion: true, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R38", "R39"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

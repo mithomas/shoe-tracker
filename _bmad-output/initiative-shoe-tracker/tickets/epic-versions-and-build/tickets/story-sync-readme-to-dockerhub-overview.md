@@ -1,11 +1,12 @@
 ---
+id: 8
 type: story
 title: "Sync Repository README.md to Docker Hub Repository Overview in CI/CD"
-parent: ""
-covers: []
+parent: "epic-versions-and-build"
+covers: ["R38", "R39"]
 sources: []
 companions: []
-after: []
+after: [1, 2, 3, 4]
 refined: true
 hitl: false
 risk: low
@@ -15,14 +16,14 @@ risk: low
 
 ## Description
 
-Adds an automated step to the `release` job in `.github/workflows/ci.yml` (e.g., via `peter-evans/dockerhub-description@v4`) that synchronizes `README.md` (and a concise short description) to the Docker Hub repository overview for `${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker` whenever the container image is published to Docker Hub, so the Docker Hub page always reflects current documentation, environment variables, and usage instructions.
+Adds an automated step (`peter-evans/dockerhub-description@v5`) to the `release` job in `.github/workflows/ci.yml` that synchronizes `README.md` (and a concise short description) to the Docker Hub repository overview for `${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker` whenever the container image is published to Docker Hub, so the Docker Hub page always reflects current documentation, environment variables, and usage instructions.
 
 ## Requirements
 
 1. **Automated Docker Hub Overview Synchronization in CI/CD**
    **Given** the `release` job in `.github/workflows/ci.yml` runs on a `push` to `main` or `v*` tag and `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets are configured
    **When** the container image build and push step succeeds
-   **Then** a workflow step updates the Docker Hub repository overview (`full_description`) for `${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker` from `README.md`
+   **Then** a workflow step (`peter-evans/dockerhub-description@v5`) updates the Docker Hub repository overview for `${{ secrets.DOCKERHUB_USERNAME }}/shoe-tracker` from `./README.md` with `enable-url-completion: true`
 
 2. **Graceful Secret Guard Matching Existing Release Steps**
    **Given** `DOCKERHUB_USERNAME` or `DOCKERHUB_TOKEN` is empty (such as in forks or unconfigured environments)
@@ -32,7 +33,7 @@ Adds an automated step to the `release` job in `.github/workflows/ci.yml` (e.g.,
 3. **Asset Test Verification**
    **Given** `DevOpsAssetTest.kt` verifies `.github/workflows/ci.yml`
    **When** `./gradlew check test spotlessCheck lintJs` is executed
-   **Then** `DevOpsAssetTest.kt` asserts that `.github/workflows/ci.yml` includes the Docker Hub README synchronization step
+   **Then** `DevOpsAssetTest.kt` asserts that `.github/workflows/ci.yml` includes the Docker Hub README synchronization step (`peter-evans/dockerhub-description@v5`)
 
 ## Boundaries
 
@@ -40,9 +41,9 @@ Adds an automated step to the `release` job in `.github/workflows/ci.yml` (e.g.,
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-versions-and-build/epic-versions-and-build.md, section Requirements
 - workflow - .github/workflows/ci.yml
 
 ## Notes
 
-- Decision: 2026-10-30: Use `peter-evans/dockerhub-description@v4` (Node 20/24 compatible) or equivalent Docker Hub API step in `.github/workflows/ci.yml` after `Build and push container image`.
+- Decision: 2026-10-30: Use `peter-evans/dockerhub-description@v5` (Node 24) in `.github/workflows/ci.yml` after `Build and push container image`.
