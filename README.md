@@ -199,6 +199,7 @@ All endpoints are versioned under `/api/v1`:
 
 ## Roadmap & Backlog
 
+- **iOS Modal Button Geometry Fix:** Enforce strict 1:1 circular `210px` dimensions on the `"Shoe Spotted!"` confirmation modal button in iOS WebKit browsers (Safari and Brave on iPhone).
 - **HUD & Map Navigation Controls:** Compact `+`/`-` zoom buttons inside the HUD mini-map and optional manual and automatic GPS bearing map rotation across both maps.
 - **Real-Time Live Map:** Stream newly spotted shoes to connected clients via Server-Sent Events (SSE).
 - **Dedicated Accounts:** User profile management, changeable display names, and optional LDAP/OAuth authentication.
