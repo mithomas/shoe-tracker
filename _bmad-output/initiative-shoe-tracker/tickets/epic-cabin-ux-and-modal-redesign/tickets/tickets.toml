@@ -40,7 +40,7 @@ title = "Keep Smartphone Screen Awake via Screen Wake Lock API"
 description = "Adds a dedicated /js/wakelock.js module (loaded in index.html) managing navigator.wakeLock.request('screen') on initial page load, re-acquiring on document visibilitychange to 'visible', registering a one-time pointerdown/click fallback if initial load requires a user gesture, and failing silently when unsupported or rejected, and updates FrontendAssetTest.kt."
 verify = "/js/wakelock.js is loaded in index.html and requests navigator.wakeLock.request('screen') on load, on visibilitychange === 'visible', and on one-time pointerdown/click fallback with silent error handling, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R46"]
-after = [1, 2, 3, 7]
+after = [1, 2, 3, 7, 8]
 hitl = false
 risk = "low"
 
@@ -51,7 +51,7 @@ title = "Remove 'HUD Radar' Badge from HUD Mini-Map"
 description = "Removes the #miniMapBadge ('HUD Radar' / 'HUD-Radar') element from index.html, the .mini-map-badge rule from css/style.css, and the spot.hudRadar translation keys from js/i18n.js while preserving #miniMapNoGpsOverlay, and updates FrontendAssetTest.kt."
 verify = "index.html, css/style.css, and js/i18n.js contain no #miniMapBadge, .mini-map-badge, or spot.hudRadar references while preserving #miniMapNoGpsOverlay, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R47"]
-after = [1, 2, 3, 4, 7]
+after = [1, 2, 3, 4, 7, 8]
 hitl = false
 risk = "low"
 
@@ -62,7 +62,7 @@ title = "Remove 'No Shoes Yet' Empty Banner from Map View"
 description = "Removes the floating #fullMapEmpty and #fullMapEmptyOwn overlay banners and display toggling logic from index.html, js/fullmap.js, and js/i18n.js (map.empty and map.emptyOwn) while preserving #listEmptyCard and #listEmptyOwnCard in the List view, and updates FrontendAssetTest.kt."
 verify = "index.html, js/fullmap.js, and js/i18n.js contain no #fullMapEmpty, #fullMapEmptyOwn, map.empty, or map.emptyOwn references while preserving #listEmptyCard and #listEmptyOwnCard, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R48"]
-after = [1, 2, 3, 4, 5, 7]
+after = [1, 2, 3, 4, 5, 7, 8]
 hitl = false
 risk = "low"
 
@@ -74,5 +74,16 @@ description = "Replaces the shoe icon (👟) inside #btnSightingAwesome .icon in
 verify = "#btnSightingAwesome renders <span class=\"icon\">😊</span> in index.html while #btnSpotGiant keeps <span class=\"icon\">👟</span>, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R43"]
 after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Increase Vertical Spacing Above and Below Sighting Modal Accept Button"
+description = "Increases vertical spacing above and below .modal-accept-area (margin: 24px 0 28px 0) in css/style.css so the 210px circular #btnSightingAwesome button, its 226px SVG auto-close progress ring, and its ambient glow have generous breathing room from .modal-subtitle above and #sightingModalDetails below, and updates FrontendAssetTest.kt."
+verify = ".modal-accept-area in css/style.css provides increased top and bottom vertical spacing (margin: 24px 0 28px 0), and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R43", "R44"]
+after = [1, 2, 3, 7]
 hitl = false
 risk = "low"
