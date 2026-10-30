@@ -8,6 +8,7 @@
 
   const DEFAULT_MOCK_LAT = 50.110924;
   const DEFAULT_MOCK_LON = 8.682127;
+  const DECIMAL_COORD_PATTERN = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
 
   class GeolocationWatcher {
     constructor() {
@@ -21,6 +22,30 @@
       this.isStationaryMock = false;
       this.mockLat = DEFAULT_MOCK_LAT;
       this.mockLon = DEFAULT_MOCK_LON;
+    }
+
+    getPersistedMockFlag() {
+      try {
+        return localStorage.getItem('mockGps') === 'true';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    setPersistedMockFlag() {
+      try {
+        localStorage.setItem('mockGps', 'true');
+      } catch (e) {
+        // Ignore storage errors in restricted browsing contexts
+      }
+    }
+
+    clearPersistedMockFlag() {
+      try {
+        localStorage.removeItem('mockGps');
+      } catch (e) {
+        // Ignore storage errors in restricted browsing contexts
+      }
     }
 
     isValidCoordinatePair(lat, lon) {
@@ -43,6 +68,7 @@
       const latStr = parts[0].trim();
       const lonStr = parts[1].trim();
       if (latStr === '' || lonStr === '') return null;
+      if (!DECIMAL_COORD_PATTERN.test(latStr) || !DECIMAL_COORD_PATTERN.test(lonStr)) return null;
       const lat = Number(latStr);
       const lon = Number(lonStr);
       if (!this.isValidCoordinatePair(lat, lon)) return null;
@@ -59,7 +85,7 @@
           if (normalizedParam === 'false') {
             this.isMock = false;
             this.isStationaryMock = false;
-            localStorage.removeItem('mockGps');
+            this.clearPersistedMockFlag();
             this.stop();
             this.latestPosition = null;
           } else {
@@ -71,11 +97,11 @@
             }
             return;
           }
-        } else if (localStorage.getItem('mockGps') === 'true') {
+        } else if (this.getPersistedMockFlag()) {
           this.enableMockMode();
           return;
         }
-      } else if (localStorage.getItem('mockGps') === 'true') {
+      } else if (this.getPersistedMockFlag()) {
         this.enableMockMode();
         return;
       }
@@ -92,6 +118,11 @@
         maximumAge: 5000,
         timeout: 10000
       };
+
+      if (this.watchId !== null) {
+        navigator.geolocation.clearWatch(this.watchId);
+        this.watchId = null;
+      }
 
       try {
         this.watchId = navigator.geolocation.watchPosition(
@@ -125,7 +156,7 @@
         this.isStationaryMock = false;
         this.mockLat = DEFAULT_MOCK_LAT;
         this.mockLon = DEFAULT_MOCK_LON;
-        localStorage.setItem('mockGps', 'true');
+        this.setPersistedMockFlag();
       }
 
       this.latestPosition = {
@@ -158,7 +189,7 @@
     disableMockMode() {
       this.isMock = false;
       this.isStationaryMock = false;
-      localStorage.removeItem('mockGps');
+      this.clearPersistedMockFlag();
       this.stop();
       this.latestPosition = null;
       this.start(true);

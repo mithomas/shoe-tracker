@@ -1154,6 +1154,10 @@ class FrontendAssetTest {
         assertThat(geoJs)
             .contains("const DEFAULT_MOCK_LAT = 50.110924;")
             .contains("const DEFAULT_MOCK_LON = 8.682127;")
+            .contains("const DECIMAL_COORD_PATTERN = /^[+-]?(?:\\d+\\.?\\d*|\\.\\d+)$/;")
+            .contains("getPersistedMockFlag()")
+            .contains("setPersistedMockFlag()")
+            .contains("clearPersistedMockFlag()")
             .contains("isValidCoordinatePair(lat, lon)")
             .contains("Number.isFinite(lat)")
             .contains("Number.isFinite(lon)")
@@ -1163,7 +1167,11 @@ class FrontendAssetTest {
             .contains("lon <= 180")
             .contains("parseMockCoordinates(raw)")
             .contains("raw.split(',')")
+            .contains("if (parts.length !== 2) return null;")
+            .contains("if (latStr === '' || lonStr === '') return null;")
+            .contains("if (!DECIMAL_COORD_PATTERN.test(latStr) || !DECIMAL_COORD_PATTERN.test(lonStr)) return null;")
             .contains("if (normalizedParam === 'false')")
+            .contains("this.clearPersistedMockFlag();")
             .contains("localStorage.removeItem('mockGps');")
             .contains("const customCoords = this.parseMockCoordinates(mockParam);")
             .contains("this.enableMockMode(customCoords.latitude, customCoords.longitude);")
@@ -1182,6 +1190,7 @@ class FrontendAssetTest {
             .contains("this.isStationaryMock = true;")
             .contains("this.mockLat = lat;")
             .contains("this.mockLon = lon;")
+            .doesNotContain("setPersistedMockFlag")
             .doesNotContain("localStorage.setItem")
 
         val defaultBranch =
@@ -1192,6 +1201,6 @@ class FrontendAssetTest {
             .contains("this.isStationaryMock = false;")
             .contains("this.mockLat = DEFAULT_MOCK_LAT;")
             .contains("this.mockLon = DEFAULT_MOCK_LON;")
-            .contains("localStorage.setItem('mockGps', 'true');")
+            .contains("this.setPersistedMockFlag();")
     }
 }

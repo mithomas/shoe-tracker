@@ -1,6 +1,6 @@
 ---
 ticket: '1'
-status: 'built'
+status: 'done'
 ---
 
 # Plan: Extend Mock GPS Mode with Optional Custom Coordinate Parameters (Story 9.1)

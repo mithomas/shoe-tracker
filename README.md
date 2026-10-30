@@ -106,6 +106,17 @@ docker build -f src/main/docker/Dockerfile.native -t shoe-tracker:native .
 ./gradlew test
 ```
 
+### Simulated GPS Mode (Testing without Location Services)
+
+When developing or testing locally on a desktop or device where browser/OS location services are unavailable or blocked, you can use the built-in simulated GPS mode via the `mockGps` URL query parameter:
+
+- **Moving Highway Simulation (`?mockGps=true`):**
+  Open [http://localhost:8080/?mockGps=true](http://localhost:8080/?mockGps=true) to simulate driving south along the A5 near Frankfurt (`50.110924, 8.682127`), advancing roughly 100 meters every 5 seconds. This mode is persisted in `localStorage` across page reloads.
+- **Stationary Custom Coordinates (`?mockGps=<lat>,<lon>`):**
+  Open `http://localhost:8080/?mockGps=<lat>,<lon>` (for example, [http://localhost:8080/?mockGps=48.1351,11.5820](http://localhost:8080/?mockGps=48.1351,11.5820)) with valid WGS84 coordinates (`lat` in `[-90, 90]`, `lon` in `[-180, 180]`) to lock simulated GPS onto that exact stationary position without drift and without persisting to `localStorage`.
+- **Exit Simulated GPS Mode (`?mockGps=false`):**
+  Open [http://localhost:8080/?mockGps=false](http://localhost:8080/?mockGps=false) to clear any persisted `localStorage` mock GPS state and return to standard browser `navigator.geolocation` tracking.
+
 ### Manual Testing with cURL
 ```bash
 # 1. Record a sighting
@@ -189,7 +200,6 @@ All endpoints are versioned under `/api/v1`:
 ## Roadmap & Backlog
 
 - **HUD & Map Navigation Controls:** Compact `+`/`-` zoom buttons inside the HUD mini-map and optional manual and automatic GPS bearing map rotation across both maps.
-- **Simulated GPS Testing & Docs:** Custom starting coordinate URL parameters for `?mockGps` simulation mode and local testing documentation in the README.
 - **Real-Time Live Map:** Stream newly spotted shoes to connected clients via Server-Sent Events (SSE).
 - **Dedicated Accounts:** User profile management, changeable display names, and optional LDAP/OAuth authentication.
 - **Shoe Classification & Offline Queue:** Metadata tagging for shoe types/colors and local queuing for network dead zones on remote highways.

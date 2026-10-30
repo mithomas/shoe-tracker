@@ -24,6 +24,7 @@ Documents the built-in mock GPS simulation mode (`?mockGps=true`, static custom 
    **Given** `README.md` contains Quickstart and manual testing instructions
    **When** a developer or user reviews `README.md` for local testing without live GPS hardware or OS location permissions
    **Then** `README.md` documents how to activate simulated moving highway GPS via `?mockGps=true`, how to supply non-persisted static coordinates via `?mockGps=<lat>,<lon>`, and how to exit persisted mock mode via `?mockGps=false`
+   **And** the completed `"Simulated GPS Testing & Docs"` item is removed from `## Roadmap & Backlog` in `README.md`
 
 ## Boundaries
 
