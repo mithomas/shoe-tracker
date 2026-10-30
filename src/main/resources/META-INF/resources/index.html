@@ -227,9 +227,10 @@
   <script src="/js/fullmap.js"></script>
   <script src="/js/listview.js"></script>
   <script src="/js/filter.js"></script>
+  <script src="/js/wakelock.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const { themeManager, i18n, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager } = window.ShoeTracker;
+      const { themeManager, i18n, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, wakeLockManager } = window.ShoeTracker;
 
       const gpsPill = document.getElementById('gpsPill');
       const gpsPillLabel = document.getElementById('gpsPillLabel');
@@ -259,6 +260,7 @@
       filterManager.init();
       fullMap.init();
       listView.init();
+      if (wakeLockManager) wakeLockManager.init();
 
       window.addEventListener('lang-changed', () => {
         updateGpsPillText(currentGpsStatus);

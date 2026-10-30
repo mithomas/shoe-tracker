@@ -1071,4 +1071,40 @@ class FrontendAssetTest {
         assertThat(contrastWithWhite(0xC2, 0x41, 0x0C)).isGreaterThanOrEqualTo(4.5)
         assertThat(contrastWithWhite(0x9A, 0x34, 0x12)).isGreaterThanOrEqualTo(4.5)
     }
+
+    @Test
+    fun testScreenWakeLockModuleServedAndWired() {
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(html)
+            .contains("<script src=\"/js/wakelock.js\"></script>")
+            .contains("wakeLockManager")
+            .contains("if (wakeLockManager) wakeLockManager.init();")
+
+        val wakeLockJs =
+            given()
+                .`when`()
+                .get("/js/wakelock.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(wakeLockJs)
+            .contains("navigator.wakeLock.request('screen')")
+            .contains("visibilitychange")
+            .contains("document.visibilityState === 'visible'")
+            .contains("pointerdown")
+            .contains("click")
+            .contains("registerGestureFallback")
+            .contains("removeGestureFallback")
+            .contains("window.ShoeTracker.wakeLockManager = new WakeLockManager()")
+    }
 }
