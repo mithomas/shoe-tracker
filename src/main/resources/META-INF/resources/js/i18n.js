@@ -19,7 +19,6 @@
       'spot.noGps': 'No GPS',
       'spot.recent': 'Recent Sightings',
       'spot.refresh': 'Refresh',
-      'spot.hudBadge': 'HUD Radar',
       'spot.noGpsOverlay': '⚠️ No GPS',
       'banner.gpsTitle': '⚠️ Location Access Required:',
       'banner.gpsBody':
@@ -80,7 +79,6 @@
       'spot.noGps': 'Kein GPS',
       'spot.recent': 'Letzte Sichtungen',
       'spot.refresh': 'Aktualisieren',
-      'spot.hudBadge': 'HUD-Radar',
       'spot.noGpsOverlay': '⚠️ Kein GPS',
       'banner.gpsTitle': '⚠️ Standortzugriff erforderlich:',
       'banner.gpsBody':
