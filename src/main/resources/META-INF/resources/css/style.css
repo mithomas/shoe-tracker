@@ -509,6 +509,26 @@ pre {
   margin: 0 0 14px 0;
 }
 
+.modal-autoclose-ring {
+  position: absolute;
+  inset: -8px;
+  width: 226px;
+  height: 226px;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.modal-autoclose-ring-bg {
+  stroke: var(--border-subtle);
+  opacity: 0.45;
+}
+
+.modal-autoclose-ring-progress {
+  stroke: var(--action-primary);
+  stroke-linecap: round;
+}
+
 .modal-card-centered .modal-detail-box {
   text-align: left;
   padding: 10px 12px;

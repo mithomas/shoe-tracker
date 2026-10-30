@@ -168,6 +168,10 @@
       <p class="modal-subtitle" data-i18n="modal.subtitle">Your sighting has been logged to the highway registry.</p>
       <div class="modal-accept-area">
         <div class="btn-spot-container">
+          <svg class="modal-autoclose-ring" viewBox="0 0 226 226" aria-hidden="true">
+            <circle class="modal-autoclose-ring-bg" cx="113" cy="113" r="108" fill="none" stroke-width="5"></circle>
+            <circle id="modalAutoCloseRingProgress" class="modal-autoclose-ring-progress" cx="113" cy="113" r="108" fill="none" stroke-width="5"></circle>
+          </svg>
           <button class="btn-spot-giant btn-modal-accept-giant" id="btnSightingAwesome" type="button">
             <span class="icon">😊</span>
             <span class="label" id="btnSightingAwesomeLabel" data-i18n="modal.awesome">Awesome!</span>
@@ -188,6 +192,7 @@
           <span class="val" id="sightingModalUser">--</span>
         </div>
       </div>
+      <div class="error-msg" id="sightingModalUndoError" style="display:none;"></div>
       <div class="modal-actions modal-actions-stacked">
         <button class="btn-modal-secondary" id="btnSightingViewMap" data-i18n="modal.viewMap">View on Map</button>
         <button class="btn-modal-tertiary" id="btnSightingUndo" data-i18n="modal.undo">Undo</button>

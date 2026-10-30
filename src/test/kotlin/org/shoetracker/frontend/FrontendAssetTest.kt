@@ -981,4 +981,53 @@ class FrontendAssetTest {
             .contains(".modal-accept-area")
             .contains(".modal-actions.modal-actions-stacked")
     }
+
+    @Test
+    fun testSightingConfirmationModalAutoCloseTimerAndOutline() {
+        val html =
+            given()
+                .`when`()
+                .get("/")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(html)
+            .contains("class=\"modal-autoclose-ring\"")
+            .contains("id=\"modalAutoCloseRingProgress\"")
+            .contains("id=\"sightingModalUndoError\"")
+
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains(".modal-autoclose-ring")
+            .contains(".modal-autoclose-ring-bg")
+            .contains(".modal-autoclose-ring-progress")
+
+        val modalJs =
+            given()
+                .`when`()
+                .get("/js/modal.js")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(modalJs)
+            .contains("autoCloseDurationMs = 20000")
+            .contains("startAutoCloseTimer")
+            .contains("clearAutoCloseTimer")
+            .contains("modalAutoCloseRingProgress")
+            .contains("stroke-dashoffset")
+            .contains("`-${'$'}{this.circumference}`")
+            .contains("showUndoError")
+    }
 }
