@@ -20,6 +20,7 @@
       this.isUndoing = false;
       this.autoCloseDurationMs = 20000;
       this.autoCloseTimer = null;
+      this.autoCloseRafId = null;
       this.circumference = 2 * Math.PI * 108;
     }
 
@@ -63,18 +64,38 @@
     startAutoCloseTimer() {
       this.clearAutoCloseTimer();
 
-      if (this.ringProgressEl) {
-        this.ringProgressEl.style.transition = 'none';
-        this.ringProgressEl.style.strokeDashoffset = '0';
-        void this.ringProgressEl.getBoundingClientRect();
-        this.ringProgressEl.style.transition = `stroke-dashoffset ${this.autoCloseDurationMs}ms linear`;
-        this.ringProgressEl.style.strokeDashoffset = `-${this.circumference}`;
-      }
-
       this.autoCloseTimer = setTimeout(() => {
         this.autoCloseTimer = null;
         this.hide();
       }, this.autoCloseDurationMs);
+
+      if (this.ringProgressEl) {
+        this.ringProgressEl.style.transition = 'none';
+        this.ringProgressEl.style.strokeDashoffset = '0';
+        this.ringProgressEl.setAttribute('stroke-dashoffset', '0');
+
+        if (typeof window.requestAnimationFrame === 'function') {
+          const startMs = Date.now();
+          const step = () => {
+            if (!this.ringProgressEl || this.autoCloseTimer === null) return;
+            const elapsed = Date.now() - startMs;
+            const progress = Math.min(1, Math.max(0, elapsed / this.autoCloseDurationMs));
+            const offset = progress >= 1 ? `-${this.circumference}` : `-${progress * this.circumference}`;
+            this.ringProgressEl.style.strokeDashoffset = offset;
+            this.ringProgressEl.setAttribute('stroke-dashoffset', offset);
+            if (progress < 1) {
+              this.autoCloseRafId = window.requestAnimationFrame(step);
+            } else {
+              this.autoCloseRafId = null;
+            }
+          };
+          this.autoCloseRafId = window.requestAnimationFrame(step);
+        } else {
+          void this.ringProgressEl.getBoundingClientRect();
+          this.ringProgressEl.style.transition = `stroke-dashoffset ${this.autoCloseDurationMs}ms linear`;
+          this.ringProgressEl.style.strokeDashoffset = `-${this.circumference}`;
+        }
+      }
     }
 
     clearAutoCloseTimer() {
@@ -82,9 +103,14 @@
         clearTimeout(this.autoCloseTimer);
         this.autoCloseTimer = null;
       }
+      if (this.autoCloseRafId !== null && typeof window.cancelAnimationFrame === 'function') {
+        window.cancelAnimationFrame(this.autoCloseRafId);
+        this.autoCloseRafId = null;
+      }
       if (this.ringProgressEl) {
         this.ringProgressEl.style.transition = 'none';
         this.ringProgressEl.style.strokeDashoffset = '0';
+        this.ringProgressEl.setAttribute('stroke-dashoffset', '0');
       }
     }
 

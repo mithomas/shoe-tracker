@@ -1026,8 +1026,13 @@ class FrontendAssetTest {
                 .asString()
 
         assertThat(html)
-            .contains("<svg class=\"modal-autoclose-ring\" viewBox=\"0 0 226 226\" width=\"226\" height=\"226\" aria-hidden=\"true\">")
-            .contains("id=\"modalAutoCloseRingProgress\"")
+            .contains("/css/style.css?v=8.10")
+            .contains("/js/modal.js?v=8.10")
+            .contains(
+                "<svg class=\"modal-autoclose-ring\" viewBox=\"0 0 226 226\" width=\"226\" height=\"226\" aria-hidden=\"true\" " +
+                    "style=\"position:absolute; top:-8px; left:-8px; width:226px; height:226px; transform:rotate(-90deg); pointer-events:none; z-index:3;\">",
+            ).contains("id=\"modalAutoCloseRingProgress\"")
+            .contains("stroke=\"#F97316\"")
             .contains("id=\"sightingModalUndoError\"")
 
         val css =
@@ -1036,6 +1041,7 @@ class FrontendAssetTest {
                 .get("/css/style.css")
                 .then()
                 .statusCode(200)
+                .header("Cache-Control", "no-cache, must-revalidate")
                 .extract()
                 .asString()
 
@@ -1050,6 +1056,7 @@ class FrontendAssetTest {
                 .get("/js/modal.js")
                 .then()
                 .statusCode(200)
+                .header("Cache-Control", "no-cache, must-revalidate")
                 .extract()
                 .asString()
 
@@ -1058,6 +1065,8 @@ class FrontendAssetTest {
             .contains("isUndoing = false")
             .contains("startAutoCloseTimer")
             .contains("clearAutoCloseTimer")
+            .contains("requestAnimationFrame")
+            .contains("cancelAnimationFrame")
             .contains("modalAutoCloseRingProgress")
             .contains("stroke-dashoffset")
             .contains("`-${'$'}{this.circumference}`")
@@ -1123,7 +1132,7 @@ class FrontendAssetTest {
                 .asString()
 
         assertThat(html)
-            .contains("<script src=\"/js/wakelock.js\"></script>")
+            .contains("<script src=\"/js/wakelock.js?v=8.10\"></script>")
             .contains("wakeLockManager")
             .contains("if (wakeLockManager) wakeLockManager.init();")
 

@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=8.10">
 </head>
 <body>
   <div class="app-wrapper">
@@ -160,12 +160,12 @@
       <h2 class="modal-title" data-i18n="modal.title">👟 Shoe Spotted!</h2>
       <p class="modal-subtitle" data-i18n="modal.subtitle">Your sighting has been logged to the highway registry.</p>
       <div class="modal-accept-area">
-        <div class="btn-spot-container">
-          <svg class="modal-autoclose-ring" viewBox="0 0 226 226" width="226" height="226" aria-hidden="true">
-            <circle class="modal-autoclose-ring-bg" cx="113" cy="113" r="108" fill="none" stroke-width="5"></circle>
-            <circle id="modalAutoCloseRingProgress" class="modal-autoclose-ring-progress" cx="113" cy="113" r="108" fill="none" stroke-width="5"></circle>
+        <div class="btn-spot-container" style="position:relative; width:210px; height:210px; min-width:210px; min-height:210px; flex:0 0 210px; display:block;">
+          <svg class="modal-autoclose-ring" viewBox="0 0 226 226" width="226" height="226" aria-hidden="true" style="position:absolute; top:-8px; left:-8px; width:226px; height:226px; transform:rotate(-90deg); pointer-events:none; z-index:3;">
+            <circle class="modal-autoclose-ring-bg" cx="113" cy="113" r="108" fill="none" stroke="#475569" stroke-opacity="0.65" stroke-width="6"></circle>
+            <circle id="modalAutoCloseRingProgress" class="modal-autoclose-ring-progress" cx="113" cy="113" r="108" fill="none" stroke="#F97316" stroke-width="6" stroke-linecap="round" stroke-dasharray="678.584 678.584" stroke-dashoffset="0"></circle>
           </svg>
-          <button class="btn-spot-giant btn-modal-accept-giant" id="btnSightingAwesome" type="button">
+          <button class="btn-spot-giant btn-modal-accept-giant" id="btnSightingAwesome" type="button" style="width:210px; height:210px; min-width:210px; max-width:210px; min-height:210px; max-height:210px; border-radius:50%; padding:0; box-sizing:border-box;">
             <span class="icon">😊</span>
             <span class="label" id="btnSightingAwesomeLabel" data-i18n="modal.awesome">Awesome!</span>
           </button>
@@ -208,19 +208,19 @@
   </div>
 
   <script src="/vendor/leaflet/leaflet.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/i18n.js"></script>
-  <script src="/js/format.js"></script>
-  <script src="/js/geo.js"></script>
-  <script src="/js/onboarding.js"></script>
-  <script src="/js/modal.js"></script>
-  <script src="/js/spot.js"></script>
-  <script src="/js/tabs.js"></script>
-  <script src="/js/minimap.js"></script>
-  <script src="/js/fullmap.js"></script>
-  <script src="/js/listview.js"></script>
-  <script src="/js/filter.js"></script>
-  <script src="/js/wakelock.js"></script>
+  <script src="/js/theme.js?v=8.10"></script>
+  <script src="/js/i18n.js?v=8.10"></script>
+  <script src="/js/format.js?v=8.10"></script>
+  <script src="/js/geo.js?v=8.10"></script>
+  <script src="/js/onboarding.js?v=8.10"></script>
+  <script src="/js/modal.js?v=8.10"></script>
+  <script src="/js/spot.js?v=8.10"></script>
+  <script src="/js/tabs.js?v=8.10"></script>
+  <script src="/js/minimap.js?v=8.10"></script>
+  <script src="/js/fullmap.js?v=8.10"></script>
+  <script src="/js/listview.js?v=8.10"></script>
+  <script src="/js/filter.js?v=8.10"></script>
+  <script src="/js/wakelock.js?v=8.10"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const { themeManager, i18n, geoWatcher, onboarding, modal, spotManager, tabManager, miniMap, fullMap, listView, filterManager, wakeLockManager } = window.ShoeTracker;

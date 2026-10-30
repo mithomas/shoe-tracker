@@ -311,9 +311,7 @@ body {
   min-height: 210px;
   flex: 0 0 210px;
   aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
 .btn-spot-giant {

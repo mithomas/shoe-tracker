@@ -27,9 +27,11 @@ context: []
 
 ## Implementation Notes
 
-Selected `oneshot` route because the fix touches `css/style.css`, `index.html`, and `FrontendAssetTest.kt` with localized styling and attribute updates.
-- Updated `.btn-spot-container`, `.btn-spot-giant`, and `.modal-autoclose-ring` in `src/main/resources/META-INF/resources/css/style.css`.
-- Added explicit `width="226" height="226"` attributes to `<svg class="modal-autoclose-ring">` in `src/main/resources/META-INF/resources/index.html`.
+Selected `oneshot` route because the fix touches `css/style.css`, `index.html`, `js/modal.js`, `application.properties`, and `FrontendAssetTest.kt` with localized styling, cache-busting, and timer updates.
+- Updated `.btn-spot-container` (`display: block`), `.btn-spot-giant`, and `.modal-autoclose-ring` in `src/main/resources/META-INF/resources/css/style.css`.
+- Added inline `style` and SVG presentation attributes (`stroke="#F97316"`, `stroke-width="6"`, `position:absolute`) on `<svg class="modal-autoclose-ring">` and `<button id="btnSightingAwesome">`, plus `?v=8.10` cache-busting query strings on `/css/style.css` and `/js/*.js` in `src/main/resources/META-INF/resources/index.html`.
+- Updated `startAutoCloseTimer()` and `clearAutoCloseTimer()` in `src/main/resources/META-INF/resources/js/modal.js` to animate `stroke-dashoffset` via `requestAnimationFrame` so iOS WebKit renders the 20s countdown smoothly when `#sightingModal` becomes visible.
+- Configured `Cache-Control: no-cache, must-revalidate` in `src/main/resources/application.properties`.
 - Added regression assertions in `src/test/kotlin/org/shoetracker/frontend/FrontendAssetTest.kt`.
 
 ## Plan Change Log
