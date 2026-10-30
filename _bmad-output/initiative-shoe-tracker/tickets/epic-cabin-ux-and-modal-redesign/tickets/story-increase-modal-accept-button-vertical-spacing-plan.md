@@ -21,17 +21,18 @@ context: []
 
 **Problem:** The `210px` circular accept button (`#btnSightingAwesome`), its `226px` SVG progress ring (`.modal-autoclose-ring`), and its outer glow inside `.modal-accept-area` have tight vertical spacing (`margin: 0 0 14px 0`) between `.modal-subtitle` above and `#sightingModalDetails` below.
 
-**Approach:** Update `.modal-accept-area` in `src/main/resources/META-INF/resources/css/style.css` to `margin: 24px 0 28px 0;` and verify in `src/test/kotlin/org/shoetracker/frontend/FrontendAssetTest.kt`.
+**Approach:** Update `.modal-accept-area` in `src/main/resources/META-INF/resources/css/style.css` to `margin: 48px 0 56px 0;` and verify in `src/test/kotlin/org/shoetracker/frontend/FrontendAssetTest.kt`.
 
 </frozen-after-approval>
 
 ## Implementation Notes
 
 Selected `oneshot` route because the change updates 2 files (`css/style.css` and `FrontendAssetTest.kt`) with under 20 lines modified.
-- Updated `.modal-accept-area` in `src/main/resources/META-INF/resources/css/style.css` from `margin: 0 0 14px 0;` to `margin: 24px 0 28px 0;`.
-- Updated `testSightingConfirmationModalCircularAcceptButtonLayout()` in `src/test/kotlin/org/shoetracker/frontend/FrontendAssetTest.kt` to assert `margin: 24px 0 28px 0;`.
+- Updated `.modal-accept-area` in `src/main/resources/META-INF/resources/css/style.css` to `margin: 48px 0 56px 0;` (doubled from `24px 0 28px 0`).
+- Updated `testSightingConfirmationModalCircularAcceptButtonLayout()` in `src/test/kotlin/org/shoetracker/frontend/FrontendAssetTest.kt` to assert `margin: 48px 0 56px 0;`.
 
 ## Plan Change Log
+- 2026-10-30: Doubled `.modal-accept-area` vertical spacing from `margin: 24px 0 28px 0;` to `margin: 48px 0 56px 0;` per user request.
 
 ## Review Triage Log
 

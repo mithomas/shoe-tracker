@@ -23,7 +23,7 @@ Increases the vertical spacing (margin/padding) above and below the giant `210px
 1. **Generous Vertical Clearance Above and Below `.modal-accept-area`**
    **Given** the Sighting Confirmation Modal (`#sightingModal`) is open
    **When** the `210px` circular `#btnSightingAwesome` button and its `226px` `.modal-autoclose-ring` SVG progress outline are rendered inside `.modal-accept-area`
-   **Then** `.modal-accept-area` provides increased top and bottom vertical spacing (`margin: 24px 0 28px 0`) so neither the SVG ring nor the button's ambient glow crowds `.modal-subtitle` above or `#sightingModalDetails` below
+   **Then** `.modal-accept-area` provides increased top and bottom vertical spacing (`margin: 48px 0 56px 0`) so neither the SVG ring nor the button's ambient glow crowds `.modal-subtitle` above or `#sightingModalDetails` below
 
 2. **Scrollable Modal Card Resilience on Compact Viewports**
    **Given** the increased vertical spacing around `.modal-accept-area`
@@ -41,4 +41,4 @@ Increases the vertical spacing (margin/padding) above and below the giant `210px
 
 ## Notes
 
-- Decision: 2026-10-30: Increases vertical spacing above and below `.modal-accept-area` (`margin: 24px 0 28px 0`) in `css/style.css` so the `210px` accept button and its `226px` progress ring have clear visual separation from the subtitle and details box.
+- Decision: 2026-10-30: Increases vertical spacing above and below `.modal-accept-area` (`margin: 48px 0 56px 0`, doubled from `24px 0 28px 0`) in `css/style.css` so the `210px` accept button and its `226px` progress ring have clear visual separation from the subtitle and details box.
