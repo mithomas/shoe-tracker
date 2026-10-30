@@ -98,3 +98,14 @@ covers = ["R48"]
 after = [1, 2, 3, 4, 5, 6, 7, 8]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 10
+type = "bug"
+title = "Fix Distorted Elliptical Center Button in Sighting Modal on iOS Safari and Brave"
+description = "Enforces strict 1:1 circular 210px x 210px non-shrinking flex geometry (min/max-width: 210px, min/max-height: 210px, flex: 0 0 210px, aspect-ratio: 1 / 1, padding: 0, -webkit-appearance: none) on .btn-spot-container and .btn-spot-giant in css/style.css plus explicit width/height attributes on .modal-autoclose-ring in index.html so #btnSightingAwesome renders as a true circle on iOS Safari and Brave, and updates FrontendAssetTest.kt."
+verify = ".btn-spot-container and .btn-spot-giant enforce 210px x 210px non-shrinking circular flex rules in css/style.css, .modal-autoclose-ring includes width=\"226\" height=\"226\" in index.html, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R43", "R44"]
+after = [1, 2, 3, 7, 8]
+hitl = false
+risk = "low"

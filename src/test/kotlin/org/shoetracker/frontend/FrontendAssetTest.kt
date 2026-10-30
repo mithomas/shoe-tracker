@@ -1004,6 +1004,14 @@ class FrontendAssetTest {
             .contains(".modal-accept-area")
             .contains("margin: 48px 0 56px 0;")
             .contains(".modal-actions.modal-actions-stacked")
+            .contains("flex: 0 0 210px;")
+            .contains("aspect-ratio: 1 / 1;")
+            .contains("min-width: 210px;")
+            .contains("max-width: 210px;")
+            .contains("min-height: 210px;")
+            .contains("max-height: 210px;")
+            .contains("-webkit-appearance: none;")
+            .contains("appearance: none;")
     }
 
     @Test
@@ -1018,7 +1026,7 @@ class FrontendAssetTest {
                 .asString()
 
         assertThat(html)
-            .contains("class=\"modal-autoclose-ring\"")
+            .contains("<svg class=\"modal-autoclose-ring\" viewBox=\"0 0 226 226\" width=\"226\" height=\"226\" aria-hidden=\"true\">")
             .contains("id=\"modalAutoCloseRingProgress\"")
             .contains("id=\"sightingModalUndoError\"")
 

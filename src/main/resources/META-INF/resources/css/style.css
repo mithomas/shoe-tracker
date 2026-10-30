@@ -307,6 +307,10 @@ body {
   position: relative;
   width: 210px;
   height: 210px;
+  min-width: 210px;
+  min-height: 210px;
+  flex: 0 0 210px;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -315,6 +319,16 @@ body {
 .btn-spot-giant {
   width: 210px;
   height: 210px;
+  min-width: 210px;
+  max-width: 210px;
+  min-height: 210px;
+  max-height: 210px;
+  flex: 0 0 210px;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
   border-radius: 50%;
   background: var(--spot-btn-gradient);
   border: none;
@@ -513,6 +527,8 @@ pre {
 
 .modal-autoclose-ring {
   position: absolute;
+  top: -8px;
+  left: -8px;
   inset: -8px;
   width: 226px;
   height: 226px;
