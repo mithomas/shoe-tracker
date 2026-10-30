@@ -191,6 +191,7 @@ All endpoints are versioned under `/api/v1`:
 - **Sighting Confirmation Modal Redesign:** Full-size 210px circular accept button aligned with the main Spot button, paired with a 20-second auto-close timer ring and sighting details stacked below.
 - **Cabin Ergonomics & Wake Lock:** Toned-down Spot button brightness/glow for night driving and Screen Wake Lock API support to prevent smartphones from entering standby.
 - **HUD & Map Navigation Controls:** Compact `+`/`-` zoom buttons inside the HUD mini-map, optional manual and automatic GPS bearing map rotation across both maps, and removal of clutter overlays (`HUD Radar` badge and empty-map banners).
+- **Simulated GPS Testing & Docs:** Custom starting coordinate URL parameters for `?mockGps` simulation mode and local testing documentation in the README.
 - **Real-Time Live Map:** Stream newly spotted shoes to connected clients via Server-Sent Events (SSE).
 - **Dedicated Accounts:** User profile management, changeable display names, and optional LDAP/OAuth authentication.
 - **Shoe Classification & Offline Queue:** Metadata tagging for shoe types/colors and local queuing for network dead zones on remote highways.
