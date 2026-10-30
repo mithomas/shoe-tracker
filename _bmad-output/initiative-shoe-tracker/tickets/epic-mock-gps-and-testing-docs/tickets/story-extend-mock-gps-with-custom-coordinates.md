@@ -1,8 +1,9 @@
 ---
+id: 1
 type: story
 title: "Extend Mock GPS Mode with Optional Custom Coordinate Parameters"
-parent: ""
-covers: []
+parent: "epic-mock-gps-and-testing-docs"
+covers: ["R49"]
 sources: []
 companions: []
 after: []
@@ -41,7 +42,7 @@ Extends the built-in simulated GPS mode so developers and testers can supply opt
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-mock-gps-and-testing-docs/epic-mock-gps-and-testing-docs.md, section Requirements
 
 ## Notes
 

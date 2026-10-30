@@ -8,6 +8,7 @@ companions: ["_bmad-output/initiative-shoe-tracker/architecture-shoe-tracker/arc
 after: ["epic-architecture-resilience"]
 refined: true
 risk: medium
+status: "done"
 ---
 
 # Database Modernization & GraalVM Native Image

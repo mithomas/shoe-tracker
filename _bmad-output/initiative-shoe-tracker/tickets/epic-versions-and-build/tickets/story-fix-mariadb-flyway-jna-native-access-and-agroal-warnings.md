@@ -7,6 +7,7 @@ covers: [R42]
 after: [1, 2, 3, 4, 5, 6]
 hitl: false
 risk: low
+status: "done"
 ---
 
 # Fix MariaDB 11.8 Flyway Support, JDK 25 JNA Native Access Warning, and Agroal Exception Sorter for MultiTargetJdbcDriver

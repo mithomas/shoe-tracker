@@ -1,11 +1,12 @@
 ---
+id: 5
 type: story
 title: "Remove 'HUD Radar' Badge from HUD Mini-Map"
-parent: ""
-covers: []
+parent: "epic-cabin-ux-and-modal-redesign"
+covers: ["R47"]
 sources: []
 companions: []
-after: []
+after: [1, 2, 3, 4]
 refined: true
 hitl: false
 risk: low
@@ -36,5 +37,5 @@ Removes the floating `"HUD Radar"` / `"HUD-Radar"` text badge from the top-left 
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-cabin-ux-and-modal-redesign/epic-cabin-ux-and-modal-redesign.md, section Requirements
 - design - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/DESIGN.md

@@ -54,3 +54,19 @@ title = "Build Toolchain Modernization, CI/CD Upgrades & UI Polish"
 description = "Upgrades Gradle toolchain, Kotlin bytecode target, and CI to JDK 25; migrates GitHub Actions to v5 (Node 24); streamlines Docker Hub container builds to linux/amd64 without QEMU overhead; updates Docker Hub image references to mithomas/shoe-tracker; updates GPS unavailable overlay/labels to No GPS / Kein GPS; and fixes MariaDB 11.8 Flyway support, JDK 25 JNA native access warnings, and Agroal exception sorter configuration for db-kind=other."
 covers = ["R36", "R37", "R38", "R39", "R40", "R41", "R42"]
 after = [{ epic = "epic-database-modernization", needs = "Modernized build and CI asset test suite" }]
+
+[[epic]]
+id = 8
+slug = "epic-cabin-ux-and-modal-redesign"
+title = "Cabin Ergonomics, Map Decluttering & Sighting Modal Redesign"
+description = "Redesigns the Sighting Confirmation Modal with a full-size 210px circular accept button aligned with the Spot button and a 20-second auto-close progress outline ring, tones down Spot button brightness/glow for night driving, keeps smartphone screens awake via the Screen Wake Lock API, and removes the 'HUD Radar' mini-map badge and full-map empty-state overlay banners."
+covers = ["R43", "R44", "R45", "R46", "R47", "R48"]
+after = []
+
+[[epic]]
+id = 9
+slug = "epic-mock-gps-and-testing-docs"
+title = "Simulated GPS Custom Coordinates & Testing Documentation"
+description = "Extends mock GPS mode in geo.js to accept stationary, non-persisted custom coordinates via ?mockGps=<lat>,<lon> and cleanly exit persisted mock mode via ?mockGps=false, and documents mock GPS local testing in README.md."
+covers = ["R49", "R50"]
+after = []

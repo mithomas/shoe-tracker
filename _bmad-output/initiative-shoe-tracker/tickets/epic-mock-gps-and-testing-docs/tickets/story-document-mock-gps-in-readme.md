@@ -1,12 +1,12 @@
 ---
+id: 2
 type: story
 title: "Document Mock GPS Simulation Mode in README"
-parent: ""
-covers: []
+parent: "epic-mock-gps-and-testing-docs"
+covers: ["R50"]
 sources: []
 companions: []
-after:
-  - "backlog/story-extend-mock-gps-with-custom-coordinates"
+after: [1]
 refined: true
 hitl: false
 risk: low
@@ -31,4 +31,4 @@ Documents the built-in mock GPS simulation mode (`?mockGps=true`, static custom 
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-mock-gps-and-testing-docs/epic-mock-gps-and-testing-docs.md, section Requirements

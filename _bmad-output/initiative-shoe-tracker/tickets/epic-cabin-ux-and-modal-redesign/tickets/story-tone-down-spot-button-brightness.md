@@ -1,11 +1,12 @@
 ---
+id: 3
 type: story
 title: "Tone Down Spot Button Brightness and Glow"
-parent: ""
-covers: []
+parent: "epic-cabin-ux-and-modal-redesign"
+covers: ["R45"]
 sources: []
 companions: []
-after: []
+after: [1, 2]
 refined: true
 hitl: false
 risk: low
@@ -35,5 +36,5 @@ Reduces the luminance and outer glow intensity of the giant 210px Spot button so
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-cabin-ux-and-modal-redesign/epic-cabin-ux-and-modal-redesign.md, section Requirements
 - design - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/DESIGN.md

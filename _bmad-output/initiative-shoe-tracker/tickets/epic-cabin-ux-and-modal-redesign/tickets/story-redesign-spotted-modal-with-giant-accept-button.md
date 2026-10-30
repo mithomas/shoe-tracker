@@ -1,8 +1,9 @@
 ---
+id: 1
 type: story
 title: "Redesign Sighting Confirmation Modal with Full-Size Circular Accept Button"
-parent: ""
-covers: []
+parent: "epic-cabin-ux-and-modal-redesign"
+covers: ["R43"]
 sources: []
 companions: []
 after: []
@@ -41,7 +42,7 @@ Redesigns the Sighting Confirmation Modal (`#sightingModal`) so the primary acce
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-cabin-ux-and-modal-redesign/epic-cabin-ux-and-modal-redesign.md, section Requirements
 - design - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/DESIGN.md
 - design - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/EXPERIENCE.md
 

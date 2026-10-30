@@ -1,11 +1,12 @@
 ---
+id: 4
 type: story
 title: "Keep Smartphone Screen Awake via Screen Wake Lock API"
-parent: ""
-covers: []
+parent: "epic-cabin-ux-and-modal-redesign"
+covers: ["R46"]
 sources: []
 companions: []
-after: []
+after: [1, 2, 3]
 refined: true
 hitl: false
 risk: low
@@ -40,7 +41,7 @@ Prevents smartphones from dimming the display or entering standby while the Shoe
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-cabin-ux-and-modal-redesign/epic-cabin-ux-and-modal-redesign.md, section Requirements
 - design - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/EXPERIENCE.md
 
 ## Notes

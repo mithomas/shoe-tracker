@@ -8,6 +8,7 @@ companions: ["_bmad-output/initiative-shoe-tracker/ux-shoe-tracker/DESIGN.md", "
 after: ["epic-views-and-map"]
 refined: true
 risk: low
+status: "done"
 ---
 
 # Spotting UX Polish & German Localization

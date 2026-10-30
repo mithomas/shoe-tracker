@@ -1,0 +1,23 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Extend Mock GPS Mode with Optional Custom Coordinate Parameters"
+description = "Extends GeolocationWatcher in js/geo.js to parse compact ?mockGps=<lat>,<lon> URL parameters (validating finite lat in [-90, 90] and lon in [-180, 180]), keep custom coordinates stationary without simulated movement and without persisting to localStorage, support optional (lat, lon) arguments on enableMockMode(lat, lon), clear persisted mock state on ?mockGps=false, and adds verification tests in FrontendAssetTest.kt."
+verify = "js/geo.js supports stationary non-persisted ?mockGps=<lat>,<lon>, moving persisted ?mockGps=true fallback, and ?mockGps=false reset, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R49"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Document Mock GPS Simulation Mode in README"
+description = "Documents the built-in mock GPS simulation mode (?mockGps=true moving highway simulation, ?mockGps=<lat>,<lon> stationary non-persisted custom coordinates, and ?mockGps=false reset) in README.md under local development/testing instructions, and adds assertions in DevOpsAssetTest.kt."
+verify = "README.md documents ?mockGps=true, ?mockGps=<lat>,<lon>, and ?mockGps=false, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R50"]
+after = [1]
+hitl = false
+risk = "low"

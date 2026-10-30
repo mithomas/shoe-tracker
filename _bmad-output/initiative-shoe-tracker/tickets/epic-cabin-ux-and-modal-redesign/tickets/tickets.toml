@@ -1,0 +1,67 @@
+# In an epic's tickets/ folder: one table per planned story, spike, or bug
+
+[[entry]]
+id = 1
+type = "story"
+title = "Redesign Sighting Confirmation Modal with Full-Size Circular Accept Button"
+description = "Redesigns #sightingModal in index.html and css/style.css so the primary accept button (#btnSightingAwesome, 'Awesome!' / 'Super!') renders as a 210px circular button matching the size, shape, and vertical alignment of #btnSpotGiant, with the captured sighting details box (Time, Location, Spotted By) and secondary action buttons (#btnSightingViewMap and #btnSightingUndo) stacked below it, and updates FrontendAssetTest.kt."
+verify = "#sightingModal renders #btnSightingAwesome as a 210px circular accept button positioned above the sighting details box and secondary View on Map / Undo buttons, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R43"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Add 20-Second Auto-Close Timer with Progress Outline to Sighting Confirmation Modal Accept Button"
+description = "Adds a 20-second automatic dismissal timer to #sightingModal in modal.js paired with an animated progress outline/ring around the circular #btnSightingAwesome button in index.html and css/style.css that auto-closes the modal after 20 seconds and immediately cancels/resets when the user taps Awesome!, View on Map, Undo, or opens a new sighting modal, and updates FrontendAssetTest.kt."
+verify = "Opening #sightingModal starts a 20-second countdown and animated outline ring around #btnSightingAwesome that auto-closes on completion and clears cleanly on manual action or re-open, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R44"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Tone Down Spot Button Brightness and Glow"
+description = "Updates .btn-spot-giant ready-state styling in css/style.css to use a warmer, toned-down orange/amber gradient and reduced outer box-shadow glow intensity for comfortable night driving while preserving WCAG AA contrast (>= 4.5:1) and clear distinction from muted waiting/no-gps states, and updates FrontendAssetTest.kt."
+verify = ".btn-spot-giant uses toned-down ready-state gradient and reduced box-shadow glow in css/style.css while maintaining contrast and disabled-state distinction, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R45"]
+after = [1, 2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Keep Smartphone Screen Awake via Screen Wake Lock API"
+description = "Adds Screen Wake Lock management (navigator.wakeLock.request('screen')) to keep smartphone displays awake while Shoe Tracker is open in the foreground, automatically re-acquiring the wake lock on document visibilitychange to 'visible' and failing silently when unsupported or rejected, and updates FrontendAssetTest.kt."
+verify = "Frontend JS requests navigator.wakeLock.request('screen') on startup/interaction and re-acquires on visibilitychange === 'visible' with silent error fallback, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R46"]
+after = [1, 2, 3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Remove 'HUD Radar' Badge from HUD Mini-Map"
+description = "Removes the #miniMapBadge ('HUD Radar' / 'HUD-Radar') element from index.html, the .mini-map-badge rule from css/style.css, and the spot.hudRadar translation keys from js/i18n.js while preserving #miniMapNoGpsOverlay, and updates FrontendAssetTest.kt."
+verify = "index.html, css/style.css, and js/i18n.js contain no #miniMapBadge, .mini-map-badge, or spot.hudRadar references while preserving #miniMapNoGpsOverlay, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R47"]
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Remove 'No Shoes Yet' Empty Banner from Map View"
+description = "Removes the floating #fullMapEmpty and #fullMapEmptyOwn overlay banners and display toggling logic from index.html, js/fullmap.js, and js/i18n.js (map.empty and map.emptyOwn) while preserving #listEmptyCard and #listEmptyOwnCard in the List view, and updates FrontendAssetTest.kt."
+verify = "index.html, js/fullmap.js, and js/i18n.js contain no #fullMapEmpty, #fullMapEmptyOwn, map.empty, or map.emptyOwn references while preserving #listEmptyCard and #listEmptyOwnCard, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R48"]
+after = [1, 2, 3, 4, 5]
+hitl = false
+risk = "low"

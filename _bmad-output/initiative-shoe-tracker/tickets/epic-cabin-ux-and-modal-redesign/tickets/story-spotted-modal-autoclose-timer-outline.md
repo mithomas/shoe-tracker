@@ -1,11 +1,12 @@
 ---
+id: 2
 type: story
 title: "Add 20-Second Auto-Close Timer with Progress Outline to Sighting Confirmation Modal Accept Button"
-parent: ""
-covers: []
+parent: "epic-cabin-ux-and-modal-redesign"
+covers: ["R44"]
 sources: []
 companions: []
-after: []
+after: [1]
 refined: true
 hitl: false
 risk: low
@@ -40,7 +41,7 @@ Adds a 20-second automatic dismissal timer to the Sighting Confirmation Modal's 
 
 ## References
 
-- parent - _bmad-output/initiative-shoe-tracker/initiative-shoe-tracker.md, section Requirements
+- parent - _bmad-output/initiative-shoe-tracker/tickets/epic-cabin-ux-and-modal-redesign/epic-cabin-ux-and-modal-redesign.md, section Requirements
 - design - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/DESIGN.md
 - design - _bmad-output/initiative-shoe-tracker/ux-shoe-tracker/EXPERIENCE.md
 
