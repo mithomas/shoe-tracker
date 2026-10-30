@@ -87,3 +87,14 @@ covers = ["R43", "R44"]
 after = [1, 2, 3, 7]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Remove Duplicate 'No shoes spotted yet!' Text from Second Line of List View Empty State"
+description = "Removes the duplicate 'No shoes spotted yet!' ('Noch keine Schuhe gemeldet!') prefix from <p data-i18n=\"list.emptyBody\"> in index.html and list.emptyBody in js/i18n.js so the second line of #listEmptyCard reads 'Tap the Spot button to be the first.' ('Tippe auf den Button für die erste Meldung.'), and updates FrontendAssetTest.kt."
+verify = "#listEmptyCard renders <h3 data-i18n=\"list.emptyTitle\">No shoes spotted yet!</h3> followed by <p data-i18n=\"list.emptyBody\">Tap the Spot button to be the first.</p> in index.html and js/i18n.js (EN and DE), and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R48"]
+after = [1, 2, 3, 4, 5, 6, 7, 8]
+hitl = false
+risk = "low"
