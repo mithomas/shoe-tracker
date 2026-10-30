@@ -15,7 +15,7 @@ review_loop_iteration: 0
 context: []
 ---
 
-<frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
+<frozen-after-approval reason="human-owned intent - do not modify unless human renegotiates">
 
 ## Intent
 
@@ -37,7 +37,7 @@ Selected `oneshot` route because the change is a self-contained UI markup and CS
 ## Review Triage Log
 
 - Pass 1 (`quick`): 0 high, 1 medium, 0 low, 0 false, 0 maybe-false.
-  - `src/main/resources/META-INF/resources/css/style.css` (`.modal-sheet.modal-card-centered` vertical spacing on `600px`-high mobile viewports when `.modal-subtitle` wraps to 2 lines) — verdict: `medium`, route: `patch`, action: tightened `.modal-card-centered` padding (`16px`), `.modal-subtitle` bottom margin (`12px`), `.modal-accept-area` bottom margin (`14px`), `.modal-detail-box` padding/margin (`10px 12px` / `12px`), and stacked secondary button padding (`10px 14px`) so total height (`~534px`) fits comfortably inside `calc(100vh - 32px)` (`568px` at `600px` viewport height).
+  - `src/main/resources/META-INF/resources/css/style.css` (`.modal-sheet.modal-card-centered` vertical spacing on `600px`-high mobile viewports when `.modal-subtitle` wraps to 2 lines) - verdict: `medium`, route: `patch`, action: tightened `.modal-card-centered` padding (`16px`), `.modal-subtitle` bottom margin (`12px`), `.modal-accept-area` bottom margin (`14px`), `.modal-detail-box` padding/margin (`10px 12px` / `12px`), and stacked secondary button padding (`10px 14px`) so total height (`~534px`) fits comfortably inside `calc(100vh - 32px)` (`568px` at `600px` viewport height).
 
 ## Verification
 

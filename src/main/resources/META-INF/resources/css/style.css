@@ -628,19 +628,6 @@ pre {
   gap: 8px;
 }
 
-.btn-primary-action {
-  flex: 1 1 auto;
-  padding: 12px 14px;
-  background: var(--action-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
 .btn-modal-secondary {
   flex: 1 1 auto;
   padding: 12px 14px;

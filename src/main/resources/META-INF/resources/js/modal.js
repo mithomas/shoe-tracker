@@ -17,6 +17,7 @@
       this.ringProgressEl = null;
       this.undoErrorEl = null;
       this.currentSighting = null;
+      this.isUndoing = false;
       this.autoCloseDurationMs = 20000;
       this.autoCloseTimer = null;
       this.circumference = 2 * Math.PI * 108;
@@ -110,6 +111,8 @@
     showSighting(sighting) {
       if (!this.modalEl) return;
       this.currentSighting = sighting;
+      this.isUndoing = false;
+      if (this.btnUndo) this.btnUndo.disabled = false;
       this.clearUndoError();
       const { formatLocationMultiline } = window.ShoeTracker;
 
@@ -127,12 +130,15 @@
 
     hide() {
       if (!this.modalEl) return;
+      this.isUndoing = false;
+      if (this.btnUndo) this.btnUndo.disabled = false;
       this.clearAutoCloseTimer();
       this.clearUndoError();
       this.modalEl.classList.remove('active');
     }
 
     async handleUndo() {
+      if (this.isUndoing) return;
       this.clearAutoCloseTimer();
 
       if (!this.currentSighting || !this.currentSighting.id) {
@@ -141,18 +147,27 @@
       }
 
       const id = this.currentSighting.id;
+      this.isUndoing = true;
+      if (this.btnUndo) this.btnUndo.disabled = true;
 
       try {
         const res = await fetch(`/api/v1/sightings/${id}`, { method: 'DELETE' });
         if (res.ok) {
-          this.hide();
+          if (this.currentSighting && this.currentSighting.id === id) {
+            this.hide();
+          }
           window.dispatchEvent(new CustomEvent('sighting-deleted', { detail: id }));
-        } else {
+        } else if (this.currentSighting && this.currentSighting.id === id) {
           this.showUndoError();
         }
       } catch (err) {
         console.error('Error undoing sighting:', err);
-        this.showUndoError();
+        if (this.currentSighting && this.currentSighting.id === id) {
+          this.showUndoError();
+        }
+      } finally {
+        this.isUndoing = false;
+        if (this.btnUndo) this.btnUndo.disabled = false;
       }
     }
   }

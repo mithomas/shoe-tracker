@@ -1047,6 +1047,7 @@ class FrontendAssetTest {
 
         assertThat(modalJs)
             .contains("autoCloseDurationMs = 20000")
+            .contains("isUndoing = false")
             .contains("startAutoCloseTimer")
             .contains("clearAutoCloseTimer")
             .contains("modalAutoCloseRingProgress")
@@ -1071,7 +1072,14 @@ class FrontendAssetTest {
             .contains("--spot-btn-glow: 0 0 18px rgba(194, 65, 12, 0.25);")
             .contains("background: var(--spot-btn-gradient);")
             .contains("box-shadow: var(--spot-btn-glow);")
+            .contains(".btn-spot-giant.waiting-gps")
+            .contains(".btn-spot-giant.no-gps")
             .doesNotContain("box-shadow: 0 0 32px rgba(249, 115, 22, 0.45);")
+
+        val lightThemeBlock = css.substringAfter("[data-theme=\"light\"] {").substringBefore("}")
+        assertThat(lightThemeBlock)
+            .doesNotContain("--spot-btn-gradient")
+            .doesNotContain("--spot-btn-glow")
 
         fun srgbChannelToLinear(channel: Int): Double {
             val c = channel / 255.0
@@ -1122,6 +1130,7 @@ class FrontendAssetTest {
 
         assertThat(wakeLockJs)
             .contains("navigator.wakeLock.request('screen')")
+            .contains("requestInFlight")
             .contains("visibilitychange")
             .contains("document.visibilityState === 'visible'")
             .contains("pointerdown")
