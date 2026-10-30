@@ -6,7 +6,7 @@ parent: "epic-cabin-ux-and-modal-redesign"
 covers: ["R47"]
 sources: []
 companions: []
-after: [1, 2, 3, 4]
+after: [1, 2, 3, 4, 7]
 refined: true
 hitl: false
 risk: low

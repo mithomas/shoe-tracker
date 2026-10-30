@@ -18,7 +18,7 @@ title = "Add 20-Second Auto-Close Timer with Progress Outline to Sighting Confir
 description = "Adds a 20-second automatic dismissal timer to #sightingModal in modal.js paired with an SVG circular progress outline ring around the 210px #btnSightingAwesome button perimeter in index.html and css/style.css that drains clockwise (100% -> 0%) over 20 seconds, auto-closes the modal after 20 seconds, immediately cancels/resets when the user taps Awesome!, View on Map, Undo (keeping the modal open if Undo fails), or opens a new sighting modal, and updates FrontendAssetTest.kt."
 verify = "Opening #sightingModal starts a 20-second countdown and clockwise draining SVG outline ring around #btnSightingAwesome that auto-closes on completion and clears cleanly on manual action or re-open, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R44"]
-after = [1]
+after = [1, 7]
 hitl = false
 risk = "low"
 
@@ -29,7 +29,7 @@ title = "Tone Down Spot Button Brightness and Glow"
 description = "Updates .btn-spot-giant (and #btnSightingAwesome) ready-state styling in css/style.css to use a warmer, toned-down orange/amber gradient and reduced outer box-shadow glow intensity applied identically across both Dark and Light themes for comfortable cabin use while preserving WCAG AA contrast (>= 4.5:1) and clear distinction from muted waiting/no-gps states, and updates FrontendAssetTest.kt."
 verify = ".btn-spot-giant and #btnSightingAwesome use the toned-down ready-state orange gradient and reduced box-shadow glow identically in Dark and Light themes while maintaining contrast and disabled-state distinction, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R45"]
-after = [1, 2]
+after = [1, 2, 7]
 hitl = false
 risk = "low"
 
@@ -40,7 +40,7 @@ title = "Keep Smartphone Screen Awake via Screen Wake Lock API"
 description = "Adds a dedicated /js/wakelock.js module (loaded in index.html) managing navigator.wakeLock.request('screen') on initial page load, re-acquiring on document visibilitychange to 'visible', registering a one-time pointerdown/click fallback if initial load requires a user gesture, and failing silently when unsupported or rejected, and updates FrontendAssetTest.kt."
 verify = "/js/wakelock.js is loaded in index.html and requests navigator.wakeLock.request('screen') on load, on visibilitychange === 'visible', and on one-time pointerdown/click fallback with silent error handling, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R46"]
-after = [1, 2, 3]
+after = [1, 2, 3, 7]
 hitl = false
 risk = "low"
 
@@ -51,7 +51,7 @@ title = "Remove 'HUD Radar' Badge from HUD Mini-Map"
 description = "Removes the #miniMapBadge ('HUD Radar' / 'HUD-Radar') element from index.html, the .mini-map-badge rule from css/style.css, and the spot.hudRadar translation keys from js/i18n.js while preserving #miniMapNoGpsOverlay, and updates FrontendAssetTest.kt."
 verify = "index.html, css/style.css, and js/i18n.js contain no #miniMapBadge, .mini-map-badge, or spot.hudRadar references while preserving #miniMapNoGpsOverlay, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R47"]
-after = [1, 2, 3, 4]
+after = [1, 2, 3, 4, 7]
 hitl = false
 risk = "low"
 
@@ -62,6 +62,17 @@ title = "Remove 'No Shoes Yet' Empty Banner from Map View"
 description = "Removes the floating #fullMapEmpty and #fullMapEmptyOwn overlay banners and display toggling logic from index.html, js/fullmap.js, and js/i18n.js (map.empty and map.emptyOwn) while preserving #listEmptyCard and #listEmptyOwnCard in the List view, and updates FrontendAssetTest.kt."
 verify = "index.html, js/fullmap.js, and js/i18n.js contain no #fullMapEmpty, #fullMapEmptyOwn, map.empty, or map.emptyOwn references while preserving #listEmptyCard and #listEmptyOwnCard, and ./gradlew check test spotlessCheck lintJs passes."
 covers = ["R48"]
-after = [1, 2, 3, 4, 5]
+after = [1, 2, 3, 4, 5, 7]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Replace Shoe Icon in Sighting Confirmation Modal Accept Button with Smiley"
+description = "Replaces the shoe icon (👟) inside #btnSightingAwesome .icon in index.html with a smiley icon (😊) above the localized Awesome!/Super! label while keeping the shoe icon on #btnSpotGiant unchanged, and updates FrontendAssetTest.kt."
+verify = "#btnSightingAwesome renders <span class=\"icon\">😊</span> in index.html while #btnSpotGiant keeps <span class=\"icon\">👟</span>, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R43"]
+after = [1]
 hitl = false
 risk = "low"
