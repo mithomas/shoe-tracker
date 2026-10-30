@@ -59,7 +59,7 @@ after = [{ epic = "epic-database-modernization", needs = "Modernized build and C
 id = 8
 slug = "epic-cabin-ux-and-modal-redesign"
 title = "Cabin Ergonomics, Map Decluttering & Sighting Modal Redesign"
-description = "Redesigns the Sighting Confirmation Modal with a full-size 210px circular accept button aligned with the Spot button and a 20-second auto-close progress outline ring, tones down Spot button brightness/glow for night driving, keeps smartphone screens awake via the Screen Wake Lock API, and removes the 'HUD Radar' mini-map badge and full-map empty-state overlay banners."
+description = "Redesigns the Sighting Confirmation Modal as a centered floating card with a full-size 210px circular orange accept button matching the Spot button and a 20-second clockwise draining progress outline ring, tones down orange button brightness/glow across both themes, keeps smartphone screens awake via a dedicated /js/wakelock.js module, and removes the 'HUD Radar' mini-map badge and full-map empty-state overlay banners."
 covers = ["R43", "R44", "R45", "R46", "R47", "R48"]
 after = []
 

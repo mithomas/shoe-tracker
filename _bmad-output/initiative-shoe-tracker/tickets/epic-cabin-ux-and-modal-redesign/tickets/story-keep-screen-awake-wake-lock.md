@@ -16,19 +16,20 @@ risk: low
 
 ## Description
 
-Prevents smartphones from dimming the display or entering standby while the Shoe Tracker web application is open in the foreground so passengers on the Autobahn can log spotted shoes immediately without unlocking their phone.
+Prevents smartphones from dimming the display or entering standby while the Shoe Tracker web application is open in the foreground via a dedicated `/js/wakelock.js` module so passengers on the Autobahn can log spotted shoes immediately without unlocking their phone.
 
 ## Requirements
 
-1. **Screen Wake Lock Acquisition**
+1. **Dedicated `/js/wakelock.js` Screen Wake Lock Acquisition with Gesture Fallback**
    **Given** the user opens Shoe Tracker on a mobile browser supporting `navigator.wakeLock`
-   **When** the page loads or the user interacts with the page
-   **Then** the application requests an active screen wake lock (`navigator.wakeLock.request('screen')`) so the device screen does not dim or go into standby
+   **When** `/js/wakelock.js` initializes on page load
+   **Then** it requests an active screen wake lock (`navigator.wakeLock.request('screen')`) so the device screen does not dim or go into standby
+   **And** registers a one-time `pointerdown`/`click` fallback listener so the wake lock is acquired on the first user interaction if the browser blocks the initial load request before a user gesture
 
 2. **Automatic Re-Acquisition on Visibility Restoration**
    **Given** an active screen wake lock is released by the browser when the user switches tabs or minimizes the browser
    **When** the document becomes visible again (`document.visibilityState === 'visible'`)
-   **Then** the application automatically re-requests the screen wake lock
+   **Then** `/js/wakelock.js` automatically re-requests the screen wake lock
 
 3. **Graceful Fallback on Unsupported Browsers or Battery Saver Mode**
    **Given** `navigator.wakeLock` is unavailable (e.g., insecure HTTP origin or unsupported browser) or the OS rejects the wake lock request (e.g., low-battery mode)
@@ -46,4 +47,4 @@ Prevents smartphones from dimming the display or entering standby while the Shoe
 
 ## Notes
 
-- Decision: 2026-10-30: Wake lock is active automatically whenever the app is visible in the foreground, without requiring a separate settings toggle.
+- Decision: 2026-10-30: Implemented in a dedicated `/js/wakelock.js` module (loaded in `index.html`) that requests the wake lock on load, re-acquires on `visibilitychange` (`'visible'`), and includes a one-time `pointerdown`/`click` fallback if initial load requires a user gesture.

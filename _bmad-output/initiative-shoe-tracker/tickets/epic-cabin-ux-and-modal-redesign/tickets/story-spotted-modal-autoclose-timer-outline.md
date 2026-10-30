@@ -16,28 +16,30 @@ risk: low
 
 ## Description
 
-Adds a 20-second automatic dismissal timer to the Sighting Confirmation Modal's primary accept button, visually indicated by an animated outline/progress ring around the main accept button that automatically accepts and closes the modal when the countdown completes.
+Adds a 20-second automatic dismissal timer to the Sighting Confirmation Modal's primary accept button (`#btnSightingAwesome`), visually indicated by an SVG circular progress outline ring around the `210px` circular button perimeter that drains clockwise (`100% -> 0%`) over 20 seconds and automatically accepts and closes the modal when the countdown completes.
 
 ## Requirements
 
 1. **20-Second Auto-Close Countdown**
    **Given** a shoe sighting is logged and the Sighting Confirmation Modal (`#sightingModal`) opens
-   **When** 20 seconds elapse without user interaction
-   **Then** the modal automatically closes (equivalent to tapping the accept button) and returns the user to the active Spot screen
+   **When** 20 seconds (`20000ms`) elapse without user interaction
+   **Then** the modal automatically closes (equivalent to tapping `#btnSightingAwesome`) and returns the user to the active Spot screen
 
-2. **Animated Outline Progress Indicator Around Accept Button**
+2. **Clockwise Draining SVG Circular Progress Outline Around Accept Button**
    **Given** the Sighting Confirmation Modal is open and the 20-second auto-close timer is running
-   **When** the user views the primary accept button
-   **Then** a visible outline/ring around the main accept button animates smoothly over the 20-second duration to show the remaining time before auto-close
+   **When** the user views the `210px` circular `#btnSightingAwesome` button
+   **Then** an SVG `<circle>` progress ring around the `210px` button perimeter animates smoothly clockwise from `100%` to `0%` over the 20-second duration to show the remaining time before auto-close
 
-3. **Timer Cancellation and Reset on Manual Action or Re-Open**
+3. **Timer Cancellation and Reset on Manual Action, Undo Failure, or Re-Open**
    **Given** the 20-second auto-close timer is active
-   **When** the user manually taps the accept button, `View on Map`, or `Undo` before 20 seconds elapse (or logs a subsequent sighting right after)
-   **Then** the active timer and outline animation are immediately cleared and reset so a stale timer never closes a newly opened modal early
+   **When** the user manually taps `#btnSightingAwesome`, `#btnSightingViewMap`, or `#btnSightingUndo` before 20 seconds elapse (or opens a new sighting modal right after)
+   **Then** the active timer and SVG outline animation are immediately cleared and reset so a stale timer never closes a newly opened modal early
+   **And** if `Undo` fails due to a network error, the modal remains open with the timer cancelled so the error state stays visible
 
 ## Boundaries
 
 - Must not change: Immediate manual dismissal on tapping Accept, immediate deletion on tapping `Undo`, or map navigation on tapping `View on Map`.
+- Must not change: Tapping the dark modal backdrop outside `.modal-sheet` does not dismiss the modal.
 
 ## References
 
@@ -47,4 +49,4 @@ Adds a 20-second automatic dismissal timer to the Sighting Confirmation Modal's 
 
 ## Notes
 
-- Decision: 2026-10-30: Designed to pair with the circular accept button redesign (`story-redesign-spotted-modal-with-giant-accept-button.md`), using an SVG circular stroke or CSS outline ring around the circular button perimeter.
+- Decision: 2026-10-30: Uses an SVG circular progress ring around the `210px` `#btnSightingAwesome` perimeter that drains clockwise (`100% -> 0%`) over 20 seconds, cancelling on any modal button tap and keeping the modal open if `Undo` fails.

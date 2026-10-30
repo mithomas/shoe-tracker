@@ -16,24 +16,25 @@ risk: low
 
 ## Description
 
-Redesigns the Sighting Confirmation Modal (`#sightingModal`) so the primary accept button matches the 210px circular size and form factor of the main Spot button (ideally aligned in the same screen position for effortless single-thumb confirmation), with the captured sighting details and secondary action buttons (`View on Map` and `Undo`) positioned below it.
+Redesigns the Sighting Confirmation Modal (`#sightingModal`) as a centered floating modal card where the primary accept button (`#btnSightingAwesome`, `"Awesome!"` / `"Super!"`) appears first as a 210px circular button matching the size, shape, and orange color palette of the main Spot button (`#btnSpotGiant`), followed below by the captured sighting details and stacked secondary action buttons (`View on Map` and `Undo`).
 
 ## Requirements
 
-1. **Full-Size Circular Primary Accept Button**
-   **Given** the user taps the Spot button and the Sighting Confirmation Modal opens
+1. **Centered Floating Modal Card with 210px Circular Orange Accept Button**
+   **Given** the user taps the Spot button and the Sighting Confirmation Modal (`#sightingModal`) opens
    **When** the modal renders
-   **Then** the primary accept button (`Awesome!` / `Super!`) is rendered as a 210px circular button matching the size and shape of the main Spot button, positioned in the upper/main action area of the modal (ideally aligned with the underlying Spot button position so the user's thumb does not need to move)
+   **Then** `#sightingModal` renders as a centered floating modal card (`align-items: center`, rounded corners on all four sides)
+   **And** the primary accept button (`#btnSightingAwesome`, `"Awesome!"` / `"Super!"`) appears first as a `210px` (`width: 210px; height: 210px; border-radius: 50%`) circular button matching the orange color palette and styling of the main Spot button (`#btnSpotGiant`) so both giant circles look identical
 
-2. **Sighting Details and Secondary Buttons Positioned Below**
+2. **Sighting Details and Stacked Secondary Buttons Positioned Below**
    **Given** the redesigned Sighting Confirmation Modal is open
    **When** the user views the modal layout from top to bottom
-   **Then** the modal header and the giant circular accept button appear first, followed below by the captured sighting metadata box (`Time`, `Location`, `Spotted By`), and finally the secondary action buttons (`View on Map` and `Undo`) at the bottom
+   **Then** the modal header and the giant `210px` circular accept button appear first, followed below by the captured sighting metadata box (`#sightingModalDetails`: `Time`, `Location`, `Spotted By`), and finally the stacked secondary action buttons (`#btnSightingViewMap` and `#btnSightingUndo`) at the bottom
 
 3. **Responsive Viewport Fit**
    **Given** a standard mobile viewport (`height >= 600px`, `max-width: 480px`)
    **When** the redesigned Sighting Confirmation Modal is displayed
-   **Then** the circular accept button, sighting details, and secondary action buttons fit cleanly within the viewport without clipping or hiding the `Undo` and `View on Map` controls
+   **Then** the centered modal card, circular accept button, sighting details, and stacked secondary action buttons fit cleanly within the viewport without clipping or hiding the `Undo` and `View on Map` controls
 
 ## Boundaries
 
@@ -48,4 +49,5 @@ Redesigns the Sighting Confirmation Modal (`#sightingModal`) so the primary acce
 
 ## Notes
 
-- Decision: 2026-10-30: Aligning the modal container so the 210px accept button sits at the same vertical offset as `#btnSpotGiant` allows a second tap in the exact same spot to dismiss the modal immediately.
+- Decision: 2026-10-30: `#sightingModal` uses a centered floating modal card layout with the `210px` circular `#btnSightingAwesome` button first, `#sightingModalDetails` below it, and stacked `#btnSightingViewMap` and `#btnSightingUndo` buttons at the bottom.
+- Decision: 2026-10-30: `#btnSightingAwesome` matches the Spot button's orange palette so both giant `210px` circular buttons look visually consistent.
