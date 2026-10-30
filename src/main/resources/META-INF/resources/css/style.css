@@ -8,6 +8,8 @@
   --action-primary: #F97316;
   --action-hover: #EA580C;
   --action-cooldown: #475569;
+  --spot-btn-gradient: linear-gradient(135deg, #C2410C 0%, #9A3412 100%);
+  --spot-btn-glow: 0 0 18px rgba(194, 65, 12, 0.25);
   --status-gps-ready: #10B981;
   --status-gps-warn: #F59E0B;
   --status-gps-error: #EF4444;
@@ -314,7 +316,7 @@ body {
   width: 210px;
   height: 210px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  background: var(--spot-btn-gradient);
   border: none;
   color: #FFFFFF;
   display: flex;
@@ -323,7 +325,7 @@ body {
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 0 32px rgba(249, 115, 22, 0.45);
+  box-shadow: var(--spot-btn-glow);
   transition: transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
   user-select: none;
   -webkit-user-select: none;

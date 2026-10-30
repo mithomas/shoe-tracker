@@ -1030,4 +1030,44 @@ class FrontendAssetTest {
             .contains("`-${'$'}{this.circumference}`")
             .contains("showUndoError")
     }
+
+    @Test
+    fun testTonedDownSpotButtonBrightnessAndContrast() {
+        val css =
+            given()
+                .`when`()
+                .get("/css/style.css")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString()
+
+        assertThat(css)
+            .contains("--spot-btn-gradient: linear-gradient(135deg, #C2410C 0%, #9A3412 100%);")
+            .contains("--spot-btn-glow: 0 0 18px rgba(194, 65, 12, 0.25);")
+            .contains("background: var(--spot-btn-gradient);")
+            .contains("box-shadow: var(--spot-btn-glow);")
+            .doesNotContain("box-shadow: 0 0 32px rgba(249, 115, 22, 0.45);")
+
+        fun srgbChannelToLinear(channel: Int): Double {
+            val c = channel / 255.0
+            return if (c <= 0.03928) c / 12.92 else Math.pow((c + 0.055) / 1.055, 2.4)
+        }
+
+        fun relativeLuminance(
+            r: Int,
+            g: Int,
+            b: Int,
+        ): Double = 0.2126 * srgbChannelToLinear(r) + 0.7152 * srgbChannelToLinear(g) + 0.0722 * srgbChannelToLinear(b)
+
+        fun contrastWithWhite(
+            r: Int,
+            g: Int,
+            b: Int,
+        ): Double = (1.0 + 0.05) / (relativeLuminance(r, g, b) + 0.05)
+
+        // Verify both gradient stops (#C2410C and #9A3412) meet WCAG AA (>= 4.5:1) against white text (#FFFFFF)
+        assertThat(contrastWithWhite(0xC2, 0x41, 0x0C)).isGreaterThanOrEqualTo(4.5)
+        assertThat(contrastWithWhite(0x9A, 0x34, 0x12)).isGreaterThanOrEqualTo(4.5)
+    }
 }
