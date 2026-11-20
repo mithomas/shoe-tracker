@@ -60,6 +60,7 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - R48: Full interactive map view (`#viewMap` / `#fullMapContainer`) removes the floating empty-state banners (`#fullMapEmpty` and `#fullMapEmptyOwn` in `index.html`, `fullmap.js`, and `i18n.js`) so the map canvas remains unobstructed when zero sightings exist or match the active `"My Shoes"` filter, while preserving empty-state cards (`#listEmptyCard`, `#listEmptyOwnCard`) in the List view.
 - R49: Simulated GPS mode in `GeolocationWatcher` (`geo.js`) supports compact custom coordinate URL query parameters (`?mockGps=<lat>,<lon>`), validating finite WGS84 bounds (`lat` in `[-90, 90]`, `lon` in `[-180, 180]`), holding the simulated GPS position stationary at those exact coordinates without persisting to `localStorage` (falling back to the default moving Frankfurt A5 simulation on `?mockGps=true` or invalid coordinates), and clearing persisted `localStorage` mock state when `?mockGps=false` is passed.
 - R50: `README.md` documents the `?mockGps` simulation mode under local development and manual testing, covering default moving simulation (`?mockGps=true`), non-persisted stationary custom coordinates (`?mockGps=<lat>,<lon>`), and exiting persisted mock mode (`?mockGps=false`).
+- R51: Container images (`Dockerfile` and `src/main/docker/Dockerfile.jvm`) pin patched Eclipse Temurin 25 builds (`>= 25.0.5.1_2`) to mitigate `CVE-2026-114938` (`Java2Shell`) without disabling Base64 hardware intrinsics (`-XX:-UseBASE64Intrinsics`).
 
 ## Constraints
 
@@ -119,3 +120,4 @@ A smartphone user traveling on the autobahn can record a shoe sighting with a si
 - Decision: 2026-10-28: API versioned in URI path as `/api/v1/sightings`; collection responses wrapped in `{ items, total, limit, offset }`.
 - Decision: 2026-10-28: Offline support, batch uploads, bounding-box queries, real-time SSE streaming, compass heading, LDAP/profile login, and shoe types/colors deferred as future backlog ideas.
 - Decision: 2026-10-28: Views display all sightings with user's own shoes visually distinguished (distinct color on map, distinct styling in list) and provide a toggle to filter out other users' shoes.
+- Decision: 2026-11-20: Mitigate CVE-2026-114938 (Java2Shell) by pinning patched `eclipse-temurin:25.0.5.1_2` base images under `epic-versions-and-build` (`R51` / Story `7.10`) without adding the temporary `-XX:-UseBASE64Intrinsics` workaround flag.

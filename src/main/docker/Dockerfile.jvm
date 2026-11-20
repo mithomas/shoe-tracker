@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:25.0.5.1_2-jre
 
 ENV LANGUAGE='en_US:en' \
     QUARKUS_HTTP_HOST=0.0.0.0 \

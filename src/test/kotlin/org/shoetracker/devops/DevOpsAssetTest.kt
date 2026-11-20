@@ -87,9 +87,18 @@ class DevOpsAssetTest {
 
         val dockerfile = File("Dockerfile")
         assertThat(dockerfile.readText())
+            .contains("FROM eclipse-temurin:25.0.5.1_2-jdk AS build")
+            .contains("FROM eclipse-temurin:25.0.5.1_2-jre")
             .contains("jdbc:h2:file:/data/shoe-tracker;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE")
             .contains("--enable-native-access=ALL-UNNAMED")
+            .doesNotContain("-XX:-UseBASE64Intrinsics")
             .doesNotContain("jdbc:sqlite:")
+
+        val jvmDockerfile = File("src/main/docker/Dockerfile.jvm")
+        assertThat(jvmDockerfile).exists().isFile()
+        assertThat(jvmDockerfile.readText())
+            .contains("FROM eclipse-temurin:25.0.5.1_2-jre")
+            .doesNotContain("-XX:-UseBASE64Intrinsics")
 
         val readme = File("README.md")
         assertThat(readme.readText())
@@ -188,6 +197,7 @@ class DevOpsAssetTest {
             .contains("JvmTarget.JVM_25")
             .contains("io.quarkus:quarkus-flyway-mysql")
             .contains("--enable-native-access=ALL-UNNAMED")
+            .doesNotContain("-XX:-UseBASE64Intrinsics")
             .doesNotContain("VERSION_21")
             .doesNotContain("JVM_21")
             .contains("id(\"com.diffplug.spotless\")")

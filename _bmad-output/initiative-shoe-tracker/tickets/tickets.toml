@@ -51,8 +51,8 @@ after = [{ epic = "epic-architecture-resilience", needs = "Hardened architecture
 id = 7
 slug = "epic-versions-and-build"
 title = "Build Toolchain Modernization, CI/CD Upgrades & UI Polish"
-description = "Upgrades Gradle toolchain, Kotlin bytecode target, and CI to JDK 25; migrates GitHub Actions to v5 (Node 24); streamlines Docker Hub container builds to linux/amd64 without QEMU overhead; updates Docker Hub image references to mithomas/shoe-tracker; updates GPS unavailable overlay/labels to No GPS / Kein GPS; and fixes MariaDB 11.8 Flyway support, JDK 25 JNA native access warnings, and Agroal exception sorter configuration for db-kind=other."
-covers = ["R36", "R37", "R38", "R39", "R40", "R41", "R42"]
+description = "Upgrades Gradle toolchain, Kotlin bytecode target, and CI to JDK 25; migrates GitHub Actions to v5 (Node 24); streamlines Docker Hub container builds to linux/amd64 without QEMU overhead; updates Docker Hub image references to mithomas/shoe-tracker; updates GPS unavailable overlay/labels to No GPS / Kein GPS; fixes MariaDB 11.8 Flyway support, JDK 25 JNA native access warnings, and Agroal exception sorter configuration for db-kind=other; and mitigates CVE-2026-114938 (Java2Shell) via patched Temurin 25.0.5.1_2 container base images."
+covers = ["R36", "R37", "R38", "R39", "R40", "R41", "R42", "R51"]
 after = [{ epic = "epic-database-modernization", needs = "Modernized build and CI asset test suite" }]
 
 [[epic]]

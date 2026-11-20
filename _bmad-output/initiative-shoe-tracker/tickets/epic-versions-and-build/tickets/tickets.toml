@@ -98,3 +98,14 @@ covers = ["R39"]
 after = [4]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Mitigate Java2Shell (CVE-2026-114938) via Patched Temurin 25 Base Images"
+description = "Pins Dockerfile and src/main/docker/Dockerfile.jvm to patched eclipse-temurin:25.0.5.1_2-jdk and eclipse-temurin:25.0.5.1_2-jre images without disabling Base64 hardware intrinsics, and adds regression assertions in DevOpsAssetTest.kt."
+verify = "Dockerfile and src/main/docker/Dockerfile.jvm configure patched Temurin 25.0.5.1_2 images without -XX:-UseBASE64Intrinsics, and ./gradlew check test spotlessCheck lintJs passes."
+covers = ["R51"]
+after = [7]
+hitl = false
+risk = "medium"

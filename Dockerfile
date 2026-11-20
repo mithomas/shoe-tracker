@@ -1,5 +1,5 @@
 # Stage 1: Build Quarkus application using Gradle on JDK 25
-FROM eclipse-temurin:25-jdk AS build
+FROM eclipse-temurin:25.0.5.1_2-jdk AS build
 
 WORKDIR /code
 
@@ -23,7 +23,7 @@ ENV GIT_COMMIT=${GIT_COMMIT}
 RUN ./gradlew build -x test --no-daemon
 
 # Stage 2: Minimal runnable JRE 25 image
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:25.0.5.1_2-jre
 
 ENV LANGUAGE='en_US:en' \
     QUARKUS_HTTP_HOST=0.0.0.0 \

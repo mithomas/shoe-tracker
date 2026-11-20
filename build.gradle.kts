@@ -77,7 +77,7 @@ val generateVersionProperties by tasks.registering {
     doLast {
         val gitHash =
             runCatching {
-                val process = ProcessBuilder("git", "rev-parse", "--short=7", "HEAD").start()
+                val process = ProcessBuilder("git", "rev-parse", "--short=7", "HEAD").directory(projectDir).start()
                 val text =
                     process.inputStream
                         .bufferedReader()
